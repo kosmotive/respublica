@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from world.models import (
     World,
     Movable,

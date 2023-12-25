@@ -104,3 +104,15 @@ class Movable(Positionable):
             if np.sum(u + d) % 2 == 1: d[0] -= 1
         _check_hex_coordinates(u + d)
         return u + d
+
+
+class Sector(Positionable):
+
+    name = models.CharField(max_length = 50, unique = True)
+
+
+class Celestial(models.Model):
+
+    sector   = models.ForeignKey('Sector', on_delete = models.CASCADE)
+    position = models.PositiveSmallIntegerField()
+    features = models.JSONField()
