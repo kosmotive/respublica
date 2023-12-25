@@ -1,0 +1,8 @@
+/venv
+.DS_Store
+*.swp
+/backend/db.sqlite3
+/backend/static-deployed
+/backend/logs
+__pycache__
+*.pyc
