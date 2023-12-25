@@ -4,5 +4,6 @@
 /backend/db.sqlite3
 /backend/static-deployed
 /backend/logs
+/backend/*/migrations
 __pycache__
 *.pyc

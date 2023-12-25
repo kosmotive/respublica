@@ -34,13 +34,10 @@ def _check_hex_coordinates(c):
     assert np.sum(c) % 2 == 0, f'hex coordinates {tuple(c)} are invalid'
 
 
-class Movable(models.Model):
+class Positionable(models.Model):
 
     position_x = models.IntegerField()
     position_y = models.IntegerField()
-
-    destination_x = models.IntegerField(null = True)
-    destination_y = models.IntegerField(null = True)
 
     def set_position(self, position):
         """
@@ -50,6 +47,22 @@ class Movable(models.Model):
 
         self.position_x = position[0]
         self.position_y = position[1]
+
+    @property
+    def position(self):
+        return np.asarray((self.position_x, self.position_y), dtype=int)
+
+
+class Movable(Positionable):
+
+    destination_x = models.IntegerField(null = True)
+    destination_y = models.IntegerField(null = True)
+
+    def set_position(self, position):
+        """
+        Immediately changes the position of this object.
+        """
+        Positionable.set_position(self, position)
 
         if (self.position == self.destination).all():
             self.destination_x = None
@@ -70,10 +83,6 @@ class Movable(models.Model):
     @property
     def speed(self):
         return 1
-
-    @property
-    def position(self):
-        return np.asarray((self.position_x, self.position_y), dtype=int)
 
     @property
     def destination(self):
