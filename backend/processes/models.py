@@ -49,3 +49,25 @@ class MovementHandler(BaseHandler):
             end_tick = start_tick + max((1, int(1 / movable.speed))),
             handler_id = MovementHandler.__qualname__,
             data = dict(movable_id = movable.id))
+
+
+class ConstructionHandler(BaseHandler):
+    """
+    Spawns a Construction when the building process completes.
+    """
+
+    def finish(self, process):
+        from game.models import Construction
+        Construction.objects.create(
+            blueprint = process.data.blueprint,
+            celestial = process.data.celestial)
+
+    @staticmethod
+    def create_process(start_tick, blueprint, celestial):
+        Process.objects.create(
+            start_tick = start_tick,
+            end_tick = start_tick + blueprint.cost,
+            handler_id = ConstructionHandler.__qualname__,
+            data = dict(
+                blueprint = blueprint,
+                celestial = celestial))
