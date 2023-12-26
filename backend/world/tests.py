@@ -3,6 +3,7 @@ from django.test import TestCase
 from world.models import (
     World,
     Movable,
+    hexmap,
 )
 from processes.models import (
     Process,
@@ -67,3 +68,58 @@ class MovableTest(TestCase):
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (-1,1))
         self.assertEqual(len(Process.objects.all()), 0)
+
+
+def order_tuple_list(items):
+    return sorted(items, key = lambda item: str(item))
+
+
+class DistanceSetTest(TestCase):
+
+    def test_explicit(self):
+        D1 = order_tuple_list([
+            ( 0, 0),
+            (-2, 0),
+            (-1, 1),
+            ( 1, 1),
+            ( 2, 0),
+            ( 1,-1),
+            (-1,-1),
+        ])
+        D2 = order_tuple_list(D1 + [
+            (-4, 0),
+            (-3, 1),
+            (-2, 2),
+            ( 0, 2),
+            ( 2, 2),
+            ( 3, 1),
+            ( 4, 0),
+            ( 3,-1),
+            ( 2,-2),
+            ( 0,-2),
+            (-2,-2),
+            (-3,-1),
+        ])
+        D3 = order_tuple_list(D2 + [
+            (-6, 0),
+            (-5, 1),
+            (-4, 2),
+            (-3, 3),
+            (-1, 3),
+            ( 1, 3),
+            ( 3, 3),
+            ( 4, 2),
+            ( 5, 1),
+            ( 6, 0),
+            ( 5,-1),
+            ( 4,-2),
+            ( 3,-3),
+            ( 1,-3),
+            (-1,-3),
+            (-3,-3),
+            (-4,-2),
+            (-5,-1),
+        ])
+        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 1).explicit()), D1)
+        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 2).explicit()), D2)
+        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 3).explicit()), D3)

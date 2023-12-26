@@ -1,6 +1,5 @@
 - type: star
   max_position: 0
-  capacity: 0
 
 - type: planet
   min_position: 1

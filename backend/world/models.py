@@ -1,20 +1,7 @@
-"""
-Implements the hexagon map logics.
-
-We use the following coordinate system:
-https://github.com/stephanh42/hexutil/raw/master/img/hexcoords.png
-
-See for more info: https://github.com/stephanh42/hexutil
-
-This implies the following adjacencies:
-```
-u ~ v  iff  |d.y| ≤ 1  or  |d.x| ≤ 2
-```
-"""
-
 from django.db import models
-
 import numpy as np
+
+from . import hexmap
 
 
 class World(models.Model):
@@ -30,10 +17,6 @@ class World(models.Model):
             process.handler.finish(process)
 
 
-def _check_hex_coordinates(c):
-    assert np.sum(c) % 2 == 0, f'hex coordinates {tuple(c)} are invalid'
-
-
 class Positionable(models.Model):
 
     position_x = models.IntegerField()
@@ -43,7 +26,7 @@ class Positionable(models.Model):
         """
         Immediately changes the position of this object.
         """
-        _check_hex_coordinates(position)
+        hexmap.check_hex_coordinates(position)
 
         self.position_x = position[0]
         self.position_y = position[1]
@@ -71,7 +54,7 @@ class Movable(Positionable):
         self.save()
 
     def move_to(self, world, destination):
-        _check_hex_coordinates(destination)
+        hexmap.check_hex_coordinates(destination)
 
         self.destination_x = destination[0]
         self.destination_y = destination[1]
@@ -95,20 +78,28 @@ class Movable(Positionable):
     def next_position(self):
         u = self.position
         v = np.asarray(self.destination, dtype=int)
-        _check_hex_coordinates(u)
-        _check_hex_coordinates(v)
+        hexmap.check_hex_coordinates(u)
+        hexmap.check_hex_coordinates(v)
         d = v - u
         d = d.clip(-2, +2)
         if abs(d[1]) >= 1:
             d = d.clip(-1, +1)
             if np.sum(u + d) % 2 == 1: d[0] -= 1
-        _check_hex_coordinates(u + d)
+        hexmap.check_hex_coordinates(u + d)
         return u + d
 
 
 class Sector(Positionable):
 
     name = models.CharField(max_length = 50, unique = True)
+
+    def feature(self, feature_name, accumulation='sum'):
+        values = [c.features[feature_name] for c in self.celestial__set.all() if feature_name in c.features]
+        acc_func = eval(accumuluation)
+        return acc_func(values)
+
+    def __str__(self):
+        return f'{name} (x={self.position_x} y={self.position_y}, capacity: {self.feature("capacity")})'
 
 
 class Celestial(models.Model):
