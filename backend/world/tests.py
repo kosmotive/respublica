@@ -153,3 +153,31 @@ class DistanceSetTest(TestCase):
         self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 1).explicit()), D1)
         self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 2).explicit()), D2)
         self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 3).explicit()), D3)
+
+
+class UnionTest(TestCase):
+
+    def setUp(self):
+        self.set1 = hexmap.DistanceSet(( 1, 1), 1)
+        self.set2 = hexmap.DistanceSet((-1,-1), 2)
+
+    def test_explicit(self):
+        make_set  = lambda items: frozenset([tuple(item) for item in items])
+        union_set = hexmap.Union([self.set1, self.set2])
+        actual   = order_tuple_list(union_set.explicit())
+        expected = order_tuple_list(make_set(self.set1.explicit()) | make_set(self.set2.explicit()))
+        self.assertSequenceEqual(actual, expected)
+
+
+class IntersectionTest(TestCase):
+
+    def setUp(self):
+        self.set1 = hexmap.DistanceSet(( 1, 1), 1)
+        self.set2 = hexmap.DistanceSet((-1,-1), 2)
+
+    def test_explicit(self):
+        make_set  = lambda items: frozenset([tuple(item) for item in items])
+        union_set = hexmap.Intersection([self.set1, self.set2])
+        actual   = order_tuple_list(union_set.explicit())
+        expected = order_tuple_list(make_set(self.set1.explicit()) & make_set(self.set2.explicit()))
+        self.assertSequenceEqual(actual, expected)

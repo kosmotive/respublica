@@ -96,38 +96,44 @@ class DistanceSet(HexSet):
 class Union(HexSet):
 
     def __init__(self, sets):
-        self.sets = set
+        self.sets = sets
 
     def bbox(self):
-        x_min, y_min =  np.inf
-        x_max, y_max = -np.inf
-        for s in sets:
+        """
+        Returns the bounding box of the set (union of the bounding boxes).
+        """
+        x_min, y_min = [ np.inf] * 2
+        x_max, y_max = [-np.inf] * 2
+        for s in self.sets:
             bbox = s.bbox()
-            x_min = min((x_min, bbox.x_min))
-            y_min = min((y_min, bbox.y_min))
-            x_max = max((x_max, bbox.x_max))
-            y_max = max((y_max, bbox.y_max))
+            x_min = min((x_min, bbox[0]))
+            y_min = min((y_min, bbox[2]))
+            x_max = max((x_max, bbox[1]))
+            y_max = max((y_max, bbox[3]))
         return x_min, x_max, y_min, y_max
 
     def __contains__(self, point):
-        return any([p in s for s in self.sets])
+        return any([point in s for s in self.sets])
 
 
 class Intersection(HexSet):
 
     def __init__(self, sets):
-        self.sets = set
+        self.sets = sets
 
     def bbox(self):
-        x_min, y_min = -np.inf
-        x_max, y_max =  np.inf
-        for s in sets:
+        """
+        Returns the bounding box of the set (intersection of the bounding boxes).
+        """
+        x_min, y_min = [-np.inf] * 2
+        x_max, y_max = [ np.inf] * 2
+        for s in self.sets:
             bbox = s.bbox()
-            x_min = max((x_min, bbox.x_min))
-            y_min = max((y_min, bbox.y_min))
-            x_max = min((x_max, bbox.x_max))
-            y_max = min((y_max, bbox.y_max))
+            x_min = max((x_min, bbox[0]))
+            y_min = max((y_min, bbox[2]))
+            x_max = min((x_max, bbox[1]))
+            y_max = min((y_max, bbox[3]))
         return x_min, x_max, y_min, y_max
 
     def __contains__(self, point):
-        return all([p in s for s in self.sets])
+        return all([point in s for s in self.sets])
