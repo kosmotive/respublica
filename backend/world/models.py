@@ -122,3 +122,12 @@ class Celestial(models.Model):
     position = models.PositiveSmallIntegerField()
     features = models.JSONField()
     habitated_by = models.ForeignKey('game.Empire', on_delete = models.SET_NULL, null = True, default = None)
+
+    @property
+    def capacity(self):
+        return self.features.get('capacity', 0)
+
+    @property
+    def remaining_capacity(self):
+        occupied_capacity = sum((c.blueprint.size for c in self.construction_set.all()))
+        return self.capacity - occupied_capacity

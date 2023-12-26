@@ -4,3 +4,18 @@ constructions:
     name: Digital Cave
     size: 1
     cost: 3
+
+  shipyard:
+    name: Shipyard
+    size: 1
+    cost: 5
+
+
+ships:
+
+  colony-ship:
+    name: Mothership
+    cost: 12
+    speed: 1
+    requirements:
+      - shipyard

@@ -50,9 +50,22 @@ class Blueprint(models.Model):
 
     @property
     def size(self):
-        return self.base['size']
+        return self.base.get('size', 0)
+
+    @property
+    def requirements(self):
+        return self.base.get('requirements', list())
+
+    def requirements_ok(self, celestial):
+        if celestial.remaining_capacity < self.size:
+            return False
+        for requirement in self.requirements:
+            if celestial.construction_set.filter(blueprint__base_id = requirement).count() == 0:
+                return False
+        return True
 
     def build(self, world, celestial):
+        if not self.requirements_ok(celestial): return False
         from processes.models import ConstructionHandler
         ConstructionHandler.create_process(world.now, self, celestial)
 

@@ -69,10 +69,15 @@ class BlueprintTest(TestCase):
         self.celestial = Celestial.objects.create(
             sector = sector,
             position = 0,
-            features = dict(),
+            features = dict(capacity = 1),
             habitated_by = self.empire)
 
+    def test_requirements(self):
+        self.assertEqual(self.digital_cave_blueprint.requirements, list())
+        self.assertEqual(Blueprint.objects.get(base_id = 'ships/colony-ship').requirements, ['shipyard'])
+
     def test_build(self):
+        self.assertTrue(self.digital_cave_blueprint.requirements_ok(self.celestial))
         self.digital_cave_blueprint.build(self.world, self.celestial)
 
         for _ in range(3):
