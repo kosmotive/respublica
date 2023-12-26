@@ -32,19 +32,16 @@ class Halfspace:
 class DistanceSet:
     """
     Sub-level set of the distance function on the hexagon map (offset by radius).
+
+    Implemented using an implicit representation of the set.
     """
 
     def __init__(self, center, radius):
         self.center = center
         self.radius = radius
 
-    def explicit(self):
-        """
-        Obtains explicit representation.
-        """
-
         # The resulting set is a hexagon, that is a convex polygon (or intersection of halfspaces)
-        halfspaces = [
+        self.halfspaces = [
             Halfspace(normal = (-1, 1), distance = self.radius * 2), ## top-left edge
             Halfspace(normal = ( 0, 1), distance = self.radius),     ## top edge
             Halfspace(normal = ( 1, 1), distance = self.radius * 2), ## top-right edge
@@ -52,11 +49,21 @@ class DistanceSet:
             Halfspace(normal = ( 0,-1), distance = self.radius),     ## bottom edge
             Halfspace(normal = (-1,-1), distance = self.radius * 2), ## bottom-left edge
         ]
-        
+
+    def __contains__(self, point):
+        check_hex_coordinates(point)
+        p = np.subtract(point, self.center)
+        return all([p in H for H in self.halfspaces])
+
+    def explicit(self):
+        """
+        Obtains explicit representation.
+        """
         result = list()
-        for dx in range(-2 * self.radius, 2 * self.radius + 1):
-            for dy in range(-self.radius, self.radius + 1):
-                p = (self.center[0] + dx, self.center[1] + dy)
-                if np.sum(p) % 2 == 0 and all([(dx, dy) in H for H in halfspaces]):
-                    result.append(p)
+        x_min, y_min = self.center[0] - 2 * self.radius, self.center[1] - self.radius
+        x_max, y_max = self.center[0] + 2 * self.radius, self.center[1] + self.radius
+        for q in np.ndindex(x_max - x_min + 1, y_max - y_min + 1):
+            p = np.add((x_min, y_min), q)
+            if np.sum(p) % 2 == 0 and p in self:
+                result.append(p)
         return result

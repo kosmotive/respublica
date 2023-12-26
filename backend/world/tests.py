@@ -71,7 +71,7 @@ class MovableTest(TestCase):
 
 
 def order_tuple_list(items):
-    return sorted(items, key = lambda item: str(item))
+    return sorted([tuple(item) for item in items], key = lambda item: str(item))
 
 
 class DistanceSetTest(TestCase):
