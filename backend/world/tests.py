@@ -9,6 +9,8 @@ from processes.models import (
     Process,
 )
 
+from tools.testtools import order_tuple_list
+
 
 class MovableTest(TestCase):
 
@@ -98,10 +100,6 @@ class MovableTest(TestCase):
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (1,1))
         self.assertEqual(len(Process.objects.all()), 0)
-
-
-def order_tuple_list(items):
-    return sorted([tuple(item) for item in items], key = lambda item: str(item))
 
 
 class DistanceSetTest(TestCase):

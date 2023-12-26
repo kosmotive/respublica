@@ -108,12 +108,12 @@ class Sector(Positionable):
     name = models.CharField(max_length = 50, unique = True)
 
     def feature(self, feature_name, accumulation='sum'):
-        values = [c.features[feature_name] for c in self.celestial__set.all() if feature_name in c.features]
-        acc_func = eval(accumuluation)
+        values = [c.features[feature_name] for c in self.celestial_set.all() if feature_name in c.features]
+        acc_func = eval(accumulation)
         return acc_func(values)
 
     def __str__(self):
-        return f'{name} (x={self.position_x} y={self.position_y}, capacity: {self.feature("capacity")})'
+        return f'{self.name} (x={self.position_x} y={self.position_y}, capacity: {self.feature("capacity")})'
 
 
 class Celestial(models.Model):
