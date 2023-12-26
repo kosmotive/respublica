@@ -38,7 +38,7 @@ class MovementHandler(BaseHandler):
             process.delete()
         else:
             process.start_tick = process.end_tick
-            process.end_tick = process.start_tick + movable.speed
+            process.end_tick = process.start_tick + max((1, int(1 / movable.speed)))
             process.save()
 
     @staticmethod
@@ -46,6 +46,6 @@ class MovementHandler(BaseHandler):
         Process.objects.filter(data__movable_id = movable.id).delete()
         Process.objects.create(
             start_tick = start_tick,
-            end_tick = start_tick + movable.speed,
+            end_tick = start_tick + max((1, int(1 / movable.speed))),
             handler_id = MovementHandler.__qualname__,
             data = dict(movable_id = movable.id))

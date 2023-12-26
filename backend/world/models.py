@@ -1,4 +1,7 @@
+import math
+
 from django.db import models
+from django.db.models import CheckConstraint, Q
 import numpy as np
 
 from . import hexmap
@@ -41,6 +44,15 @@ class Movable(Positionable):
     destination_x = models.IntegerField(null = True)
     destination_y = models.IntegerField(null = True)
 
+    custom_speed = models.FloatField(null = True, default = None)
+
+    class Meta:
+        constraints = [
+                CheckConstraint(
+                    check = Q(custom_speed__isnull=True) | Q(custom_speed__gt=0.0),
+                    name='custom_speed null or negative')
+            ]
+
     def set_position(self, position):
         """
         Immediately changes the position of this object.
@@ -65,7 +77,7 @@ class Movable(Positionable):
 
     @property
     def speed(self):
-        return 1
+        return 1 if self.custom_speed is None else self.custom_speed
 
     @property
     def destination(self):
@@ -77,16 +89,18 @@ class Movable(Positionable):
     @property
     def next_position(self):
         u = self.position
-        v = np.asarray(self.destination, dtype=int)
         hexmap.check_hex_coordinates(u)
-        hexmap.check_hex_coordinates(v)
-        d = v - u
-        d = d.clip(-2, +2)
-        if abs(d[1]) >= 1:
-            d = d.clip(-1, +1)
-            if np.sum(u + d) % 2 == 1: d[0] -= 1
-        hexmap.check_hex_coordinates(u + d)
-        return u + d
+        for _ in range(math.ceil(self.speed)):
+            v = np.asarray(self.destination, dtype=int)
+            hexmap.check_hex_coordinates(v)
+            d = v - u
+            d = d.clip(-2, +2)
+            if abs(d[1]) >= 1:
+                d = d.clip(-1, +1)
+                if np.sum(u + d) % 2 == 1: d[0] -= 1
+            u += d
+            hexmap.check_hex_coordinates(u)
+        return u
 
 
 class Sector(Positionable):

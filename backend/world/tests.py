@@ -22,7 +22,10 @@ class MovableTest(TestCase):
         self.movable.move_to(self.world, (2,2))
         self.assertSequenceEqual(self.movable.next_position.tolist(), (1,1))
 
-    def test_move_to(self):
+    def test_move_to_speed1(self):
+        self.movable.custom_speed = 1
+        self.movable.save()
+
         # Move (0,0) -> (1,1) -> (2,2) 
         self.movable.move_to(self.world, (2,2))
         self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
@@ -67,6 +70,33 @@ class MovableTest(TestCase):
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (-1,1))
+        self.assertEqual(len(Process.objects.all()), 0)
+
+    def test_move_to_speed2(self):
+        self.movable.custom_speed = 2
+        self.movable.save()
+
+        # Move (0,0) -> (2,2) 
+        self.movable.move_to(self.world, (2,2))
+        self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
+        self.world.tick()
+        self.movable.refresh_from_db()
+        self.assertSequenceEqual(self.movable.position.tolist(), (2,2))
+        self.assertEqual(len(Process.objects.all()), 0)
+
+    def test_move_to_speed0(self):
+        self.movable.custom_speed = 0.5
+        self.movable.save()
+
+        # Move (0,0) -> (1,1) 
+        self.movable.move_to(self.world, (1,1))
+        self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
+        self.world.tick()
+        self.movable.refresh_from_db()
+        self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
+        self.world.tick()
+        self.movable.refresh_from_db()
+        self.assertSequenceEqual(self.movable.position.tolist(), (1,1))
         self.assertEqual(len(Process.objects.all()), 0)
 
 
