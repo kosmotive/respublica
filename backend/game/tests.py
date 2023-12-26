@@ -3,6 +3,7 @@ from django.test import TestCase
 from game.models import (
     Empire,
     Blueprint,
+    Construction,
 )
 from world.models import (
     World,
@@ -76,8 +77,14 @@ class BlueprintTest(TestCase):
         self.assertEqual(self.digital_cave_blueprint.requirements, list())
         self.assertEqual(Blueprint.objects.get(base_id = 'ships/colony-ship').requirements, ['shipyard'])
 
-    def test_build(self):
+    def test_requirements_ok(self):
         self.assertTrue(self.digital_cave_blueprint.requirements_ok(self.celestial))
+        self.assertFalse(Blueprint.objects.get(base_id = 'ships/colony-ship').requirements_ok(self.celestial))
+
+        Construction.objects.create(blueprint = self.digital_cave_blueprint, celestial = self.celestial)
+        self.assertFalse(self.digital_cave_blueprint.requirements_ok(self.celestial))
+
+    def test_build(self):
         self.digital_cave_blueprint.build(self.world, self.celestial)
 
         for _ in range(3):
