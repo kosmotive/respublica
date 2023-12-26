@@ -22,6 +22,7 @@ class MovableTest(TestCase):
         self.assertSequenceEqual(self.movable.next_position.tolist(), (1,1))
 
     def test_move_to(self):
+        # Move (0,0) -> (1,1) -> (2,2) 
         self.movable.move_to(self.world, (2,2))
         self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
         self.world.tick()
@@ -32,6 +33,7 @@ class MovableTest(TestCase):
         self.assertSequenceEqual(self.movable.position.tolist(), (2,2))
         self.assertEqual(len(Process.objects.all()), 0)
 
+        # Move (2,2) -> (1,1) or (3,1) -> (2,0) 
         self.movable.move_to(self.world, (2,0))
         self.assertSequenceEqual(self.movable.position.tolist(), (2,2))
         self.world.tick()
@@ -42,9 +44,11 @@ class MovableTest(TestCase):
         self.assertSequenceEqual(self.movable.position.tolist(), (2,0))
         self.assertEqual(len(Process.objects.all()), 0)
 
+        # Don't move 
         self.world.tick()
         self.movable.refresh_from_db()
 
+        # Move (2,0) -> (0,0) -> (-2,0)
         self.movable.move_to(self.world, (-2,0))
         self.assertSequenceEqual(self.movable.position.tolist(), (2,0))
         self.world.tick()
@@ -53,4 +57,13 @@ class MovableTest(TestCase):
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (-2,0))
+        self.assertEqual(len(Process.objects.all()), 0)
+
+        # Order to move to (2,0), but immediately change to (-1,1)
+        self.movable.move_to(self.world, (2,0))
+        self.movable.move_to(self.world, (-1,1))
+        self.assertEqual(len(Process.objects.all()), 1)
+        self.world.tick()
+        self.movable.refresh_from_db()
+        self.assertSequenceEqual(self.movable.position.tolist(), (-1,1))
         self.assertEqual(len(Process.objects.all()), 0)
