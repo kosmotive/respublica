@@ -137,3 +137,25 @@ class Intersection(HexSet):
 
     def __contains__(self, point):
         return all([point in s for s in self.sets])
+
+
+def graph_matrix(hexset):
+    """
+    Computes the adjacency graph matrix corresponding to the set of hex fields.
+
+    :return: Tuple `G`, hex_list` where `G` is the matrix and `hex_list` is the list of nodes corresponding to the rows and columns of the matrix.
+    """
+    hex_list = hexset.explicit()
+    I = {tuple(v): vidx for vidx, v in enumerate(hex_list)}
+    n = len(hex_list)
+    G = np.zeros((n, n), int)
+
+    for i in range(n):
+        u = hex_list[i]
+        for v in Intersection([hexset, DistanceSet(u, 1)]).explicit():
+            j = I[tuple(v)]
+            if j <= i: continue
+            G[i,j] = 1
+
+    G = G + G.T
+    return G, hex_list

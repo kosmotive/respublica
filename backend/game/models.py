@@ -33,6 +33,10 @@ class Empire(models.Model):
                         base_id = f'{bp_type}/{bp_name}',
                         empire = self)
 
+    def compute_territorial_integrity(self):
+        G = hexmap.graph_matrix(self.territory)
+        # TODO: finish  https://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html
+
 
 class Blueprint(models.Model):
 

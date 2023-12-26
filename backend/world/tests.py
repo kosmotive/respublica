@@ -1,4 +1,5 @@
 from django.test import TestCase
+import numpy as np
 
 from world.models import (
     World,
@@ -179,3 +180,42 @@ class IntersectionTest(TestCase):
         actual   = order_tuple_list(union_set.explicit())
         expected = order_tuple_list(make_set(self.set1.explicit()) & make_set(self.set2.explicit()))
         self.assertSequenceEqual(actual, expected)
+
+
+class hexmap_Test(TestCase):
+
+    def setUp(self):
+        self.set = hexmap.DistanceSet((0,0), 1)
+
+    def test_graph_matrix(self):
+        G_actual, hex_list = hexmap.graph_matrix(self.set)
+        n = len(hex_list)
+        I = {tuple(u): uidx for uidx, u in enumerate(hex_list)}
+        G_expected = np.zeros((n, n), int)
+
+        G_expected[I[(-2, 0)], I[(-1, 1)]] = 1
+        G_expected[I[(-2, 0)], I[( 0, 0)]] = 1
+        G_expected[I[(-2, 0)], I[(-1,-1)]] = 1
+
+        G_expected[I[(-1, 1)], I[(-2, 0)]] = 1
+        G_expected[I[(-1, 1)], I[( 0, 0)]] = 1
+        G_expected[I[(-1, 1)], I[( 1, 1)]] = 1
+
+        G_expected[I[( 1, 1)], I[(-1, 1)]] = 1
+        G_expected[I[( 1, 1)], I[( 0, 0)]] = 1
+        G_expected[I[( 1, 1)], I[( 2, 0)]] = 1
+
+        G_expected[I[( 2, 0)], I[( 1, 1)]] = 1
+        G_expected[I[( 2, 0)], I[( 0, 0)]] = 1
+        G_expected[I[( 2, 0)], I[( 1,-1)]] = 1
+
+        G_expected[I[( 1,-1)], I[( 2, 0)]] = 1
+        G_expected[I[( 1,-1)], I[( 0, 0)]] = 1
+        G_expected[I[( 1,-1)], I[(-1,-1)]] = 1
+
+        G_expected[I[(-1,-1)], I[( 1,-1)]] = 1
+        G_expected[I[(-1,-1)], I[( 0, 0)]] = 1
+        G_expected[I[(-1,-1)], I[(-2, 0)]] = 1
+
+        G_expected = (G_expected + G_expected.T).clip(0, 1) ## this is to add the reverse edges to (0,0)
+        self.assertEqual(G_actual.tolist(), G_expected.tolist())
