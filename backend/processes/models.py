@@ -57,10 +57,12 @@ class ConstructionHandler(BaseHandler):
     """
 
     def finish(self, process):
-        from game.models import Construction
+        from world.models import Celestial
+        from game.models import Construction, Blueprint
         Construction.objects.create(
-            blueprint = process.data.blueprint,
-            celestial = process.data.celestial)
+            blueprint = Blueprint.objects.get(id = process.data['blueprint_id']),
+            celestial = Celestial.objects.get(id = process.data['celestial_id']))
+        process.delete()
 
     @staticmethod
     def create_process(start_tick, blueprint, celestial):
@@ -69,5 +71,5 @@ class ConstructionHandler(BaseHandler):
             end_tick = start_tick + blueprint.cost,
             handler_id = ConstructionHandler.__qualname__,
             data = dict(
-                blueprint = blueprint,
-                celestial = celestial))
+                blueprint_id = blueprint.id,
+                celestial_id = celestial.id))

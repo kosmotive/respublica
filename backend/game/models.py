@@ -27,10 +27,11 @@ class Empire(models.Model):
 
         # If the empire is newly created, then also create its base blueprints
         if is_newly_created:
-            for base_id in base_blueprints:
-                Blueprint.objects.create(
-                    base_id = base_id,
-                    empire = self)
+            for bp_type in base_blueprints.keys():
+                for bp_name, bp in base_blueprints[bp_type].items():
+                    Blueprint.objects.create(
+                        base_id = f'{bp_type}/{bp_name}',
+                        empire = self)
 
 
 class Blueprint(models.Model):
@@ -45,14 +46,21 @@ class Blueprint(models.Model):
 
     @property
     def cost(self):
-        return self.base.cost
+        return self.base['cost']
 
     @property
     def size(self):
-        return self.base.size
+        return self.base['size']
+
+    def build(self, world, celestial):
+        from processes.models import ConstructionHandler
+        ConstructionHandler.create_process(world.now, self, celestial)
 
 
 class Construction(models.Model):
 
     blueprint = models.ForeignKey('Blueprint', on_delete = models.PROTECT)
     celestial = models.ForeignKey('world.Celestial', on_delete = models.CASCADE)
+
+    def demolish(self):
+        self.delete()

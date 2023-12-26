@@ -2,11 +2,15 @@ from django.test import TestCase
 
 from game.models import (
     Empire,
+    Blueprint,
 )
 from world.models import (
     World,
     Sector,
     Celestial,
+)
+from processes.models import (
+    Process,
 )
 
 from tools.testtools import order_tuple_list
@@ -52,3 +56,31 @@ class EmpireTest(TestCase):
                 ( 1, 1),
             ])
         self.assertSequenceEqual(actual, expected)
+
+
+class BlueprintTest(TestCase):
+
+    def setUp(self):
+        self.world = World.objects.create()
+        self.empire = Empire.objects.create(name = 'Foos')
+        self.digital_cave_blueprint = Blueprint.objects.get(base_id = 'constructions/digital-cave')
+
+        sector = Sector.objects.create(position_x = 0, position_y = 0, name = 'Bar')
+        self.celestial = Celestial.objects.create(
+            sector = sector,
+            position = 0,
+            features = dict(),
+            habitated_by = self.empire)
+
+    def test_build(self):
+        self.digital_cave_blueprint.build(self.world, self.celestial)
+
+        for _ in range(3):
+            self.assertEqual(len(Process.objects.all()), 1)
+            self.world.tick()
+
+        self.assertEqual(len(Process.objects.all()), 0)
+        self.assertEqual(self.celestial.construction_set.count(), 1)
+
+        digital_cave = self.celestial.construction_set.all()[0]
+        self.assertEqual(digital_cave.blueprint.id, self.digital_cave_blueprint.id)
