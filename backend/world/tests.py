@@ -103,6 +103,25 @@ class MovableTest(TestCase):
         self.assertEqual(len(Process.objects.all()), 0)
 
 
+class HexSetTest(TestCase):
+
+    def test_text(self):
+        set1 = hexmap.DistanceSet(( 1, 1), 1)
+        set2 = hexmap.DistanceSet((-1,-1), 2)
+        union_set = hexmap.Union([set1, set2])
+        actual = union_set.text()
+        expected = \
+"""
+  o o o  
+ o o o o 
+o o o o o
+ o o o o 
+  o o o o
+     o o
+"""
+        self.assertEqual(actual, expected.strip())
+
+
 class DistanceSetTest(TestCase):
 
     def test_explicit(self):

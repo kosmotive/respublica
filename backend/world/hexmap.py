@@ -60,6 +60,25 @@ class HexSet:
                 result.append(p)
         return result
 
+    def toarray(self):
+        """
+        Converts to a numpy array filled with 0 and 1 where there is a hex node.
+        """
+        x_min, x_max, y_min, y_max = self.bbox()
+        out = np.full((y_max - y_min + 1, x_max - x_min + 1), -1, int)
+        for cidx, c in enumerate(self.explicit()):
+            out[c[1] - y_min, c[0] - x_min] = cidx
+        return out
+
+    def text(self):
+        """
+        Obtains a text-based representation.
+        """
+        indexmap = self.toarray()
+        result = np.full(indexmap.shape, ' ', str)
+        result[indexmap >= 0] = 'o'
+        return '\n'.join(''.join(row) for row in result).strip()
+
 
 class DistanceSet(HexSet):
     """
