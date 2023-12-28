@@ -29,8 +29,8 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = MovableSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
-    @action(detail=True, methods=['post'])
-    def move_to(self, request, pk=None):
+    @action(detail = True, methods = ['post'])
+    def move_to(self, request, pk = None):
         movable = self.get_object()
         x = request.data['x']
         y = request.data['y']

@@ -44,7 +44,7 @@ class MovementHandler(BaseHandler):
     @staticmethod
     def create_process(start_tick, movable):
         Process.objects.filter(data__movable_id = movable.id).delete()
-        Process.objects.create(
+        return Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + max((1, int(1 / movable.speed))),
             handler_id = MovementHandler.__qualname__,
@@ -76,7 +76,7 @@ class BuildingHandler(BaseHandler):
 
     @staticmethod
     def create_process(start_tick, blueprint, celestial):
-        Process.objects.create(
+        return Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + blueprint.cost,
             handler_id = BuildingHandler.__qualname__,

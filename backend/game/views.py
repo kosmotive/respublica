@@ -1,6 +1,8 @@
+from django.urls import resolve
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.exceptions import bad_request
 
 from game.serializers import (
     EmpireSerializer,
@@ -28,6 +30,17 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Blueprint.objects.all()
     serializer_class = BlueprintSerializer
     #permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail = True, methods  =['post'])
+    def build(self, request, pk = None):
+        from world.models import Celestial
+        from processes.serializers import ProcessSerializer
+        blueprint = self.get_object()
+        celestial = Celestial.objects.get(id = request.data['celestial'])
+        process = blueprint.build(celestial)
+        assert process is not None
+        serializer = ProcessSerializer(process, context = dict(request = request))
+        return Response(serializer.data)
 
 
 class ConstructionViewSet(viewsets.ReadOnlyModelViewSet):

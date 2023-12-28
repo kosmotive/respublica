@@ -14,25 +14,25 @@ class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'celestial_set', 'movables']
+        fields = ['url', 'id', 'name', 'celestial_set', 'movables']
 
 
 class BlueprintSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Blueprint
-        fields = ['url', 'base_id', 'empire', 'data']
+        fields = ['url', 'id', 'base_id', 'empire', 'data']
 
 
 class ConstructionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Construction
-        fields = ['url', 'blueprint', 'celestial']
+        fields = ['url', 'id', 'blueprint', 'celestial']
 
 
 class ShipSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Ship
-        fields = ['url', 'blueprint', 'movable', 'owner']
+        fields = ['url', 'id', 'blueprint', 'movable', 'owner']
