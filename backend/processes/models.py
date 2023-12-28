@@ -76,6 +76,7 @@ class BuildingHandler(BaseHandler):
 
     @staticmethod
     def create_process(start_tick, blueprint, celestial):
+        Process.objects.filter(data__celestial_id = celestial.id).delete()
         return Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + blueprint.cost,
