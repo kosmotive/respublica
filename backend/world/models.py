@@ -107,7 +107,7 @@ class Movable(Positionable):
 
         self.save()
 
-    def move_to(self, world, destination):
+    def move_to(self, destination):
         hexgrid.check_hex_coordinates(destination)
 
         self.destination_x = destination[0]
@@ -115,7 +115,7 @@ class Movable(Positionable):
         self.save()
 
         from processes.models import MovementHandler
-        MovementHandler.create_process(world.now, self)
+        MovementHandler.create_process(World.objects.get().now, self)
 
     @property
     def speed(self):

@@ -85,7 +85,7 @@ class BlueprintTest(TestCase):
         self.assertFalse(self.digital_cave_blueprint.requirements_ok(self.celestial))
 
     def test_build(self):
-        self.digital_cave_blueprint.build(self.world, self.celestial)
+        self.digital_cave_blueprint.build(self.celestial)
 
         for _ in range(3):
             self.assertEqual(len(Process.objects.all()), 1)
