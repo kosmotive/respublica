@@ -17,9 +17,11 @@ class WorldSerializer(serializers.HyperlinkedModelSerializer):
 
 class MovableSerializer(serializers.HyperlinkedModelSerializer):
 
+    owner = serializers.HyperlinkedRelatedField(view_name = 'empire-detail', read_only = True)
+
     class Meta:
         model  = Movable
-        fields = ['url', 'position', 'destination', 'speed', 'next_position']
+        fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner']
 
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):

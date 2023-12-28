@@ -149,6 +149,11 @@ class Movable(Positionable):
             hexgrid.check_hex_coordinates(u)
         return u
 
+    @property
+    def owner(self):
+        if self.ship_set.count() == 0: return None
+        return self.ship_set.all()[0].owner
+
 
 class Sector(Positionable):
 

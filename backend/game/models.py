@@ -34,6 +34,11 @@ class Empire(models.Model):
                         empire  = self,
                         data    = {key: bp[key] for key in ['cost', 'speed'] if key in bp})
 
+    @property
+    def movables(self):
+        from world.models import Movable
+        return Movable.objects.filter(ship__owner = self).all()
+
 
 class Blueprint(models.Model):
 
