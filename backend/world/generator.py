@@ -36,7 +36,7 @@ def create_sector(used_names, x, y):
 
         compatible_recipes = list()
         for recipe in recipes:
-            if recipe.get('min_position', 0) <= position <= recipe.get('max_position', np.inf):
+            if recipe.get('min-position', 0) <= position <= recipe.get('max-position', np.inf):
                 compatible_recipes.append(recipe)
 
         recipe = random.choice(compatible_recipes)
