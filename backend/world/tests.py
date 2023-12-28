@@ -4,7 +4,7 @@ import numpy as np
 from world.models import (
     World,
     Movable,
-    hexmap,
+    hexgrid,
 )
 from processes.models import (
     Process,
@@ -110,9 +110,9 @@ class MovableTest(TestCase):
 class HexSetTest(TestCase):
 
     def test_text(self):
-        set1 = hexmap.DistanceSet(( 1, 1), 1)
-        set2 = hexmap.DistanceSet((-1,-1), 2)
-        union_set = hexmap.Union([set1, set2])
+        set1 = hexgrid.DistanceSet(( 1, 1), 1)
+        set2 = hexgrid.DistanceSet((-1,-1), 2)
+        union_set = hexgrid.Union([set1, set2])
         actual = union_set.text()
         expected = \
 """
@@ -172,20 +172,20 @@ class DistanceSetTest(TestCase):
             (-4,-2),
             (-5,-1),
         ])
-        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 1).explicit()), D1)
-        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 2).explicit()), D2)
-        self.assertSequenceEqual(order_tuple_list(hexmap.DistanceSet((0,0), 3).explicit()), D3)
+        self.assertSequenceEqual(order_tuple_list(hexgrid.DistanceSet((0,0), 1).explicit()), D1)
+        self.assertSequenceEqual(order_tuple_list(hexgrid.DistanceSet((0,0), 2).explicit()), D2)
+        self.assertSequenceEqual(order_tuple_list(hexgrid.DistanceSet((0,0), 3).explicit()), D3)
 
 
 class UnionTest(TestCase):
 
     def setUp(self):
-        self.set1 = hexmap.DistanceSet(( 1, 1), 1)
-        self.set2 = hexmap.DistanceSet((-1,-1), 2)
+        self.set1 = hexgrid.DistanceSet(( 1, 1), 1)
+        self.set2 = hexgrid.DistanceSet((-1,-1), 2)
 
     def test_explicit(self):
         make_set  = lambda items: frozenset([tuple(item) for item in items])
-        union_set = hexmap.Union([self.set1, self.set2])
+        union_set = hexgrid.Union([self.set1, self.set2])
         actual   = order_tuple_list(union_set.explicit())
         expected = order_tuple_list(make_set(self.set1.explicit()) | make_set(self.set2.explicit()))
         self.assertSequenceEqual(actual, expected)
@@ -194,12 +194,12 @@ class UnionTest(TestCase):
 class IntersectionTest(TestCase):
 
     def setUp(self):
-        self.set1 = hexmap.DistanceSet(( 1, 1), 1)
-        self.set2 = hexmap.DistanceSet((-1,-1), 2)
+        self.set1 = hexgrid.DistanceSet(( 1, 1), 1)
+        self.set2 = hexgrid.DistanceSet((-1,-1), 2)
 
     def test_explicit(self):
         make_set  = lambda items: frozenset([tuple(item) for item in items])
-        union_set = hexmap.Intersection([self.set1, self.set2])
+        union_set = hexgrid.Intersection([self.set1, self.set2])
         actual   = order_tuple_list(union_set.explicit())
         expected = order_tuple_list(make_set(self.set1.explicit()) & make_set(self.set2.explicit()))
         self.assertSequenceEqual(actual, expected)
@@ -208,10 +208,10 @@ class IntersectionTest(TestCase):
 class graph_matrix_Test(TestCase):
 
     def setUp(self):
-        self.set = hexmap.DistanceSet((0,0), 1)
+        self.set = hexgrid.DistanceSet((0,0), 1)
 
     def test_graph_matrix(self):
-        G_actual = hexmap.graph_matrix(self.set)
+        G_actual = hexgrid.graph_matrix(self.set)
         hex_list = self.set.explicit()
         n = len(hex_list)
         I = {tuple(u): uidx for uidx, u in enumerate(hex_list)}
@@ -249,10 +249,10 @@ class ClusteringTest(TestCase):
 
     def test_labelmap(self):
         # Test strongly connected set
-        set1 = hexmap.DistanceSet(( 1, 1), 1)
-        set2 = hexmap.DistanceSet((-1,-1), 2)
-        union_set = hexmap.Union([set1, set2])
-        c = hexmap.Clustering(union_set)
+        set1 = hexgrid.DistanceSet(( 1, 1), 1)
+        set2 = hexgrid.DistanceSet((-1,-1), 2)
+        union_set = hexgrid.Union([set1, set2])
+        c = hexgrid.Clustering(union_set)
         expected = \
 """
   0 0 0  
@@ -265,10 +265,10 @@ class ClusteringTest(TestCase):
         self.assertEqual(normalize_hexset_text(c.text()), normalize_hexset_text(expected))
 
         # Test weakly connected set
-        set1 = hexmap.DistanceSet((-2, 0), 1)
-        set2 = hexmap.DistanceSet(( 4, 0), 1)
-        union_set = hexmap.Union([set1, set2])
-        c = hexmap.Clustering(union_set)
+        set1 = hexgrid.DistanceSet((-2, 0), 1)
+        set2 = hexgrid.DistanceSet(( 4, 0), 1)
+        union_set = hexgrid.Union([set1, set2])
+        c = hexgrid.Clustering(union_set)
         expected = \
 """
  0 0   1 1 
@@ -278,10 +278,10 @@ class ClusteringTest(TestCase):
         self.assertEqual(normalize_hexset_text(c.text()), normalize_hexset_text(expected))
 
         # Test disconnected set
-        set1 = hexmap.DistanceSet((-2, 0), 2)
-        set2 = hexmap.DistanceSet(( 7, 1), 2)
-        union_set = hexmap.Union([set1, set2])
-        c = hexmap.Clustering(union_set)
+        set1 = hexgrid.DistanceSet((-2, 0), 2)
+        set2 = hexgrid.DistanceSet(( 7, 1), 2)
+        union_set = hexgrid.Union([set1, set2])
+        c = hexgrid.Clustering(union_set)
         expected = \
 """
   0 0 0           

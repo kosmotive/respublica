@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import CheckConstraint, Q
 import numpy as np
 
-from . import hexmap
+from . import hexgrid
 
 
 class World(models.Model):
@@ -29,7 +29,7 @@ class Positionable(models.Model):
         """
         Immediately changes the position of this object.
         """
-        hexmap.check_hex_coordinates(position)
+        hexgrid.check_hex_coordinates(position)
 
         self.position_x = position[0]
         self.position_y = position[1]
@@ -66,7 +66,7 @@ class Movable(Positionable):
         self.save()
 
     def move_to(self, world, destination):
-        hexmap.check_hex_coordinates(destination)
+        hexgrid.check_hex_coordinates(destination)
 
         self.destination_x = destination[0]
         self.destination_y = destination[1]
@@ -89,17 +89,17 @@ class Movable(Positionable):
     @property
     def next_position(self):
         u = self.position
-        hexmap.check_hex_coordinates(u)
+        hexgrid.check_hex_coordinates(u)
         for _ in range(math.ceil(self.speed)):
             v = np.asarray(self.destination, dtype=int)
-            hexmap.check_hex_coordinates(v)
+            hexgrid.check_hex_coordinates(v)
             d = v - u
             d = d.clip(-2, +2)
             if abs(d[1]) >= 1:
                 d = d.clip(-1, +1)
                 if np.sum(u + d) % 2 == 1: d[0] -= 1
             u += d
-            hexmap.check_hex_coordinates(u)
+            hexgrid.check_hex_coordinates(u)
         return u
 
 

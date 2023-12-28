@@ -1,6 +1,6 @@
 from django.db import models
 
-from world import hexmap
+from world import hexgrid
 from game.blueprints import base_blueprints
 
 
@@ -17,9 +17,9 @@ class Empire(models.Model):
     def territory(self):
         atoms = list()
         for sector in self.habitated_sectors:
-            atom = hexmap.DistanceSet(center = sector.position, radius = 1)
+            atom = hexgrid.DistanceSet(center = sector.position, radius = 1)
             atoms.append(atom)
-        return hexmap.Union(atoms)
+        return hexgrid.Union(atoms)
 
     def save(self, *args, **kwargs):
         is_newly_created = not self.pk
