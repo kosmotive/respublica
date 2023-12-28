@@ -33,7 +33,7 @@ class World(models.Model):
 
     @property
     def seconds_between_ticks(self):
-        return round(60 ** 2 // self.tickrate)
+        return np.inf if self.tickrate == 0 else round(60 ** 2 // self.tickrate)
 
     @property
     def seconds_passed_since_last_tick(self):
@@ -156,6 +156,14 @@ class Movable(Positionable):
         if self.ship_set.count() == 0: return None
         return self.ship_set.all()[0].owner
 
+    @property
+    def process(self):
+        from processes.models import Process
+        try:
+            return Process.objects.get(data__movable_id = self.id)
+        except models.DoesNotExist:
+            return None
+
 
 class Sector(Positionable):
 
@@ -168,6 +176,11 @@ class Sector(Positionable):
 
     def __str__(self):
         return f'{self.name} (x={self.position_x} y={self.position_y}, capacity: {self.feature("capacity")})'
+
+    @property
+    def processes(self):
+        from processes.models import Process
+        return Process.objects.filter(data__celestial_id__in = self.celestial_set.values_list('id', flat=True))
 
 
 class Celestial(models.Model):

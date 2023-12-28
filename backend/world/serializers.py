@@ -17,18 +17,21 @@ class WorldSerializer(serializers.HyperlinkedModelSerializer):
 
 class MovableSerializer(serializers.HyperlinkedModelSerializer):
 
-    owner = serializers.HyperlinkedRelatedField(view_name = 'empire-detail', read_only = True)
+    owner   = serializers.HyperlinkedRelatedField(view_name =  'empire-detail', read_only = True, allow_null = True)
+    process = serializers.HyperlinkedRelatedField(view_name = 'process-detail', read_only = True, allow_null = True)
 
     class Meta:
         model  = Movable
-        fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner']
+        fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner', 'process']
 
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):
 
+    processes = serializers.HyperlinkedRelatedField(view_name = 'process-detail', read_only = True, many = True)
+
     class Meta:
         model  = Sector
-        fields = ['url', 'name', 'celestial_set']
+        fields = ['url', 'name', 'celestial_set', 'processes']
 
 
 class CelestialSerializer(serializers.HyperlinkedModelSerializer):
