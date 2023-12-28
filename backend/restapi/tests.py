@@ -44,11 +44,26 @@ class BaseRestTest(APITestCase):
     def setUp(self):
         generate_test_world(radius = 10, density = 0.5, seed = 0)
 
+    def test_list(self):
+        response = self.client.get(reverse(f'{self.model.__name__.lower()}-list'), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(self.expected_details(self.model.objects.all())))
+
+    def test_detail(self):
+        if self.model.objects.count() > 0:
+            obj = self.model.objects.all()[0]
+            url = reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = obj.pk))
+            response = self.client.get(url, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(normalize(response.data), normalize(self.expected_details([obj])[0]))
+
 
 class WorldTest(BaseRestTest):
 
-    def expected_details(self, *objects):
-        details = [
+    model = World
+
+    def expected_details(self, objects):
+        return [
             {
                 'url': reverse('world-detail', kwargs = dict(pk = obj.pk)),
                 'now': 1,
@@ -57,24 +72,14 @@ class WorldTest(BaseRestTest):
             }
             for obj in objects
         ]
-        return normalize(details[0]) if len(objects) == 1 else normalize(details)
-
-    def test_list(self):
-        response = self.client.get(reverse('world-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), [self.expected_details(World.objects.get())])
-
-    def test_detail(self):
-        url = reverse('world-detail', kwargs = dict(pk = World.objects.get().pk))
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(World.objects.get()))
 
 
 class MovableTest(BaseRestTest):
 
-    def expected_details(self, *objects):
-        details = [
+    model = Movable
+
+    def expected_details(self, objects):
+        return [
             {
                 'url': reverse('movable-detail', kwargs = dict(pk = obj.pk)),
                 'position': obj.position,
@@ -89,29 +94,20 @@ class MovableTest(BaseRestTest):
             }
             for obj in objects
         ]
-        return normalize(details[0]) if len(objects) == 1 else normalize(details)
-
-    def test_list(self):
-        response = self.client.get(reverse('movable-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), [self.expected_details(Movable.objects.get())])
-
-    def test_detail(self):
-        url = reverse('movable-detail', kwargs = dict(pk = Movable.objects.get().pk))
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(Movable.objects.get()))
 
     def test_move_to(self):
         url = reverse('movable-move-to', kwargs = dict(pk = Movable.objects.get().pk))
         response = self.client.post(url, dict(x = -3, y = +1), format='json')
+        # TODO: check response
         self.test_detail()
 
 
 class SectorTest(BaseRestTest):
 
-    def expected_details(self, *objects):
-        details = [
+    model = Sector
+
+    def expected_details(self, objects):
+        return [
             {
                 'url': reverse('sector-detail', kwargs = dict(pk = obj.pk)),
                 'position': obj.position,
@@ -125,25 +121,14 @@ class SectorTest(BaseRestTest):
             }
             for obj in objects
         ]
-        return normalize(details[0]) if len(objects) == 1 else normalize(details)
-
-    def test_list(self):
-        response = self.client.get(reverse('sector-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(*Sector.objects.all()))
-
-    def test_detail(self):
-        sector = Sector.objects.all()[0]
-        url = reverse('sector-detail', kwargs = dict(pk = sector.pk))
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(sector))
 
 
 class CelestialTest(BaseRestTest):
 
-    def expected_details(self, *objects):
-        details = [
+    model = Celestial
+
+    def expected_details(self, objects):
+        return [
             {
                 'url': reverse('celestial-detail', kwargs = dict(pk = obj.pk)),
                 'sector': reverse('sector-detail', kwargs = dict(pk = obj.sector.pk)),
@@ -153,25 +138,14 @@ class CelestialTest(BaseRestTest):
             }
             for obj in objects
         ]
-        return normalize(details[0]) if len(objects) == 1 else normalize(details)
-
-    def test_list(self):
-        response = self.client.get(reverse('celestial-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(*Celestial.objects.all()))
-
-    def test_detail(self):
-        celestial = Celestial.objects.all()[0]
-        url = reverse('celestial-detail', kwargs = dict(pk = celestial.pk))
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(celestial))
 
 
 class EmpireTest(BaseRestTest):
 
-    def expected_details(self, *objects):
-        details = [
+    model = Empire
+
+    def expected_details(self, objects):
+        return [
             {
                 'url': reverse('empire-detail', kwargs = dict(pk = obj.pk)),
                 'name': obj.name,
@@ -184,16 +158,77 @@ class EmpireTest(BaseRestTest):
             }
             for obj in objects
         ]
-        return normalize(details[0]) if len(objects) == 1 else normalize(details)
 
-    def test_list(self):
-        response = self.client.get(reverse('empire-list'), format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), [self.expected_details(*Empire.objects.all())])
 
-    def test_detail(self):
-        empire = Empire.objects.all()[0]
-        url = reverse('empire-detail', kwargs = dict(pk = empire.pk))
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), self.expected_details(empire))
+class BlueprintTest(BaseRestTest):
+
+    model = Blueprint
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('blueprint-detail', kwargs = dict(pk = obj.pk)),
+                'base_id': obj.base_id,
+                'empire': reverse('empire-detail', kwargs = dict(pk = obj.empire.pk)),
+                'data': obj.data,
+            }
+            for obj in objects
+        ]
+
+    # TODO: Add tests for actions
+
+
+class ConstructionTest(BaseRestTest):
+
+    model = Construction
+
+    # TODO: add objects to test with
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('construction-detail', kwargs = dict(pk = obj.pk)),
+                'blueprint': reverse('blueprint-detail', kwargs = dict(pk = obj.blueprint.pk)),
+                'celestial': reverse('celestial-detail', kwargs = dict(pk = obj.celestial.pk)),
+            }
+            for obj in objects
+        ]
+
+
+class ShipTest(BaseRestTest):
+
+    model = Ship
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('ship-detail', kwargs = dict(pk = obj.pk)),
+                'blueprint': reverse('blueprint-detail', kwargs = dict(pk = obj.blueprint.pk)),
+                'movable': reverse('movable-detail', kwargs = dict(pk = obj.movable.pk)),
+                'owner': reverse('empire-detail', kwargs = dict(pk = obj.owner.pk)),
+            }
+            for obj in objects
+        ]
+
+
+class ProcessTest(BaseRestTest):
+
+    model = Process
+
+    # TODO: add objects to test with
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('process-detail', kwargs = dict(pk = obj.pk)),
+                'start_tick': obj.start_tick,
+                'end_tick': obj.end_tick,
+                'handler_id': obj.handler_id,
+                'data': obj.data,
+            }
+            for obj in objects
+        ]
+
+
+# Do not run the base class as a test
+del BaseRestTest
