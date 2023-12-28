@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 from django.urls import resolve
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
@@ -36,7 +38,7 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
         from world.models import Celestial
         from processes.serializers import ProcessSerializer
         blueprint = self.get_object()
-        celestial = Celestial.objects.get(id = request.data['celestial'])
+        celestial = Celestial.objects.get(**resolve(urlparse(request.data['celestial']).path).kwargs)
         process = blueprint.build(celestial)
         assert process is not None
         serializer = ProcessSerializer(process, context = dict(request = request))
