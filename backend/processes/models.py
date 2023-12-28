@@ -44,6 +44,8 @@ class MovementHandler(BaseHandler):
     @staticmethod
     def create_process(start_tick, movable):
         Process.objects.filter(data__movable_id = movable.id).delete()
+        if (movable.destination == movable.position).all():
+            return None
         return Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + max((1, int(1 / movable.speed))),

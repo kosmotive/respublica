@@ -33,7 +33,7 @@ class World(models.Model):
 
     @property
     def seconds_between_ticks(self):
-        return 60 ** 2 / self.tickrate
+        return round(60 ** 2 // self.tickrate)
 
     @property
     def seconds_passed_since_last_tick(self):
@@ -41,7 +41,7 @@ class World(models.Model):
 
     @property
     def pending_ticks(self):
-        pending_ticks = self.seconds_passed_since_last_tick / self.seconds_between_ticks
+        pending_ticks = self.seconds_passed_since_last_tick // self.seconds_between_ticks
         assert isinstance(pending_ticks, int)
         return pending_ticks
 
@@ -51,10 +51,12 @@ class World(models.Model):
 
     @property
     def remaining_seconds(self):
-        return self.seconds_between_ticks - self.seconds_passed_since_last_tick
+        return int(self.seconds_between_ticks - self.seconds_passed_since_last_tick)
 
     def save(self, *args, **kwargs):
-        is_newly_created = not self.pk
+        assert self.seconds_between_ticks > 1
+
+        is_newly_created = (self.now < 1)
         super(World, self).save(*args, **kwargs)
 
         # If the world is newly created, then do an initial tick to initialize the fields
@@ -115,7 +117,7 @@ class Movable(Positionable):
         self.save()
 
         from processes.models import MovementHandler
-        MovementHandler.create_process(World.objects.get().now, self)
+        return MovementHandler.create_process(World.objects.get().now, self)
 
     @property
     def speed(self):
