@@ -22,6 +22,7 @@ class MovableTest(TestCase):
     def setUp(self):
         self.world = World.objects.create()
         self.movable = Movable.objects.create(
+            custom_speed = 1,
             position_x = 0,
             position_y = 0)
 

@@ -12,7 +12,15 @@ class World(models.Model):
 
     now = models.PositiveBigIntegerField(default = 0)
     last_tick_timestamp = models.PositiveBigIntegerField(null = True)
-    tickrate = models.FloatField()
+    tickrate = models.FloatField(default = 0)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                name = 'world_singleton',
+                check = models.Q(id = 1),
+            ),
+        ]
 
     def tick(self):
         self.now += 1
@@ -24,13 +32,33 @@ class World(models.Model):
             process.handler.finish(process)
 
     @property
+    def seconds_between_ticks(self):
+        return 60 ** 2 / self.tickrate
+
+    @property
+    def seconds_passed_since_last_tick(self):
+        return round(time.time()) - self.last_tick_timestamp
+
+    @property
     def pending_ticks(self):
-        seconds_between_ticks = 60 ** 2 / self.tickrate
-        seconds_passed_since_last_tick = round(time.time()) - self.last_tick_timestamp
-        return seconds_passed_since_last_tick / seconds_between_ticks
+        pending_ticks = self.seconds_passed_since_last_tick / self.seconds_between_ticks
+        assert isinstance(pending_ticks, int)
+        return pending_ticks
 
     def do_pending_ticks(self):
         for _ in range(self.pending_ticks):
+            self.tick()
+
+    @property
+    def remaining_seconds(self):
+        return self.seconds_between_ticks - self.seconds_passed_since_last_tick
+
+    def save(self, *args, **kwargs):
+        is_newly_created = not self.pk
+        super(World, self).save(*args, **kwargs)
+
+        # If the world is newly created, then do an initial tick to initialize the fields
+        if is_newly_created:
             self.tick()
 
 
