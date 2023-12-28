@@ -51,17 +51,27 @@ class MovementHandler(BaseHandler):
             data = dict(movable_id = movable.id))
 
 
-class ConstructionHandler(BaseHandler):
+class BuildingHandler(BaseHandler):
     """
-    Spawns a Construction when the building process completes.
+    Spawns a Construction or Ship when the building process completes.
     """
 
     def finish(self, process):
-        from world.models import Celestial
-        from game.models import Construction, Blueprint
-        Construction.objects.create(
-            blueprint = Blueprint.objects.get(id = process.data['blueprint_id']),
-            celestial = Celestial.objects.get(id = process.data['celestial_id']))
+        from world.models import Celestial, Movable
+        from game.models import Blueprint, Construction, Ship
+        celestial = Celestial.objects.get(id = process.data['celestial_id'])
+        blueprint = Blueprint.objects.get(id = process.data['blueprint_id'])
+        if blueprint.base_id.startswith('constructions/'):
+            Construction.objects.create(
+                blueprint = blueprint,
+                celestial = celestial)
+        elif blueprint.base_id.startswith('ships/'):
+            Ship.objects.create(
+                blueprint = blueprint,
+                owner     = celestial.habitated_by,
+                movable   = Movable.objects.create(position_x = celestial.sector.position_x, position_y = celestial.sector.position_y))
+        else:
+            raise ValueError(f'invalid blueprint {blueprint.id} with base_id: "{blueprint.base_id}"')
         process.delete()
 
     @staticmethod
@@ -69,7 +79,7 @@ class ConstructionHandler(BaseHandler):
         Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + blueprint.cost,
-            handler_id = ConstructionHandler.__qualname__,
+            handler_id = BuildingHandler.__qualname__,
             data = dict(
                 blueprint_id = blueprint.id,
                 celestial_id = celestial.id))

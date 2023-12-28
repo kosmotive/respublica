@@ -4,9 +4,11 @@ from game.models import (
     Empire,
     Blueprint,
     Construction,
+    Ship,
 )
 from world.models import (
     World,
+    Movable,
     Sector,
     Celestial,
 )
@@ -64,7 +66,8 @@ class BlueprintTest(TestCase):
     def setUp(self):
         self.world = World.objects.create()
         self.empire = Empire.objects.create(name = 'Foos')
-        self.digital_cave_blueprint = Blueprint.objects.get(base_id = 'constructions/digital-cave')
+        self.construction_blueprint = Blueprint.objects.get(base_id = 'constructions/digital-cave')
+        self.ship_blueprint = Blueprint.objects.get(base_id = 'ships/colony-ship')
 
         sector = Sector.objects.create(position_x = 0, position_y = 0, name = 'Bar')
         self.celestial = Celestial.objects.create(
@@ -74,18 +77,18 @@ class BlueprintTest(TestCase):
             habitated_by = self.empire)
 
     def test_requirements(self):
-        self.assertEqual(self.digital_cave_blueprint.requirements, list())
-        self.assertEqual(Blueprint.objects.get(base_id = 'ships/colony-ship').requirements, ['shipyard'])
+        self.assertEqual(self.construction_blueprint.requirements, list())
+        self.assertEqual(self.ship_blueprint.requirements, ['constructions/shipyard'])
 
     def test_requirements_ok(self):
-        self.assertTrue(self.digital_cave_blueprint.requirements_ok(self.celestial))
-        self.assertFalse(Blueprint.objects.get(base_id = 'ships/colony-ship').requirements_ok(self.celestial))
+        self.assertTrue(self.construction_blueprint.requirements_ok(self.celestial))
+        self.assertFalse(self.ship_blueprint.requirements_ok(self.celestial))
 
-        Construction.objects.create(blueprint = self.digital_cave_blueprint, celestial = self.celestial)
-        self.assertFalse(self.digital_cave_blueprint.requirements_ok(self.celestial))
+        Construction.objects.create(blueprint = self.construction_blueprint, celestial = self.celestial)
+        self.assertFalse(self.construction_blueprint.requirements_ok(self.celestial))
 
     def test_build(self):
-        self.digital_cave_blueprint.build(self.celestial)
+        self.construction_blueprint.build(self.celestial)
 
         for _ in range(3):
             self.assertEqual(len(Process.objects.all()), 1)
@@ -94,5 +97,30 @@ class BlueprintTest(TestCase):
         self.assertEqual(len(Process.objects.all()), 0)
         self.assertEqual(self.celestial.construction_set.count(), 1)
 
-        digital_cave = self.celestial.construction_set.all()[0]
-        self.assertEqual(digital_cave.blueprint.id, self.digital_cave_blueprint.id)
+        construction = self.celestial.construction_set.get()
+        self.assertEqual(construction.blueprint.id, self.construction_blueprint.id)
+
+    def test_build_ship(self):
+        # Build shipyard to satisfy requirements
+        shipyard_blueprint = Blueprint.objects.get(base_id = 'constructions/shipyard')
+        Construction.objects.create(blueprint = shipyard_blueprint, celestial = self.celestial)
+
+        # Build ship
+        queued = self.ship_blueprint.build(self.celestial)
+        self.assertTrue(queued)
+
+        for _ in range(self.ship_blueprint.cost):
+            self.assertEqual(len(Process.objects.all()), 1)
+            self.world.tick()
+
+        self.assertEqual(len(Process.objects.all()), 0)
+        self.assertEqual(Ship.objects.count(), 1)
+
+        ship = self.empire.ship_set.get()
+        self.assertEqual(ship.blueprint.id, self.ship_blueprint.id)
+        self.assertEqual(ship.owner.id, self.empire.id)
+
+        self.assertEqual(Movable.objects.count(), 1)
+        self.assertEqual(tuple(ship.movable.position), tuple(self.celestial.sector.position))
+        self.assertEqual(ship.movable.ship_set.count(), 1)
+        self.assertEqual(ship.movable.ship_set.get().id, ship.id)

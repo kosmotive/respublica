@@ -2,6 +2,7 @@ import random
 
 from world.models import (
     World,
+    Movable,
     Sector,
     Celestial,
 )
@@ -70,7 +71,7 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
 
     Sector.objects.all().delete()
     World.objects.all().delete()
-    world = World.objects.create(tickrate = tickrate)
+    world = World.objects.create(id = 1, tickrate = tickrate)
 
     used_names = set()
     world_size = 2 * radius + 1
@@ -82,3 +83,14 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
             used_names.add(sector.name)
 
     return world
+
+
+def generate_test_world(*args, **kwargs):
+    world = generate_world(*args, **kwargs)
+
+    from game.models import Empire, Blueprint, Ship
+    empire = Empire.objects.create(name = 'Foos')
+    ship = Ship.objects.create(
+        blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship'),
+        movable = Movable.objects.create(position_x = 0, position_y = 0),
+        owner = empire)

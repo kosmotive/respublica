@@ -66,9 +66,10 @@ class Blueprint(models.Model):
 
     def build(self, celestial):
         if not self.requirements_ok(celestial): return False
-        from processes.models import ConstructionHandler
+        from processes.models import BuildingHandler
         from world.models import World
-        ConstructionHandler.create_process(World.objects.get().now, self, celestial)
+        BuildingHandler.create_process(World.objects.get().now, self, celestial)
+        return True
 
 
 class Construction(models.Model):

@@ -18,4 +18,4 @@ ships:
     cost: 12
     speed: 1
     requirements:
-      - shipyard
+      - constructions/shipyard
