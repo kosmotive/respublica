@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from django.urls import resolve
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import bad_request
@@ -45,14 +45,14 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
         return Response(serializer.data)
 
 
-class ConstructionViewSet(viewsets.ReadOnlyModelViewSet):
+class ConstructionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = Construction.objects.all()
     serializer_class = ConstructionSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
 
-class ShipViewSet(viewsets.ReadOnlyModelViewSet):
+class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = Ship.objects.all()
     serializer_class = ShipSerializer

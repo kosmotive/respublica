@@ -1,4 +1,4 @@
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -10,7 +10,7 @@ from processes.models import (
 )
 
 
-class ProcessViewSet(viewsets.ReadOnlyModelViewSet):
+class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer

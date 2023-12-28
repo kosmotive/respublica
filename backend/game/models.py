@@ -83,15 +83,9 @@ class Construction(models.Model):
     blueprint = models.ForeignKey('Blueprint', on_delete = models.PROTECT)
     celestial = models.ForeignKey('world.Celestial', on_delete = models.CASCADE)
 
-    def demolish(self):
-        self.delete()
-
 
 class Ship(models.Model):
 
     blueprint = models.ForeignKey('Blueprint', on_delete = models.PROTECT)
     movable   = models.ForeignKey('world.Movable', on_delete = models.PROTECT)
     owner     = models.ForeignKey('Empire', on_delete = models.CASCADE)
-
-    def demolish(self):
-        self.delete()
