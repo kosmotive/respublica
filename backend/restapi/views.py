@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from django.urls import resolve
-from rest_framework import permissions, viewsets, mixins
+from rest_framework import permissions, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -85,10 +85,10 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = BlueprintSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
-    @action(detail = True, methods  =['post'])
+    @action(detail = True, methods = ['post'])
     def build(self, request, pk = None):
         from world.models import Celestial
-        from processes.serializers import ProcessSerializer
+        from restapi.serializers import ProcessSerializer
         blueprint = self.get_object()
         celestial = Celestial.objects.get(**resolve(urlparse(request.data['celestial']).path).kwargs)
         process = blueprint.build(celestial)
@@ -111,8 +111,15 @@ class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Destr
     #permission_classes = [permissions.IsAuthenticated]
 
 
-class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
     #permission_classes = [permissions.IsAuthenticated]
+
+    def destroy(self, request, *args, **kwargs):
+        process = self.get_object()
+        process_id = process.id
+        process.handler.cancel(process)
+        assert Process.objects.filter(id = process_id).count() == 0
+        return Response(status=status.HTTP_204_NO_CONTENT)

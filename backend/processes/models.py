@@ -29,9 +29,7 @@ class MovementHandler(BaseHandler):
     """
 
     def finish(self, process):
-        from world.models import Movable
-
-        movable = Movable.objects.get(id = process.data['movable_id'])
+        movable = self.movable(process)
         movable.set_position(movable.next_position)
 
         if (movable.destination == movable.position).all():
@@ -40,6 +38,16 @@ class MovementHandler(BaseHandler):
             process.start_tick = process.end_tick
             process.end_tick = process.start_tick + max((1, int(1 / movable.speed)))
             process.save()
+
+    def cancel(self, process):
+        movable = self.movable(process)
+
+        # The method `move_to` calls `MovementHandler.create_process` which deletes the process
+        movable.move_to(movable.position)
+
+    def movable(self, process):
+        from world.models import Movable
+        return Movable.objects.get(id = process.data['movable_id'])
 
     @staticmethod
     def create_process(start_tick, movable):
@@ -80,7 +88,7 @@ class BuildingHandler(BaseHandler):
     def create_process(start_tick, blueprint, celestial):
         process = celestial.sector.process
         if process is not None:
-            process.delete()
+            self.cancel(process)
         return Process.objects.create(
             start_tick = start_tick,
             end_tick = start_tick + blueprint.cost,

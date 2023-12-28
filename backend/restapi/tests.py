@@ -30,7 +30,7 @@ def normalize(data, ignore_keys = frozenset()):
     if isinstance(data, dict):
         return {key: normalize(value) for key, value in data.items() if key not in ignore_keys}
     elif isinstance(data, list):
-        return [normalize(value) for value in data]
+        return [normalize(value, ignore_keys) for value in data]
     elif isinstance(data, str):
         return urlparse(data).path
     elif isinstance(data, np.ndarray):
@@ -59,11 +59,19 @@ class BaseRestTest(APITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details([obj])[0], ignore_keys))
 
+    def test_delete(self):
+        if self.model.objects.count() > 0:
+            obj = self.model.objects.all()[0]
+            url = reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = obj.pk))
+            response = self.client.delete(url)
+            self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 class WorldTest(BaseRestTest):
 
     model = World
-    ignore_keys = ['remaining_seconds']
+    ignore_keys = ['remaining_seconds', 'last_tick_timestamp']
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -80,6 +88,7 @@ class WorldTest(BaseRestTest):
 class MovableTest(BaseRestTest):
 
     model = Movable
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -99,6 +108,7 @@ class MovableTest(BaseRestTest):
         ]
 
     def test_move_to(self):
+        movable = Movable.objects.get()
         url = reverse('movable-move-to', kwargs = dict(pk = Movable.objects.get().pk))
         response = self.client.post(url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -109,6 +119,7 @@ class MovableTest(BaseRestTest):
 class SectorTest(BaseRestTest):
 
     model = Sector
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -128,6 +139,7 @@ class SectorTest(BaseRestTest):
 class CelestialTest(BaseRestTest):
 
     model = Celestial
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -145,6 +157,7 @@ class CelestialTest(BaseRestTest):
 class EmpireTest(BaseRestTest):
 
     model = Empire
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -165,6 +178,7 @@ class EmpireTest(BaseRestTest):
 class BlueprintTest(BaseRestTest):
 
     model = Blueprint
+    test_delete = False
 
     def expected_details(self, objects):
         return [
@@ -177,14 +191,34 @@ class BlueprintTest(BaseRestTest):
             for obj in objects
         ]
 
-    # TODO: Add tests for actions
+    def test_build(self):
+        # Get celestial
+        empire = Empire.objects.get()
+        celestial_url = reverse('celestial-detail', kwargs = dict(pk = empire.celestial_set.get().pk))
+
+        # Issue the build process
+        build_url = reverse('blueprint-build', kwargs = dict(pk = empire.blueprint_set.get(base_id = 'constructions/digital-cave').pk))
+        response = self.client.post(build_url, dict(celestial = celestial_url), format='json')
+
+        # Check build process APIs
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(ProcessTest().expected_details([Process.objects.get()])[0]))
+
+        return response.data['url']
 
 
 class ConstructionTest(BaseRestTest):
 
     model = Construction
 
-    # TODO: add objects to test with
+    def setUp(self):
+        super(ConstructionTest, self).setUp()
+
+        # Add constructions
+        empire    = Empire.objects.get()
+        blueprint = empire.blueprint_set.get(base_id = 'constructions/digital-cave')
+        celestial = empire.celestial_set.get()
+        Construction.objects.create(blueprint = blueprint, celestial = celestial)
 
     def expected_details(self, objects):
         return [
@@ -217,7 +251,18 @@ class ProcessTest(BaseRestTest):
 
     model = Process
 
-    # TODO: add objects to test with
+    def setUp(self):
+        super(ProcessTest, self).setUp()
+
+        # Create movement process
+        self.movable = Movable.objects.get()
+        self.movable.move_to((-3, +1))
+
+        # Create build process
+        empire    = Empire.objects.get()
+        blueprint = empire.blueprint_set.get(base_id = 'constructions/digital-cave')
+        celestial = empire.celestial_set.get()
+        blueprint.build(celestial = celestial)
 
     def expected_details(self, objects):
         return [
@@ -230,6 +275,14 @@ class ProcessTest(BaseRestTest):
             }
             for obj in objects
         ]
+
+    def test_delete(self):
+        super(ProcessTest, self).test_delete() ## cancel movement process
+        super(ProcessTest, self).test_delete() ## cancel build process
+
+        # Check whether movement was aborted
+        self.movable.refresh_from_db()
+        self.assertEqual(tuple(self.movable.destination), tuple(self.movable.position))
 
 
 # Do not run the base class as a test
