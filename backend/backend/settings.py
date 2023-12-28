@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'processes',
     'world',
     'game',
+    'restapi',
 ]
 
 MIDDLEWARE = [

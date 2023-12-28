@@ -161,7 +161,7 @@ class Movable(Positionable):
         from processes.models import Process
         try:
             return Process.objects.get(data__movable_id = self.id)
-        except models.DoesNotExist:
+        except Process.DoesNotExist:
             return None
 
 

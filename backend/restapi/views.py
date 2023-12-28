@@ -4,13 +4,25 @@ from django.urls import resolve
 from rest_framework import permissions, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.exceptions import bad_request
 
-from game.serializers import (
+from restapi.serializers import (
+    WorldSerializer,
+    MovableSerializer,
+    SectorSerializer,
+    CelestialSerializer,
+
     EmpireSerializer,
     BlueprintSerializer,
     ConstructionSerializer,
     ShipSerializer,
+
+    ProcessSerializer,
+)
+from world.models import (
+    World,
+    Movable,
+    Sector,
+    Celestial,
 )
 from game.models import (
     Empire,
@@ -18,6 +30,46 @@ from game.models import (
     Construction,
     Ship,
 )
+from processes.models import (
+    Process,
+)
+
+
+class WorldViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = World.objects.all()
+    serializer_class = WorldSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+class MovableViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Movable.objects.all()
+    serializer_class = MovableSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail = True, methods = ['post'])
+    def move_to(self, request, pk = None):
+        movable = self.get_object()
+        x = request.data['x']
+        y = request.data['y']
+        movable.move_to((x, y))
+        serializer = self.get_serializer(movable)
+        return Response(serializer.data)
+
+
+class SectorViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Sector.objects.all()
+    serializer_class = SectorSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Celestial.objects.all()
+    serializer_class = CelestialSerializer
+    #permission_classes = [permissions.IsAuthenticated]
 
 
 class EmpireViewSet(viewsets.ReadOnlyModelViewSet):
@@ -56,4 +108,11 @@ class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Destr
 
     queryset = Ship.objects.all()
     serializer_class = ShipSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+
+    queryset = Process.objects.all()
+    serializer_class = ProcessSerializer
     #permission_classes = [permissions.IsAuthenticated]
