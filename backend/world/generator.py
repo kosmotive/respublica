@@ -89,9 +89,20 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
 def generate_test_world(*args, **kwargs):
     world = generate_world(*args, **kwargs)
 
+    # Create empire
     from game.models import Empire, Blueprint, Ship
     empire = Empire.objects.create(name = 'Foos')
+
+    # Find a habitable planet
+    celestial = Celestial.objects.filter(features__capacity__gte = 1)[0]
+    celestial.habitated_by = empire
+    celestial.save()
+
     ship = Ship.objects.create(
-        blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship'),
-        movable = Movable.objects.create(position_x = 0, position_y = 0),
+        blueprint = Blueprint.objects.get(
+            empire = empire,
+            base_id = 'ships/colony-ship'),
+        movable = Movable.objects.create(
+            position_x = celestial.sector.position_x,
+            position_y = celestial.sector.position_y),
         owner = empire)
