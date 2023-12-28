@@ -76,6 +76,9 @@ class BlueprintTest(TestCase):
             features = dict(capacity = 1),
             habitated_by = self.empire)
 
+    def test_data(self):
+        self.assertEqual(self.ship_blueprint.data['speed'], 1)
+
     def test_requirements(self):
         self.assertEqual(self.construction_blueprint.requirements, list())
         self.assertEqual(self.ship_blueprint.requirements, ['constructions/shipyard'])

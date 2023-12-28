@@ -31,13 +31,15 @@ class Empire(models.Model):
                 for bp_name, bp in base_blueprints[bp_type].items():
                     Blueprint.objects.create(
                         base_id = f'{bp_type}/{bp_name}',
-                        empire = self)
+                        empire  = self,
+                        data    = {key: bp[key] for key in ['cost', 'speed'] if key in bp})
 
 
 class Blueprint(models.Model):
 
     base_id = models.CharField(max_length = 100)
-    empire = models.ForeignKey('Empire', on_delete = models.CASCADE)
+    empire  = models.ForeignKey('Empire', on_delete = models.CASCADE)
+    data    = models.JSONField()
 
     @property
     def base(self):

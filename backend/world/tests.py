@@ -30,6 +30,17 @@ class MovableTest(TestCase):
         self.movable.move_to((2,2))
         self.assertSequenceEqual(self.movable.next_position.tolist(), (1,1))
 
+    def test_speed(self):
+        from game.models import Empire, Blueprint, Ship
+        empire    = Empire.objects.create(name = 'Foos')
+        blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship')
+        movable   = Movable.objects.create(position_x = 0, position_y = 0)
+        ship = Ship.objects.create(
+            blueprint = blueprint,
+            movable   = movable,
+            owner     = empire)
+        self.assertEqual(movable.speed, blueprint.data['speed'])
+
     def test_move_to_speed1(self):
         self.movable.custom_speed = 1
         self.movable.save()

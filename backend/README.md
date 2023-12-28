@@ -8,8 +8,7 @@ rm -rf */migrations
 Create migrations:
 
 ```bash
-python manage.py makemigrations world
-python manage.py makemigrations processes
+python manage.py makemigrations processes world game
 ```
 
 Create database:

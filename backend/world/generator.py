@@ -67,10 +67,11 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
     assert 0 < density < 1, density
     assert exist_ok or Sector.objects.count() == 0
 
+    from django.core.management import call_command
+    call_command('flush', interactive=False)
+
     random.seed(seed)
 
-    Sector.objects.all().delete()
-    World.objects.all().delete()
     world = World.objects.create(id = 1, tickrate = tickrate)
 
     used_names = set()

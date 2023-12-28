@@ -121,7 +121,8 @@ class Movable(Positionable):
     def speed(self):
         if self.custom_speed is None:
             assert self.ship_set.count() > 0
-            return self.ship_set.aggregate(models.Min('speed'))['speed__min']
+            slowest_ship = self.ship_set.order_by('blueprint__data__speed')[0]
+            return slowest_ship.blueprint.data['speed']
         else:
             return self.custom_speed
 
