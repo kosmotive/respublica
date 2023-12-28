@@ -13,6 +13,10 @@ from processes.models import (
 from tools.testtools import order_tuple_list
 
 
+def normalize_hexset_text(text):
+    return '\n'.join([line.rstrip() for line in text.split('\n') if len(line.strip()) > 0])
+
+
 class MovableTest(TestCase):
 
     def setUp(self):
@@ -119,7 +123,7 @@ o o o o o
   o o o o
      o o
 """
-        self.assertEqual(actual, expected.strip())
+        self.assertEqual(normalize_hexset_text(actual), normalize_hexset_text(expected))
 
 
 class DistanceSetTest(TestCase):
@@ -201,13 +205,14 @@ class IntersectionTest(TestCase):
         self.assertSequenceEqual(actual, expected)
 
 
-class hexmap_Test(TestCase):
+class graph_matrix_Test(TestCase):
 
     def setUp(self):
         self.set = hexmap.DistanceSet((0,0), 1)
 
     def test_graph_matrix(self):
-        G_actual, hex_list = hexmap.graph_matrix(self.set)
+        G_actual = hexmap.graph_matrix(self.set)
+        hex_list = self.set.explicit()
         n = len(hex_list)
         I = {tuple(u): uidx for uidx, u in enumerate(hex_list)}
         G_expected = np.zeros((n, n), int)
@@ -238,3 +243,52 @@ class hexmap_Test(TestCase):
 
         G_expected = (G_expected + G_expected.T).clip(0, 1) ## this is to add the reverse edges to (0,0)
         self.assertEqual(G_actual.tolist(), G_expected.tolist())
+
+
+class ClusteringTest(TestCase):
+
+    def test_labelmap(self):
+        # Test strongly connected set
+        set1 = hexmap.DistanceSet(( 1, 1), 1)
+        set2 = hexmap.DistanceSet((-1,-1), 2)
+        union_set = hexmap.Union([set1, set2])
+        c = hexmap.Clustering(union_set)
+        expected = \
+"""
+  0 0 0  
+ 0 0 0 0 
+0 0 0 0 0
+ 0 0 0 0 
+  0 0 0 0
+     0 0
+"""
+        self.assertEqual(normalize_hexset_text(c.text()), normalize_hexset_text(expected))
+
+        # Test weakly connected set
+        set1 = hexmap.DistanceSet((-2, 0), 1)
+        set2 = hexmap.DistanceSet(( 4, 0), 1)
+        union_set = hexmap.Union([set1, set2])
+        c = hexmap.Clustering(union_set)
+        expected = \
+"""
+ 0 0   1 1 
+0 0 0 1 1 1
+ 0 0   1 1
+"""
+        self.assertEqual(normalize_hexset_text(c.text()), normalize_hexset_text(expected))
+
+        # Test disconnected set
+        set1 = hexmap.DistanceSet((-2, 0), 2)
+        set2 = hexmap.DistanceSet(( 7, 1), 2)
+        union_set = hexmap.Union([set1, set2])
+        c = hexmap.Clustering(union_set)
+        expected = \
+"""
+  0 0 0           
+ 0 0 0 0   1 1 1  
+0 0 0 0 0 1 1 1 1 
+ 0 0 0 0 0 1 1 1 1
+  0 0 0   1 1 1 1 
+           1 1 1
+"""
+        self.assertEqual(normalize_hexset_text(c.text()), normalize_hexset_text(expected))

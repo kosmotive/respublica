@@ -13,6 +13,7 @@ u ~ v  iff  |d.y| ≤ 1  or  |d.x| ≤ 2
 """
 
 import numpy as np
+from sklearn.cluster import DBSCAN
 
 
 def check_hex_coordinates(c):
@@ -52,13 +53,17 @@ class HexSet:
         """
         Obtains explicit representation.
         """
-        result = list()
-        x_min, x_max, y_min, y_max = self.bbox()
-        for q in np.ndindex(x_max - x_min + 1, y_max - y_min + 1):
-            p = np.add((x_min, y_min), q)
-            if np.sum(p) % 2 == 0 and p in self:
-                result.append(p)
-        return result
+        if hasattr(self, '_explicit'):
+            return self._explicit
+        else:
+            result = list()
+            x_min, x_max, y_min, y_max = self.bbox()
+            for q in np.ndindex(x_max - x_min + 1, y_max - y_min + 1):
+                p = np.add((x_min, y_min), q)
+                if np.sum(p) % 2 == 0 and p in self:
+                    result.append(p)
+            self._explicit = result
+            return result
 
     def toarray(self):
         """
@@ -77,7 +82,7 @@ class HexSet:
         indexmap = self.toarray()
         result = np.full(indexmap.shape, ' ', str)
         result[indexmap >= 0] = 'o'
-        return '\n'.join(''.join(row) for row in result).strip()
+        return '\n'.join(''.join(row) for row in result)
 
 
 class DistanceSet(HexSet):
@@ -88,6 +93,7 @@ class DistanceSet(HexSet):
     """
 
     def __init__(self, center, radius):
+        check_hex_coordinates(center)
         self.center = center
         self.radius = radius
 
@@ -177,4 +183,33 @@ def graph_matrix(hexset):
             G[i,j] = 1
 
     G = G + G.T
-    return G, hex_list
+    return G
+
+
+class Clustering:
+
+    def __init__(self, hexset):
+        self.hexset = hexset
+        clustering = DBSCAN(eps = 2, min_samples = 7).fit(self.hexset.explicit())
+        self.labels = clustering.labels_
+
+    def toarray(self):
+        """
+        Obtains a label map.
+        """
+        array  = self.hexset.toarray()
+        result = np.full(array.shape, -1, int)
+        for p in np.ndindex(array.shape):
+            idx = array[p]
+            if idx >= 0:
+                result[p] = self.labels[idx]
+        return result
+
+    def text(self):
+        """
+        Obtains a text-based representation.
+        """
+        labelmap = self.toarray()
+        result = np.full(labelmap.shape, ' ', str)
+        result[labelmap >= 0] = labelmap.astype(str)[labelmap >= 0]
+        return '\n'.join(''.join(row) for row in result)
