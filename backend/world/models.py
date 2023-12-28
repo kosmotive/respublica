@@ -1,4 +1,5 @@
 import math
+import time
 
 from django.db import models
 from django.db.models import CheckConstraint, Q
@@ -10,14 +11,27 @@ from . import hexgrid
 class World(models.Model):
 
     now = models.PositiveBigIntegerField(default = 0)
+    last_tick_timestamp = models.PositiveBigIntegerField(null = True)
+    tickrate = models.FloatField()
 
     def tick(self):
         self.now += 1
+        self.last_tick_timestamp = round(time.time())
         self.save()
 
         from processes.models import Process
         for process in [process for process in Process.objects.filter(end_tick = self.now)]:
             process.handler.finish(process)
+
+    @property
+    def pending_ticks(self):
+        seconds_between_ticks = 60 ** 2 / self.tickrate
+        seconds_passed_since_last_tick = round(time.time()) - self.last_tick_timestamp
+        return seconds_passed_since_last_tick / seconds_between_ticks
+
+    def do_pending_ticks(self):
+        for _ in range(self.pending_ticks):
+            self.tick()
 
 
 class Positionable(models.Model):
@@ -77,7 +91,11 @@ class Movable(Positionable):
 
     @property
     def speed(self):
-        return 1 if self.custom_speed is None else self.custom_speed
+        if self.custom_speed is None:
+            assert self.ship_set.count() > 0
+            return self.ship_set.aggregate(models.Min('speed'))['speed__min']
+        else:
+            return self.custom_speed
 
     @property
     def destination(self):

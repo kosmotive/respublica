@@ -61,7 +61,7 @@ def create_sector(used_names, x, y):
     return sector
 
 
-def generate_world(radius, density, seed, exist_ok=False):
+def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
     assert isinstance(radius, int) and radius > 0, radius
     assert 0 < density < 1, density
     assert exist_ok or Sector.objects.count() == 0
@@ -70,7 +70,7 @@ def generate_world(radius, density, seed, exist_ok=False):
 
     Sector.objects.all().delete()
     World.objects.all().delete()
-    world = World.objects.create()
+    world = World.objects.create(tickrate = tickrate)
 
     used_names = set()
     world_size = 2 * radius + 1
