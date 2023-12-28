@@ -26,9 +26,9 @@ from processes.models import (
 )
 
 
-def normalize(data):
+def normalize(data, ignore_keys = frozenset()):
     if isinstance(data, dict):
-        return {key: normalize(value) for key, value in data.items()}
+        return {key: normalize(value) for key, value in data.items() if key not in ignore_keys}
     elif isinstance(data, list):
         return [normalize(value) for value in data]
     elif isinstance(data, str):
@@ -45,22 +45,25 @@ class BaseRestTest(APITestCase):
         generate_test_world(radius = 10, density = 0.5, seed = 0)
 
     def test_list(self):
+        ignore_keys = getattr(self, 'ignore_keys', frozenset())
         response = self.client.get(reverse(f'{self.model.__name__.lower()}-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), normalize(self.expected_details(self.model.objects.all())))
+        self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details(self.model.objects.all()), ignore_keys))
 
     def test_detail(self):
+        ignore_keys = getattr(self, 'ignore_keys', frozenset())
         if self.model.objects.count() > 0:
             obj = self.model.objects.all()[0]
             url = reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = obj.pk))
             response = self.client.get(url, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(normalize(response.data), normalize(self.expected_details([obj])[0]))
+            self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details([obj])[0], ignore_keys))
 
 
 class WorldTest(BaseRestTest):
 
     model = World
+    ignore_keys = ['remaining_seconds']
 
     def expected_details(self, objects):
         return [
@@ -98,7 +101,8 @@ class MovableTest(BaseRestTest):
     def test_move_to(self):
         url = reverse('movable-move-to', kwargs = dict(pk = Movable.objects.get().pk))
         response = self.client.post(url, dict(x = -3, y = +1), format='json')
-        # TODO: check response
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(self.expected_details([Movable.objects.get()])[0]))
         self.test_detail()
 
 
@@ -115,9 +119,7 @@ class SectorTest(BaseRestTest):
                 'celestial_set': [
                     reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.celestial_set.all()
                 ],
-                'processes': [
-                    reverse('process-detail', kwargs = dict(pk = process.pk)) for process in obj.processes.all()
-                ],
+                'process': None if obj.process is None else reverse('process-detail', kwargs = dict(pk = obj.process.pk)),
             }
             for obj in objects
         ]

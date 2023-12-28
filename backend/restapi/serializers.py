@@ -36,11 +36,11 @@ class MovableSerializer(serializers.HyperlinkedModelSerializer):
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):
 
-    processes = serializers.HyperlinkedRelatedField(view_name = 'process-detail', read_only = True, many = True)
+    process = serializers.HyperlinkedRelatedField(view_name = 'process-detail', read_only = True, allow_null = True)
 
     class Meta:
         model  = Sector
-        fields = ['url', 'position', 'name', 'celestial_set', 'processes']
+        fields = ['url', 'position', 'name', 'celestial_set', 'process']
 
 
 class CelestialSerializer(serializers.HyperlinkedModelSerializer):

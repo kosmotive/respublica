@@ -178,9 +178,13 @@ class Sector(Positionable):
         return f'{self.name} (x={self.position_x} y={self.position_y}, capacity: {self.feature("capacity")})'
 
     @property
-    def processes(self):
+    def process(self):
         from processes.models import Process
-        return Process.objects.filter(data__celestial_id__in = self.celestial_set.values_list('id', flat=True))
+        processes = Process.objects.filter(data__celestial_id__in = self.celestial_set.values_list('id', flat=True))
+        if processes.count() == 1:
+            return processes[0]
+        else:
+            assert processes.count() == 0
 
 
 class Celestial(models.Model):
