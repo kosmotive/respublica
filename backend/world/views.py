@@ -5,6 +5,8 @@ from rest_framework.response import Response
 from world.serializers import (
     WorldSerializer,
     MovableSerializer,
+    SectorSerializer,
+    CelestialSerializer,
 )
 from world.models import (
     World,
@@ -33,3 +35,19 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
         x = request.data['x']
         y = request.data['y']
         movable.move_to((x, y))
+        serializer = self.get_serializer(movable)
+        return Response(serializer.data)
+
+
+class SectorViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Sector.objects.all()
+    serializer_class = SectorSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Celestial.objects.all()
+    serializer_class = CelestialSerializer
+    #permission_classes = [permissions.IsAuthenticated]

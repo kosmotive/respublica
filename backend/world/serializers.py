@@ -12,11 +12,25 @@ class WorldSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = World
-        fields = ['now', 'last_tick_timestamp', 'remaining_seconds']
+        fields = ['url', 'now', 'last_tick_timestamp', 'remaining_seconds']
 
 
 class MovableSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Movable
-        fields = ['position', 'destination', 'speed', 'next_position']
+        fields = ['url', 'position', 'destination', 'speed', 'next_position']
+
+
+class SectorSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model  = Sector
+        fields = ['url', 'name', 'celestial_set']
+
+
+class CelestialSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model  = Celestial
+        fields = ['url', 'sector', 'position', 'features', 'habitated_by']
