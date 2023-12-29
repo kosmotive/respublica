@@ -5,6 +5,7 @@ from world.models import (
     Movable,
     Sector,
     Celestial,
+    Unveiled,
 )
 from game.models import (
     Empire,
@@ -48,6 +49,13 @@ class CelestialSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model  = Celestial
         fields = ['url', 'sector', 'position', 'features', 'habitated_by']
+
+
+class UnveiledSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model  = Unveiled
+        fields = ['url', 'position', 'by_whom']
 
 
 class EmpireSerializer(serializers.HyperlinkedModelSerializer):

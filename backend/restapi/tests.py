@@ -14,6 +14,7 @@ from world.models import (
     Movable,
     Sector,
     Celestial,
+    Unveiled,
 )
 from game.models import (
     Empire,
@@ -149,6 +150,22 @@ class CelestialTest(BaseRestTest):
                 'position': obj.position,
                 'features': obj.features,
                 'habitated_by': None if obj.habitated_by is None else reverse('empire-detail', kwargs = dict(pk = obj.habitated_by.pk)),
+            }
+            for obj in objects
+        ]
+
+
+class UnveiledTest(BaseRestTest):
+
+    model = Unveiled
+    test_delete = False
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('unveiled-detail', kwargs = dict(pk = obj.pk)),
+                'position': obj.position,
+                'by_whom': reverse('empire-detail', kwargs = dict(pk = obj.by_whom.pk)),
             }
             for obj in objects
         ]

@@ -9,6 +9,7 @@ router.register(r'worlds'    , views.WorldViewSet)
 router.register(r'movables'  , views.MovableViewSet)
 router.register(r'sectors'   , views.SectorViewSet)
 router.register(r'celestials', views.CelestialViewSet)
+router.register(r'unveiled'  , views.UnveiledViewSet)
 
 router.register(r'empires'      , views.EmpireViewSet)
 router.register(r'blueprints'   , views.BlueprintViewSet)

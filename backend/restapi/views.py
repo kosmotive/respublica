@@ -10,6 +10,7 @@ from restapi.serializers import (
     MovableSerializer,
     SectorSerializer,
     CelestialSerializer,
+    UnveiledSerializer,
 
     EmpireSerializer,
     BlueprintSerializer,
@@ -23,6 +24,7 @@ from world.models import (
     Movable,
     Sector,
     Celestial,
+    Unveiled,
 )
 from game.models import (
     Empire,
@@ -69,6 +71,13 @@ class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Celestial.objects.all()
     serializer_class = CelestialSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = Unveiled.objects.all()
+    serializer_class = UnveiledSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
 
