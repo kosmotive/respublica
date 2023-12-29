@@ -99,6 +99,7 @@ class WorldTest(BaseRestTest):
     model = World
     ignore_keys = ['remaining_seconds', 'last_tick_timestamp']
     test_delete = False
+    test_different_user = False
 
     def expected_details(self, objects):
         return [
@@ -116,6 +117,14 @@ class MovableTest(BaseRestTest):
 
     model = Movable
     test_delete = False
+
+    @property
+    def movable(self):
+        return Movable.objects.get()
+
+    @property
+    def move_to_url(self):
+        return reverse('movable-move-to', kwargs = dict(pk = self.movable.pk))
 
     def expected_details(self, objects):
         return [
@@ -135,12 +144,17 @@ class MovableTest(BaseRestTest):
         ]
 
     def test_move_to(self):
-        movable = Movable.objects.get()
-        url = reverse('movable-move-to', kwargs = dict(pk = Movable.objects.get().pk))
-        response = self.client.post(url, dict(x = -3, y = +1), format='json')
+        response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), normalize(self.expected_details([Movable.objects.get()])[0]))
+        self.assertEqual(normalize(response.data), normalize(self.expected_details([self.movable])[0]))
         self.test_detail()
+
+    def test_different_user(self):
+        super(MovableTest, self).test_different_user()
+
+        # Check forbidden access to "move_to" action
+        response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
 class SectorTest(BaseRestTest):

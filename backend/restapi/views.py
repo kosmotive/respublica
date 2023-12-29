@@ -51,14 +51,19 @@ class WorldViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = World.objects.all()
     serializer_class = WorldSerializer
-    #permission_classes = [permissions.IsAuthenticated]
 
 
 class MovableViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Movable.objects.all()
     serializer_class = MovableSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        unveiled_qs = Unveiled.objects.filter(
+            by_whom__player = self.request.user,
+            position_x = models.OuterRef('position_x'),
+            position_y = models.OuterRef('position_y'))
+        return Movable.objects.filter(models.Exists(unveiled_qs))
 
     @action(detail = True, methods = ['post'])
     def move_to(self, request, pk = None):
