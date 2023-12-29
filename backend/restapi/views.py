@@ -1,6 +1,7 @@
 from urllib.parse import urlparse
 
 from django.contrib.auth.models import User
+from django.db import models
 from django.urls import resolve
 from rest_framework import permissions, viewsets, mixins, status
 from rest_framework.decorators import action
@@ -38,9 +39,6 @@ from game.models import (
 from processes.models import (
     Process,
 )
-#from restapi.permissions import (
-#    ProcessPermission,
-#)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -74,9 +72,16 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
 
 class SectorViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Sector.objects.all()
     serializer_class = SectorSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        unveiled_qs = Unveiled.objects.filter(
+            by_whom__player = self.request.user,
+            position_x = models.OuterRef('position_x'),
+            position_y = models.OuterRef('position_y'))
+        #return Sector.objects.annotate(unveiled = Exists(unveiled_qs)).filter(unveiled = True)
+        return Sector.objects.filter(models.Exists(unveiled_qs))
 
 
 class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
@@ -88,9 +93,11 @@ class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
 
 class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Unveiled.objects.all()
     serializer_class = UnveiledSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Unveiled.objects.filter(by_whom__player = self.request.user)
 
 
 class EmpireViewSet(viewsets.ReadOnlyModelViewSet):

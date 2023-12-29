@@ -48,9 +48,12 @@ class BaseRestTest(APITestCase):
         self.client.login(username='testuser', password='password')
         self.list_url = reverse(f'{self.model.__name__.lower()}-list')
 
+    def get_queryset(self):
+        return self.model.objects
+
     @property
     def object(self):
-        return self.model.objects.all()[0]
+        return self.get_queryset().all()[0]
 
     @property
     def object_url(self):
@@ -60,17 +63,17 @@ class BaseRestTest(APITestCase):
         ignore_keys = getattr(self, 'ignore_keys', frozenset())
         response = self.client.get(self.list_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details(self.model.objects.all()), ignore_keys))
+        self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details(self.get_queryset().all()), ignore_keys))
 
     def test_detail(self):
         ignore_keys = getattr(self, 'ignore_keys', frozenset())
-        if self.model.objects.count() > 0:
+        if self.get_queryset().count() > 0:
             response = self.client.get(self.object_url, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details([self.object])[0], ignore_keys))
 
     def test_delete(self):
-        if self.model.objects.count() > 0:
+        if self.get_queryset().count() > 0:
             response = self.client.delete(self.object_url)
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
@@ -144,6 +147,11 @@ class SectorTest(BaseRestTest):
 
     model = Sector
     test_delete = False
+
+    def get_queryset(self):
+        empire = Empire.objects.get()
+        unveiled_sectors = [Sector.objects.filter(position_x = u.position_x, position_y = u.position_y).first() for u in Unveiled.objects.filter(by_whom = empire)]
+        return Sector.objects.filter(id__in = [s.id for s in unveiled_sectors if s is not None])
 
     def expected_details(self, objects):
         return [
