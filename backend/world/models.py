@@ -1,7 +1,7 @@
 import math
 import time
 
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import CheckConstraint, Q
 import numpy as np
 
@@ -69,6 +69,9 @@ class Positionable(models.Model):
     position_x = models.IntegerField()
     position_y = models.IntegerField()
 
+    class Meta:
+        abstract = True  ## do not create a table for this class
+
     def set_position(self, position):
         """
         Immediately changes the position of this object.
@@ -108,6 +111,10 @@ class Movable(Positionable):
             self.destination_y = None
 
         self.save()
+
+        # Unveil the neighborhood
+        if self.owner is not None:
+            Unveiled.unveil(self.owner, self.position, 1)
 
     def move_to(self, destination):
         hexgrid.check_hex_coordinates(destination)
@@ -202,3 +209,24 @@ class Celestial(models.Model):
     def remaining_capacity(self):
         occupied_capacity = sum((c.blueprint.size for c in self.construction_set.all()))
         return self.capacity - occupied_capacity
+
+
+class Unveiled(Positionable):
+
+    by_whom = models.ForeignKey('game.Empire', on_delete = models.CASCADE)
+
+    class Meta:
+        unique_together = ('position_x', 'position_y', 'by_whom')
+
+    @staticmethod
+    def unveil(empire, center, radius):
+        ds = hexgrid.DistanceSet(center, radius)
+        for c in ds.explicit():
+            try:
+                Unveiled.objects.create(
+                    position_x = c[0],
+                    position_y = c[1],
+                    by_whom = empire)
+
+            except IntegrityError:
+                pass

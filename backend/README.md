@@ -1,7 +1,8 @@
 # Backend
 
-Reset migrations:
+Reset database migrations:
 ```
+rm db.sqlite3
 rm -rf */migrations
 ```
 

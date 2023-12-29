@@ -5,6 +5,7 @@ from world.models import (
     Movable,
     Sector,
     Celestial,
+    Unveiled,
 )
 from .indexing import *
 
@@ -98,6 +99,7 @@ def generate_test_world(*args, **kwargs):
     celestial.habitated_by = empire
     celestial.save()
 
+    # Add a movable ship
     ship = Ship.objects.create(
         blueprint = Blueprint.objects.get(
             empire = empire,
@@ -106,3 +108,6 @@ def generate_test_world(*args, **kwargs):
             position_x = celestial.sector.position_x,
             position_y = celestial.sector.position_y),
         owner = empire)
+
+    # Unveil the neighborhood
+    Unveiled.unveil(empire, celestial.sector.position, 1)
