@@ -100,7 +100,7 @@ class MovableTest(BaseRestTest):
                 'speed': obj.speed,
                 'next_position': obj.next_position,
                 'ship_set': [
-                    reverse('ship-detail', kwargs = dict(pk = ship.pk)) for ship in obj.owner.ship_set.all()
+                    reverse('ship-detail', kwargs = dict(pk = ship.pk)) for ship in obj.ship_set.all()
                 ],
                 'owner': reverse('empire-detail', kwargs = dict(pk = obj.owner.pk)),
                 'process': None if obj.process is None else reverse('process-detail', kwargs = dict(pk = obj.process.pk)),
@@ -183,6 +183,9 @@ class EmpireTest(BaseRestTest):
                 'name': obj.name,
                 'habitat': [
                     reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.habitat.all()
+                ],
+                'ships': [
+                    reverse('ship-detail', kwargs = dict(pk = process.pk)) for process in obj.ships.all()
                 ],
                 'movables': [
                     reverse('movable-detail', kwargs = dict(pk = process.pk)) for process in obj.movables.all()

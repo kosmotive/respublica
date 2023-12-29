@@ -78,7 +78,6 @@ class BuildingHandler(BaseHandler):
         elif blueprint.base_id.startswith('ships/'):
             Ship.objects.create(
                 blueprint = blueprint,
-                owner     = celestial.habitated_by,
                 movable   = Movable.objects.create(position_x = celestial.sector.position_x, position_y = celestial.sector.position_y))
         else:
             raise ValueError(f'invalid blueprint {blueprint.id} with base_id: "{blueprint.base_id}"')

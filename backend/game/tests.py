@@ -119,7 +119,7 @@ class BlueprintTest(TestCase):
         self.assertEqual(len(Process.objects.all()), 0)
         self.assertEqual(Ship.objects.count(), 1)
 
-        ship = self.empire.ship_set.get()
+        ship = self.empire.ships.get()
         self.assertEqual(ship.blueprint.id, self.ship_blueprint.id)
         self.assertEqual(ship.owner.id, self.empire.id)
 

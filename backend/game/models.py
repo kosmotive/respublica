@@ -37,7 +37,11 @@ class Empire(models.Model):
     @property
     def movables(self):
         from world.models import Movable
-        return Movable.objects.filter(ship__owner = self).all()
+        return Movable.objects.filter(ship__blueprint__empire = self).all()
+
+    @property
+    def ships(self):
+        return Ship.objects.filter(blueprint__empire = self).all()
 
 
 class Blueprint(models.Model):
@@ -88,4 +92,7 @@ class Ship(models.Model):
 
     blueprint = models.ForeignKey('Blueprint', on_delete = models.PROTECT)
     movable   = models.ForeignKey('world.Movable', on_delete = models.PROTECT)
-    owner     = models.ForeignKey('Empire', on_delete = models.CASCADE) ## TODO: remove (is redundant due to blueprint.empire)
+
+    @property
+    def owner(self):
+        return self.blueprint.empire

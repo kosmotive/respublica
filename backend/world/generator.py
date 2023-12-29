@@ -106,8 +106,7 @@ def generate_test_world(*args, **kwargs):
             base_id = 'ships/colony-ship'),
         movable = Movable.objects.create(
             position_x = celestial.sector.position_x,
-            position_y = celestial.sector.position_y),
-        owner = empire)
+            position_y = celestial.sector.position_y))
 
     # Unveil the neighborhood
     Unveiled.unveil(empire, celestial.sector.position, 1)

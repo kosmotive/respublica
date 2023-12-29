@@ -38,8 +38,7 @@ class MovableTest(TestCase):
         movable   = Movable.objects.create(position_x = 0, position_y = 0)
         ship = Ship.objects.create(
             blueprint = blueprint,
-            movable   = movable,
-            owner     = empire)
+            movable   = movable)
         self.assertEqual(movable.speed, blueprint.data['speed'])
 
     def test_move_to_speed1(self):
@@ -110,7 +109,7 @@ class MovableTest(TestCase):
         from game.models import Empire, Blueprint, Ship
         empire = Empire.objects.create(name = 'Foos')
         blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship')
-        ship = Ship.objects.create(movable = self.movable, blueprint = blueprint, owner = empire)
+        ship = Ship.objects.create(movable = self.movable, blueprint = blueprint)
 
         # Perform movement
         trajectory = self.test_move_to_speed1()

@@ -61,10 +61,11 @@ class UnveiledSerializer(serializers.HyperlinkedModelSerializer):
 class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
     movables = serializers.HyperlinkedRelatedField(view_name = 'movable-detail', read_only = True, many = True)
+    ships    = serializers.HyperlinkedRelatedField(view_name =    'ship-detail', read_only = True, many = True)
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'habitat', 'movables']
+        fields = ['url', 'name', 'habitat', 'movables', 'ships']
 
 
 class BlueprintSerializer(serializers.HyperlinkedModelSerializer):
@@ -82,6 +83,8 @@ class ConstructionSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ShipSerializer(serializers.HyperlinkedModelSerializer):
+
+    owner = serializers.HyperlinkedRelatedField(view_name = 'empire-detail', read_only = True)
 
     class Meta:
         model  = Ship
