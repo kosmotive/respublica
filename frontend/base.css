@@ -1,0 +1,17 @@
+body {
+  background-color: whitesmoke;
+}
+
+#hex-map {
+  position: relative;
+}
+
+.hex-field {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+}
+
+#hex-field-template {
+  display: none;
+}
