@@ -45,6 +45,7 @@ class BaseRestTest(APITestCase):
 
     def setUp(self):
         generate_test_world(radius = 10, density = 0.5, seed = 0)
+        self.client.login(username='testuser', password='password')
         self.list_url = reverse(f'{self.model.__name__.lower()}-list')
 
     @property
@@ -72,6 +73,22 @@ class BaseRestTest(APITestCase):
         if self.model.objects.count() > 0:
             response = self.client.delete(self.object_url)
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_different_user(self):
+        self.client.logout()
+        User.objects.create_user(
+            username='testuser2',
+            password='password')
+        self.client.login(username='testuser2', password='password')
+
+        # Check forbidden access to details
+        response = self.client.get(self.object_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Check no appearance in list
+        response = self.client.get(self.list_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
 
 class WorldTest(BaseRestTest):
@@ -261,10 +278,6 @@ class ShipTest(BaseRestTest):
 
     model = Ship
 
-    def setUp(self):
-        super(ShipTest, self).setUp()
-        self.client.login(username='testuser', password='password')
-
     def expected_details(self, objects):
         return [
             {
@@ -294,9 +307,6 @@ class ProcessTest(BaseRestTest):
         celestial = empire.habitat.get()
         blueprint.build(celestial = celestial)
 
-        # Authenticate
-        self.client.login(username='testuser', password='password')
-
     def expected_details(self, objects):
         return [
             {
@@ -318,20 +328,11 @@ class ProcessTest(BaseRestTest):
         self.assertEqual(tuple(self.movable.destination), tuple(self.movable.position))
 
     def test_different_user(self):
-        self.client.logout()
-        User.objects.create_user(
-            username='testuser2',
-            password='password')
-        self.client.login(username='testuser2', password='password')
+        super(ProcessTest, self).test_different_user()
 
-        # Check forbidden access to details
-        response = self.client.get(self.object_url, format='json')
+        # Check forbidden access to delete
+        response = self.client.delete(self.object_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        # Check no appearance in list
-        response = self.client.get(self.list_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
 
 
 # Do not run the base class as a test
