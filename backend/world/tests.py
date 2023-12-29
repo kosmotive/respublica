@@ -4,6 +4,7 @@ import numpy as np
 from world.models import (
     World,
     Movable,
+    Unveiled,
     hexgrid,
 )
 from processes.models import (
@@ -45,16 +46,23 @@ class MovableTest(TestCase):
         self.movable.custom_speed = 1
         self.movable.save()
 
+        # Record the trajectory
+        trajectory = list()
+        def update_trajectory():
+            trajectory.append(tuple(self.movable.position))
+
         # Move (0,0) -> (1,1) -> (2,2) 
         self.movable.move_to((2,2))
         self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (1,1))
+        update_trajectory()  ## (1,1)
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (2,2))
         self.assertEqual(len(Process.objects.all()), 0)
+        update_trajectory()  ## (2,2)
 
         # Move (2,2) -> (1,1) or (3,1) -> (2,0) 
         self.movable.move_to((2,0))
@@ -62,10 +70,12 @@ class MovableTest(TestCase):
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertIn(self.movable.position.tolist(), [[1,1], [3,1]])
+        update_trajectory()  ## (1,1) or (3,1)
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (2,0))
         self.assertEqual(len(Process.objects.all()), 0)
+        update_trajectory()  ## (2,0)
 
         # Don't move 
         self.world.tick()
@@ -77,10 +87,12 @@ class MovableTest(TestCase):
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (0,0))
+        update_trajectory()  ## (0,0)
         self.world.tick()
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (-2,0))
         self.assertEqual(len(Process.objects.all()), 0)
+        update_trajectory()  ## (-2,0)
 
         # Order to move to (2,0), but immediately change to (-1,1)
         self.movable.move_to((2,0))
@@ -90,6 +102,24 @@ class MovableTest(TestCase):
         self.movable.refresh_from_db()
         self.assertSequenceEqual(self.movable.position.tolist(), (-1,1))
         self.assertEqual(len(Process.objects.all()), 0)
+        update_trajectory()  ## (-1,1)
+
+        return trajectory
+
+    def test_move_to_unveiled(self):
+        from game.models import Empire, Blueprint, Ship
+        empire = Empire.objects.create(name = 'Foos')
+        blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship')
+        ship = Ship.objects.create(movable = self.movable, blueprint = blueprint, owner = empire)
+
+        # Perform movement
+        trajectory = self.test_move_to_speed1()
+
+        # Check unveiled hexes
+        expected = [hexgrid.DistanceSet(c, radius=1) for c in trajectory]
+        expected = [tuple(c) for c in hexgrid.Union(expected).explicit()]
+        actual = [(c.position_x, c.position_y) for c in Unveiled.objects.filter(by_whom = empire)]
+        self.assertEqual(frozenset(actual), frozenset(expected))
 
     def test_move_to_speed2(self):
         self.movable.custom_speed = 2

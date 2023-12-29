@@ -1,7 +1,7 @@
 import math
 import time
 
-from django.db import models, IntegrityError
+from django.db import models
 from django.db.models import CheckConstraint, Q
 import numpy as np
 
@@ -222,11 +222,7 @@ class Unveiled(Positionable):
     def unveil(empire, center, radius):
         ds = hexgrid.DistanceSet(center, radius)
         for c in ds.explicit():
-            try:
-                Unveiled.objects.create(
-                    position_x = c[0],
-                    position_y = c[1],
-                    by_whom = empire)
-
-            except IntegrityError:
-                pass
+            Unveiled.objects.update_or_create(
+                position_x = c[0],
+                position_y = c[1],
+                by_whom = empire)
