@@ -1,11 +1,14 @@
 from urllib.parse import urlparse
 
+from django.contrib.auth.models import User
 from django.urls import resolve
 from rest_framework import permissions, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from restapi.serializers import (
+    UserSerializer,
+
     WorldSerializer,
     MovableSerializer,
     SectorSerializer,
@@ -35,6 +38,12 @@ from game.models import (
 from processes.models import (
     Process,
 )
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class WorldViewSet(viewsets.ReadOnlyModelViewSet):

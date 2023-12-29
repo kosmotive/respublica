@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 import numpy as np
 
@@ -33,7 +34,8 @@ class MovableTest(TestCase):
 
     def test_speed(self):
         from game.models import Empire, Blueprint, Ship
-        empire    = Empire.objects.create(name = 'Foos')
+        player    = User.objects.create(username = 'testuser', password = 'password')
+        empire    = Empire.objects.create(name = 'Foos', player = player)
         blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship')
         movable   = Movable.objects.create(position_x = 0, position_y = 0)
         ship = Ship.objects.create(
@@ -107,7 +109,8 @@ class MovableTest(TestCase):
 
     def test_move_to_unveiled(self):
         from game.models import Empire, Blueprint, Ship
-        empire = Empire.objects.create(name = 'Foos')
+        player = User.objects.create(username = 'testuser', password = 'password')
+        empire = Empire.objects.create(name = 'Foos', player = player)
         blueprint = Blueprint.objects.get(empire = empire, base_id = 'ships/colony-ship')
         ship = Ship.objects.create(movable = self.movable, blueprint = blueprint)
 

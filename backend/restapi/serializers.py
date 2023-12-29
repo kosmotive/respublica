@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from world.models import (
@@ -16,6 +17,15 @@ from game.models import (
 from processes.models import (
     Process,
 )
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+
+    empire = serializers.HyperlinkedRelatedField(view_name = 'empire-detail', read_only = True)
+
+    class Meta:
+        model = User
+        fields = ['url', 'username', 'empire']
 
 
 class WorldSerializer(serializers.HyperlinkedModelSerializer):

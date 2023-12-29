@@ -6,7 +6,8 @@ from game.blueprints import base_blueprints
 
 class Empire(models.Model):
 
-    name = models.CharField(max_length = 100)
+    name   = models.CharField(max_length = 100)
+    player = models.OneToOneField('auth.User', on_delete=models.CASCADE)
 
     @property
     def habitated_sectors(self):

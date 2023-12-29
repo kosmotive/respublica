@@ -5,6 +5,8 @@ from restapi import views
 
 router = routers.DefaultRouter()
 
+router.register(r'users', views.UserViewSet)
+
 router.register(r'worlds'    , views.WorldViewSet)
 router.register(r'movables'  , views.MovableViewSet)
 router.register(r'sectors'   , views.SectorViewSet)

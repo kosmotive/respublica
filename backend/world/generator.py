@@ -1,5 +1,7 @@
 import random
 
+from django.contrib.auth.models import User
+
 from world.models import (
     World,
     Movable,
@@ -89,10 +91,13 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
 
 def generate_test_world(*args, **kwargs):
     world = generate_world(*args, **kwargs)
+    user  = User.objects.create_user(
+        username='testuser',
+        password='password')
 
     # Create empire
     from game.models import Empire, Blueprint, Ship
-    empire = Empire.objects.create(name = 'Foos')
+    empire = Empire.objects.create(name = 'Foos', player = user)
 
     # Find a habitable planet
     celestial = Celestial.objects.filter(features__capacity__gte = 1)[0]

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from game.models import (
@@ -22,8 +23,9 @@ from tools.testtools import order_tuple_list
 class EmpireTest(TestCase):
 
     def setUp(self):
+        player = User.objects.create(username = 'testuser', password = 'password')
         self.world = World.objects.create()
-        self.empire = Empire.objects.create(name = 'Foos')
+        self.empire = Empire.objects.create(name = 'Foos', player = player) 
 
         sector1 = Sector.objects.create(position_x =  1, position_y =  1, name = 'S1')
         sector2 = Sector.objects.create(position_x = -1, position_y = -1, name = 'S2')
@@ -64,8 +66,9 @@ class EmpireTest(TestCase):
 class BlueprintTest(TestCase):
 
     def setUp(self):
+        player = User.objects.create(username = 'testuser', password = 'password')
         self.world = World.objects.create()
-        self.empire = Empire.objects.create(name = 'Foos')
+        self.empire = Empire.objects.create(name = 'Foos', player = player)
         self.construction_blueprint = Blueprint.objects.get(base_id = 'constructions/digital-cave')
         self.ship_blueprint = Blueprint.objects.get(base_id = 'ships/colony-ship')
 
