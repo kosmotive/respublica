@@ -1,3 +1,4 @@
+const api = 'http://127.0.0.1:8000/api';
 const hexFieldSize = 200;
 
 function createHexField(x, y) {
@@ -10,11 +11,20 @@ function createHexField(x, y) {
     });
     return hexField;
 }
-$( document ).ready(function() {
+
+function loadMap() {
     createHexField(0, 0);
     createHexField(2, 0);
     createHexField(4, 0);
     createHexField(1, 1);
     createHexField(3, 1);
     createHexField(2, 2);
+}
+
+$( document ).ready(function() {
+    loadMap();
+
+    $.get(api + '/users', function(data, status) {
+        console.log(status);
+    });
 });
