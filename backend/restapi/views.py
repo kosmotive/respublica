@@ -43,8 +43,11 @@ from processes.models import (
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return User.objects.filter(id = self.request.user.id)
 
 
 class WorldViewSet(viewsets.ReadOnlyModelViewSet):

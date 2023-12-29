@@ -26,5 +26,6 @@ $( document ).ready(function() {
 
     $.get(api + '/users', function(data, status) {
         console.log(status);
+        console.log(data);
     });
 });
