@@ -38,6 +38,9 @@ from game.models import (
 from processes.models import (
     Process,
 )
+from restapi.permissions import (
+    ProcessPermission,
+)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -57,7 +60,7 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Movable.objects.all()
     serializer_class = MovableSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     @action(detail = True, methods = ['post'])
     def move_to(self, request, pk = None):
@@ -101,7 +104,7 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
 
     queryset = Blueprint.objects.all()
     serializer_class = BlueprintSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     @action(detail = True, methods = ['post'])
     def build(self, request, pk = None):
@@ -133,7 +136,7 @@ class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
     queryset = Process.objects.all()
     serializer_class = ProcessSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, ProcessPermission]
 
     def destroy(self, request, *args, **kwargs):
         process = self.get_object()

@@ -284,6 +284,9 @@ class ProcessTest(BaseRestTest):
         celestial = empire.habitat.get()
         blueprint.build(celestial = celestial)
 
+        # Authenticate
+        self.client.login(username='testuser', password='password')
+
     def expected_details(self, objects):
         return [
             {

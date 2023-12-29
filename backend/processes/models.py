@@ -3,6 +3,7 @@ from django.db import models
 
 class Process(models.Model):
 
+    owner      = models.ForeignKey('game.Empire', related_name = 'processes', on_delete = models.SET_NULL, null = True)
     start_tick = models.PositiveBigIntegerField()
     end_tick   = models.PositiveBigIntegerField()
     data       = models.JSONField()
@@ -56,7 +57,8 @@ class MovementHandler(BaseHandler):
             return None
         return Process.objects.create(
             start_tick = start_tick,
-            end_tick = start_tick + max((1, int(1 / movable.speed))),
+            end_tick   = start_tick + max((1, int(1 / movable.speed))),
+            owner      = movable.owner,
             handler_id = MovementHandler.__qualname__,
             data = dict(movable_id = movable.id))
 
@@ -90,7 +92,8 @@ class BuildingHandler(BaseHandler):
             self.cancel(process)
         return Process.objects.create(
             start_tick = start_tick,
-            end_tick = start_tick + blueprint.cost,
+            end_tick   = start_tick + blueprint.cost,
+            owner      = celestial.habitated_by,
             handler_id = BuildingHandler.__qualname__,
             data = dict(
                 blueprint_id = blueprint.id,
