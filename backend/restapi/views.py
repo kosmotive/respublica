@@ -38,9 +38,9 @@ from game.models import (
 from processes.models import (
     Process,
 )
-from restapi.permissions import (
-    ProcessPermission,
-)
+#from restapi.permissions import (
+#    ProcessPermission,
+#)
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -134,9 +134,11 @@ class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Destr
 
 class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 
-    queryset = Process.objects.all()
     serializer_class = ProcessSerializer
-    permission_classes = [permissions.IsAuthenticated, ProcessPermission]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Process.objects.filter(owner__player = self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         process = self.get_object()

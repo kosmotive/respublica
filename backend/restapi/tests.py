@@ -1,6 +1,7 @@
 import time
 from urllib.parse import urlparse
 
+from django.contrib.auth.models import User
 from django.urls import resolve, reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -44,27 +45,32 @@ class BaseRestTest(APITestCase):
 
     def setUp(self):
         generate_test_world(radius = 10, density = 0.5, seed = 0)
+        self.list_url = reverse(f'{self.model.__name__.lower()}-list')
+
+    @property
+    def object(self):
+        return self.model.objects.all()[0]
+
+    @property
+    def object_url(self):
+        return reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = self.object.pk))
 
     def test_list(self):
         ignore_keys = getattr(self, 'ignore_keys', frozenset())
-        response = self.client.get(reverse(f'{self.model.__name__.lower()}-list'), format='json')
+        response = self.client.get(self.list_url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details(self.model.objects.all()), ignore_keys))
 
     def test_detail(self):
         ignore_keys = getattr(self, 'ignore_keys', frozenset())
         if self.model.objects.count() > 0:
-            obj = self.model.objects.all()[0]
-            url = reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = obj.pk))
-            response = self.client.get(url, format='json')
+            response = self.client.get(self.object_url, format='json')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details([obj])[0], ignore_keys))
+            self.assertEqual(normalize(response.data, ignore_keys), normalize(self.expected_details([self.object])[0], ignore_keys))
 
     def test_delete(self):
         if self.model.objects.count() > 0:
-            obj = self.model.objects.all()[0]
-            url = reverse(f'{self.model.__name__.lower()}-detail', kwargs = dict(pk = obj.pk))
-            response = self.client.delete(url)
+            response = self.client.delete(self.object_url)
             self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
 
@@ -306,6 +312,22 @@ class ProcessTest(BaseRestTest):
         # Check whether movement was aborted
         self.movable.refresh_from_db()
         self.assertEqual(tuple(self.movable.destination), tuple(self.movable.position))
+
+    def test_different_user(self):
+        self.client.logout()
+        User.objects.create_user(
+            username='testuser2',
+            password='password')
+        self.client.login(username='testuser2', password='password')
+
+        # Check forbidden access to details
+        response = self.client.get(self.object_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Check no appearance in list
+        response = self.client.get(self.list_url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
 
 
 # Do not run the base class as a test

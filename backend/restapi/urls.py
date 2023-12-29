@@ -18,7 +18,7 @@ router.register(r'blueprints'   , views.BlueprintViewSet)
 router.register(r'constructions', views.ConstructionViewSet)
 router.register(r'ships'        , views.ShipViewSet)
 
-router.register(r'processes', views.ProcessViewSet)
+router.register(r'processes', views.ProcessViewSet, basename = 'process')
 
 urlpatterns = [
     path('', include(router.urls)),
