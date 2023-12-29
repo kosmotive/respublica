@@ -80,15 +80,20 @@ class SectorViewSet(viewsets.ReadOnlyModelViewSet):
             by_whom__player = self.request.user,
             position_x = models.OuterRef('position_x'),
             position_y = models.OuterRef('position_y'))
-        #return Sector.objects.annotate(unveiled = Exists(unveiled_qs)).filter(unveiled = True)
         return Sector.objects.filter(models.Exists(unveiled_qs))
 
 
 class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Celestial.objects.all()
     serializer_class = CelestialSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        unveiled_qs = Unveiled.objects.filter(
+            by_whom__player = self.request.user,
+            position_x = models.OuterRef('sector__position_x'),
+            position_y = models.OuterRef('sector__position_y'))
+        return Celestial.objects.filter(models.Exists(unveiled_qs))
 
 
 class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):

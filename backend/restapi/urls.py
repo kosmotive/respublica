@@ -10,7 +10,7 @@ router.register(r'users', views.UserViewSet)
 router.register(r'worlds'    , views.WorldViewSet)
 router.register(r'movables'  , views.MovableViewSet)
 router.register(r'sectors'   , views.SectorViewSet   , basename = 'sector')
-router.register(r'celestials', views.CelestialViewSet)
+router.register(r'celestials', views.CelestialViewSet, basename = 'celestial')
 router.register(r'unveiled'  , views.UnveiledViewSet , basename = 'unveiled')
 
 router.register(r'empires'      , views.EmpireViewSet      , basename = 'empire')

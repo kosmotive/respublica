@@ -173,6 +173,12 @@ class CelestialTest(BaseRestTest):
     model = Celestial
     test_delete = False
 
+    def get_queryset(self):
+        empire = Empire.objects.get()
+        unveiled_sectors    = [Sector.objects.filter(position_x = u.position_x, position_y = u.position_y).first() for u in Unveiled.objects.filter(by_whom = empire)]
+        unveiled_sectors_qs =  Sector.objects.filter(id__in = [s.id for s in unveiled_sectors if s is not None])
+        return Celestial.objects.filter(sector__in = unveiled_sectors_qs)
+
     def expected_details(self, objects):
         return [
             {
