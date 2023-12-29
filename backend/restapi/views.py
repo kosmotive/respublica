@@ -95,16 +95,20 @@ class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
 
 class EmpireViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Empire.objects.all()
     serializer_class = EmpireSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Empire.objects.filter(player = self.request.user)
 
 
 class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
 
-    queryset = Blueprint.objects.all()
     serializer_class = BlueprintSerializer
-    #permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Blueprint.objects.filter(empire__player = self.request.user)
 
     @action(detail = True, methods = ['post'])
     def build(self, request, pk = None):
@@ -120,14 +124,15 @@ class BlueprintViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ConstructionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
-    queryset = Construction.objects.all()
     serializer_class = ConstructionSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Construction.objects.filter(blueprint__empire__player = self.request.user)
 
 
 class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
-    #queryset = Ship.objects.all()
     serializer_class = ShipSerializer
     permission_classes = [permissions.IsAuthenticated]
 

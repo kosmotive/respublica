@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.db import models
 
 from world import hexgrid
@@ -69,6 +70,8 @@ class Blueprint(models.Model):
         return self.base.get('requirements', list())
 
     def requirements_ok(self, celestial):
+        if celestial.habitated_by != self.empire:
+            raise PermissionDenied()
         if celestial.remaining_capacity < self.size:
             return False
         for requirement in self.requirements:

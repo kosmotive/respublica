@@ -223,6 +223,18 @@ class BlueprintTest(BaseRestTest):
     model = Blueprint
     test_delete = False
 
+    @property
+    def empire(self):
+        return Empire.objects.get()
+
+    @property
+    def celestial_url(self):
+        return reverse('celestial-detail', kwargs = dict(pk = self.empire.habitat.get().pk))
+
+    @property
+    def build_url(self):
+        return reverse('blueprint-build', kwargs = dict(pk = self.empire.blueprint_set.get(base_id = 'constructions/digital-cave').pk))
+
     def expected_details(self, objects):
         return [
             {
@@ -235,19 +247,30 @@ class BlueprintTest(BaseRestTest):
         ]
 
     def test_build(self):
-        # Get celestial
-        empire = Empire.objects.get()
-        celestial_url = reverse('celestial-detail', kwargs = dict(pk = empire.habitat.get().pk))
-
-        # Issue the build process
-        build_url = reverse('blueprint-build', kwargs = dict(pk = empire.blueprint_set.get(base_id = 'constructions/digital-cave').pk))
-        response = self.client.post(build_url, dict(celestial = celestial_url), format='json')
-
-        # Check build process APIs
+        response = self.client.post(self.build_url, dict(celestial = self.celestial_url), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(normalize(response.data), normalize(ProcessTest().expected_details([Process.objects.get()])[0]))
 
         return response.data['url']
+
+    def test_different_user(self):
+        super(BlueprintTest, self).test_different_user()
+
+        # Check forbidden access to "build" action
+        response = self.client.post(self.build_url, dict(celestial = self.celestial_url), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_celestial_of_different_user(self):
+        celestial = Celestial.objects \
+            .filter(features__capacity__gte = 1) \
+            .exclude(habitated_by = self.empire)[0]
+
+        # Issue the build process
+        celestial_url = reverse('celestial-detail', kwargs = dict(pk = celestial.pk))
+        response = self.client.post(self.build_url, dict(celestial = celestial_url), format='json')
+
+        # Check for denial
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class ConstructionTest(BaseRestTest):
