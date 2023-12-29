@@ -56,7 +56,7 @@ class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'celestial_set', 'movables']
+        fields = ['url', 'name', 'habitat', 'movables']
 
 
 class BlueprintSerializer(serializers.HyperlinkedModelSerializer):

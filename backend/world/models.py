@@ -192,7 +192,7 @@ class Celestial(models.Model):
     sector   = models.ForeignKey('Sector', on_delete = models.CASCADE)
     position = models.PositiveSmallIntegerField()
     features = models.JSONField()
-    habitated_by = models.ForeignKey('game.Empire', on_delete = models.SET_NULL, null = True, default = None)
+    habitated_by = models.ForeignKey('game.Empire', on_delete = models.SET_NULL, related_name = 'habitat', null = True, default = None)
 
     @property
     def capacity(self):

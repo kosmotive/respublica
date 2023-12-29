@@ -164,8 +164,8 @@ class EmpireTest(BaseRestTest):
             {
                 'url': reverse('empire-detail', kwargs = dict(pk = obj.pk)),
                 'name': obj.name,
-                'celestial_set': [
-                    reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.celestial_set.all()
+                'habitat': [
+                    reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.habitat.all()
                 ],
                 'movables': [
                     reverse('movable-detail', kwargs = dict(pk = process.pk)) for process in obj.movables.all()
@@ -194,7 +194,7 @@ class BlueprintTest(BaseRestTest):
     def test_build(self):
         # Get celestial
         empire = Empire.objects.get()
-        celestial_url = reverse('celestial-detail', kwargs = dict(pk = empire.celestial_set.get().pk))
+        celestial_url = reverse('celestial-detail', kwargs = dict(pk = empire.habitat.get().pk))
 
         # Issue the build process
         build_url = reverse('blueprint-build', kwargs = dict(pk = empire.blueprint_set.get(base_id = 'constructions/digital-cave').pk))
@@ -217,7 +217,7 @@ class ConstructionTest(BaseRestTest):
         # Add constructions
         empire    = Empire.objects.get()
         blueprint = empire.blueprint_set.get(base_id = 'constructions/digital-cave')
-        celestial = empire.celestial_set.get()
+        celestial = empire.habitat.get()
         Construction.objects.create(blueprint = blueprint, celestial = celestial)
 
     def expected_details(self, objects):
@@ -261,7 +261,7 @@ class ProcessTest(BaseRestTest):
         # Create build process
         empire    = Empire.objects.get()
         blueprint = empire.blueprint_set.get(base_id = 'constructions/digital-cave')
-        celestial = empire.celestial_set.get()
+        celestial = empire.habitat.get()
         blueprint.build(celestial = celestial)
 
     def expected_details(self, objects):
