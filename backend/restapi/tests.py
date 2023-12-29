@@ -261,6 +261,10 @@ class ShipTest(BaseRestTest):
 
     model = Ship
 
+    def setUp(self):
+        super(ShipTest, self).setUp()
+        self.client.login(username='testuser', password='password')
+
     def expected_details(self, objects):
         return [
             {

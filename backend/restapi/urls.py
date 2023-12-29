@@ -16,7 +16,7 @@ router.register(r'unveiled'  , views.UnveiledViewSet)
 router.register(r'empires'      , views.EmpireViewSet)
 router.register(r'blueprints'   , views.BlueprintViewSet)
 router.register(r'constructions', views.ConstructionViewSet)
-router.register(r'ships'        , views.ShipViewSet)
+router.register(r'ships'        , views.ShipViewSet, basename = 'ship')
 
 router.register(r'processes', views.ProcessViewSet, basename = 'process')
 

@@ -127,9 +127,12 @@ class ConstructionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixi
 
 class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
-    queryset = Ship.objects.all()
+    #queryset = Ship.objects.all()
     serializer_class = ShipSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Ship.objects.filter(blueprint__empire__player = self.request.user)
 
 
 class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
