@@ -104,6 +104,11 @@ class SectorViewSet(viewsets.ReadOnlyModelViewSet):
             position_y = models.OuterRef('position_y'))
         return Sector.objects.filter(models.Exists(unveiled_qs))
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['depth'] = int(self.request.query_params.get('depth', 0))
+        return context
+
 
 class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
 

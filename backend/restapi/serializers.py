@@ -85,6 +85,10 @@ class SectorSerializer(serializers.HyperlinkedModelSerializer):
         model  = Sector
         fields = ['url', 'position', 'name', 'celestial_set', 'process']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Meta.depth = self.context.get('depth', 0)
+
 
 class CelestialSerializer(serializers.HyperlinkedModelSerializer):
 
