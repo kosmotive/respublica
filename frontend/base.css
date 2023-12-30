@@ -1,3 +1,9 @@
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden
+}
+
 body {
   background-color: whitesmoke;
   font-family: "Gill Sans", sans-serif;
@@ -20,6 +26,11 @@ header {
   background-color: dimgrey;
   color: white;
   padding: 0.5rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
 }
 
 header .display {
@@ -28,10 +39,9 @@ header .display {
 }
 
 #hex-map-container {
-  position: relative;
+  position: absolute;
   width: 100%;
   height: 100%;
-  visibility: hidden;
 }
 
 #hex-map {
@@ -81,4 +91,69 @@ header .display {
 
 #hex-field-template {
   display: none;
+}
+
+#sector-view {
+  background: linear-gradient(#F5F5F500 0%, whitesmoke 70%);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 15rem;
+  z-index: 2;
+  text-align: right;
+}
+
+#sector-view .sector-name {
+  position: absolute;
+  font-family: cursive;
+  top: -2em;
+  right: 1rem;
+  font-size: 2rem;
+  filter: drop-shadow(0 0 0.15em black);
+  border-bottom: 2px solid black;
+}
+
+#sector-view .celestial {
+  display: inline-block;
+  position: relative;
+}
+
+#sector-view .celestial svg {
+  height: 60%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 0 0.15em black);
+}
+
+#sector-view .celestial .celestial-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: bold;
+}
+
+#sector-view .celestial .celestial-habitated {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  margin-top: -1.5em;
+  color: green;
+  text-transform: uppercase;
+}
+
+#sector-view .celestial .celestial-features {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  list-style-type: none;
+  margin: 0;
+  margin-top: 1.5em;
+  padding: 0;
+}
+
+#celestial-template {
+  display: none !important;
 }

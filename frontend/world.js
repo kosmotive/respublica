@@ -3,7 +3,7 @@ function world( api, hexFieldSize = 200 )
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const events =
     {
-        hex_field_click: function() {}
+        hex_field_click: function( x, y, sectorUrl ) {}
     };
 
     /* Returns the pixel coordinates of a hex field given in hex grid coordinates.
@@ -28,7 +28,11 @@ function world( api, hexFieldSize = 200 )
         hexField.find('a').attr( 'y', y );
         hexField.find('a').click( function()
         {
-            events.hex_field_click( this.getAttribute('x'), this.getAttribute('y') );
+            const x = parseInt( this.getAttribute( 'x' ) );
+            const y = parseInt( this.getAttribute( 'y' ) );
+
+            const hexField = getHexField( x, y );
+            events.hex_field_click( x, y, hexField.attr( 'sector' ) );
         });
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
@@ -102,11 +106,9 @@ function world( api, hexFieldSize = 200 )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
-                if( sector.celestial_set.length )
-                {
-                    hexField.find('.sector-star').css( 'display', 'inline' );
-                    hexField.find('.sector-star ellipse').attr( 'fill', 'orange' );
-                }
+                hexField.find( '.sector-star' ).css( 'display', 'inline' );
+                hexField.find( '.sector-star ellipse' ).attr( 'fill', 'orange' );
+                hexField.attr( 'sector', sector.url );
             }
         });
     }
@@ -118,7 +120,7 @@ function world( api, hexFieldSize = 200 )
         return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
-    /* Load the game.
+    /* Load the content.
      */
     $( document ).ready( function()
     {
@@ -126,6 +128,7 @@ function world( api, hexFieldSize = 200 )
         {
             /* Load the map.
              */
+            $( '#hex-map-container' ).hide();
             loadMap();
        
             /* Center the map upon the home world.
@@ -142,7 +145,7 @@ function world( api, hexFieldSize = 200 )
 
                             /* Show the map.
                              */
-                            $( '#hex-map-container' ).css( 'visibility', 'visible' );
+                            $( '#hex-map-container' ).fadeIn( 200 );
                         });
                     });
                 });
