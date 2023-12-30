@@ -91,13 +91,21 @@ function world( api, hexFieldSize = 200 )
                 createHexField( unveiled.position[0], unveiled.position[1] );
             }
         });
+        $.get( api.url + '/sectors', function( data )
+        {
+            for( const sector of data )
+            {
+                const hexField = getHexField( sector.position[0], sector.position[1] );
+                hexField.find( '.sector-name' ).text( sector.name );
+            }
+        });
     }
 
     /* Returns the hex field at the specified hex grid coordinates.
      */
     function getHexField( x, y )
     {
-        return $( `.hex-field a[x="${ sector.position[0] }"][y="${ sector.position[1] }"]` ).parent().parent();
+        return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
     /* Load the map and center the view upon the home world.
