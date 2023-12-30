@@ -29,6 +29,7 @@ function world( api, hexFieldSize = 200 )
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
         });
+        hexField.find('.sector-star').css( 'display', 'none' );
         return hexField;
     }
 
@@ -91,12 +92,17 @@ function world( api, hexFieldSize = 200 )
                 createHexField( unveiled.position[0], unveiled.position[1] );
             }
         });
-        $.get( api.url + '/sectors', function( data )
+        $.get( api.url + '/sectors?depth=1', function( data )
         {
             for( const sector of data )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
+                console.log( sector.celestial_set.length );
+                if( sector.celestial_set.length )
+                {
+                    hexField.find('.sector-star').css( 'display', 'inline' );
+                }
             }
         });
     }
