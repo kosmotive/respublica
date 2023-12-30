@@ -1,14 +1,16 @@
 from urllib.parse import urlparse
 
+from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.db import models
 from django.urls import resolve
-from rest_framework import permissions, viewsets, mixins, status
+from rest_framework import permissions, views, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from restapi.serializers import (
     UserSerializer,
+    LoginSerializer,
 
     WorldSerializer,
     MovableSerializer,
@@ -48,6 +50,18 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return User.objects.filter(id = self.request.user.id)
+
+
+class LoginView(views.APIView):
+
+    def post(self, request, format = None):
+        serializer = LoginSerializer(
+            data = self.request.data,
+            context = dict(request = self.request))
+        serializer.is_valid(raise_exception = True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return Response(None, status = status.HTTP_202_ACCEPTED)
 
 
 class WorldViewSet(viewsets.ReadOnlyModelViewSet):

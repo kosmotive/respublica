@@ -1,0 +1,39 @@
+<html>
+<head>
+
+<title>respublica</title>
+
+<script src="jquery-3.7.1.min.js"></script>
+<script src="app.js"></script>
+
+<link rel="stylesheet" href="base.css">
+
+</head>
+<body>
+
+<form id="login" action="/login/">
+
+    <div id="login-username">
+        <label for="username">Username</label>
+        <input name="username" type="text" />
+        <p class="error"></p>
+    </div>
+    
+    <div id="login-password">
+        <label for="password">Password</label>
+        <input name="password" type="password" />
+        <p class="error"></p>
+    </div>
+
+    <div id="login-non_field_errors">
+        <p class="error"></p>
+    </div>
+    
+    <div>
+        <input name="submit" value="Login" type="submit" />
+    </div>
+
+</form>
+
+</body>
+</html>

@@ -22,6 +22,7 @@ router.register(r'processes', views.ProcessViewSet, basename = 'process')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('login/', views.LoginView.as_view()),
 ]
 
 urlpatterns += router.urls

@@ -1,5 +1,19 @@
 body {
   background-color: whitesmoke;
+  font-family: "Gill Sans", sans-serif;
+}
+
+form div {
+  margin: 1rem;
+}
+
+form label {
+  display: block;
+}
+
+form p.error {
+  margin-top: 0;
+  color: red;
 }
 
 #hex-map {
