@@ -98,7 +98,6 @@ function world( api, hexFieldSize = 200 )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
-                console.log( sector.celestial_set[0] );
                 if( sector.celestial_set.length )
                 {
                     hexField.find('.sector-star').css( 'display', 'inline' );
@@ -115,14 +114,18 @@ function world( api, hexFieldSize = 200 )
         return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
-    /* Load the map and center the view upon the home world.
+    /* Load the game.
      */
     $( document ).ready( function()
     {
         if( $( '#hex-map' ).length )
         {
+            /* Load the map.
+             */
             loadMap();
-        
+       
+            /* Center the map upon the home world.
+             */ 
             $.get( api.url + '/users', function( users )
             {
                 $.get( users[0].empire, function( empire )
@@ -135,6 +138,41 @@ function world( api, hexFieldSize = 200 )
                         });
                     });
                 });
+            });
+
+            /* Update displays according to game status.
+             */
+            $.get( api.url + '/worlds', function( worlds )
+            {
+                var remainingSeconds = worlds[0].remaining_seconds
+                const updateRemainingSeconds = function()
+                {
+                    var remainingTime;
+
+                    if( remainingSeconds <= 60 )
+                        remainingTime = `${ remainingSeconds } seconds`
+                    else
+                    if( remainingSeconds <= 60 * 60 )
+                        remainingTime = `${ Math.floor( remainingSeconds / 60 ) } minutes`
+                    else
+                        remainingTime = `${ Math.floor( remainingSeconds / ( 60 * 60 ) ) } hours`
+
+                    if( remainingSeconds >= 0 )
+                    {
+                        $(' #remaining-time ').text( remainingTime );
+                        --remainingSeconds;
+                    }
+                    else
+                    {
+                        clearTimeout( updateRemainingSeconds );
+                        location.reload();
+                    }
+                };
+
+                $(' #ticks ').text( worlds[0].now );
+
+                updateRemainingSeconds();
+                const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
             });
         }
     });

@@ -16,6 +16,17 @@ form p.error {
   color: red;
 }
 
+header {
+  background-color: dimgrey;
+  color: white;
+  padding: 0.5rem;
+}
+
+header .display {
+  display: inline-block;
+  margin-left: 1rem;
+}
+
 #hex-map-container {
   position: relative;
   width: 100%;
