@@ -14,8 +14,16 @@ function createHexField( x, y )
         console.log('clicked: ' + this.getAttribute('x') + ', ' + this.getAttribute('y'));
     });
     const scaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
+    const pxX = x * hexFieldSize * scaleFactor / 2;
+    const pxY = y * hexFieldSize * 0.75 * scaleFactor;
     hexField.css({
-        left: x * hexFieldSize * scaleFactor / 2, top: y * hexFieldSize * 0.75 * scaleFactor
+        left: pxX, top: pxY
+    });
+    hexField.data( 'center', function()
+    {
+        $( '#hex-map' ).attr( 'x', -pxX + $( '#hex-map-container' ). width() / 2 -  hexField.width() / 2 );
+        $( '#hex-map' ).attr( 'y', -pxY + $( '#hex-map-container' ).height() / 2 - hexField.height() / 2 );
+        $( '#hex-map' ).data( 'updatePosition' ).call( $( '#hex-map' )[0] );
     });
     return hexField;
 }
@@ -23,6 +31,12 @@ function createHexField( x, y )
 
 function loadMap()
 {
+    $( '#hex-map' ).data( 'updatePosition', function()
+    {
+        $( this ).css( 'left', this.getAttribute( 'x' ) );
+        $( this ).css(  'top', this.getAttribute( 'y' ) );
+    });
+
     var initialX = null, initialY = null; // the coordinates of the mouse when dragging started
     var offsetX = null; offsetY = null; // the offset of the map before dragging started
     var dragging = false; // indicates whether the mouse was pressed *on the map* and not somewhere else
@@ -38,9 +52,7 @@ function loadMap()
 
             this.setAttribute( 'x', offsetX + event.clientX - initialX );
             this.setAttribute( 'y', offsetY + event.clientY - initialY );
-
-            $( this ).css( 'left', this.getAttribute( 'x' ) );
-            $( this ).css(  'top', this.getAttribute( 'y' ) );
+            $( this ).data( 'updatePosition' ).call( this );
 
             event.preventDefault();
         },
@@ -56,14 +68,11 @@ function loadMap()
         }
     });
 
-    $.get({
-        url: api + '/unveiled',
-        success: function( data )
+    $.get( api + '/unveiled', function( data )
+    {
+        for( const unveiled of data )
         {
-            for( const unveiled of data )
-            {
-                createHexField( unveiled.position[0], unveiled.position[1] );
-            }
+            createHexField( unveiled.position[0], unveiled.position[1] );
         }
     });
 }
@@ -118,12 +127,19 @@ $( document ).ready( function()
 
         loadMap();
     
-        $.get({
-            url: api + '/users',
-            success: function( data )
+        $.get( api + '/users', function( users )
+        {
+            $.get( users[0].empire, function( empire )
             {
-                console.log( data[0].empire );
-            }
+                $.get( empire.habitat[0], function( celestial )
+                {
+                    $.get( celestial.sector, function( sector )
+                    {
+                        const hexField = $( `.hex-field a[x="${ sector.position[0] }"][y="${ sector.position[1] }"]` ).parent().parent();
+                        hexField.data( 'center' )();
+                    });
+                });
+            });
         });
     }
 });
