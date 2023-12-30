@@ -16,14 +16,32 @@ form p.error {
   color: red;
 }
 
-#hex-map {
+#hex-map-container {
   position: relative;
+}
+
+#hex-map {
+  position: absolute;
 }
 
 .hex-field {
   width: 200px;
   height: 200px;
   position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hex-field:hover {
+  z-index: 1;
+}
+
+.hex-field svg a {
+  pointer-events: all;
+}
+
+.hex-field a:hover polygon {
+  stroke: white;
 }
 
 #hex-field-template {

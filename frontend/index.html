@@ -11,19 +11,21 @@
 </head>
 <body>
 
-<div id="hex-map">
-
-<div class="hex-field" id="hex-field-template">
-
-<svg height="100%" width="100%" viewbox="-2 -2 104 104">
-    <pattern id="hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)">
-        <path d="M 0,2 l 4,0" stroke="black" stroke-width="0.1" />
-    </pattern>
-    <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="white" fill="url(#hatch)" stroke-width="4" />
-</svg>
-
-</div>
-
+<div id="hex-map-container">
+    <div id="hex-map" x="0" y="0">
+    
+        <div class="hex-field" id="hex-field-template">
+            <svg height="100%" width="100%" viewbox="-2 -2 104 104">
+                <a href="#">
+                <pattern id="hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)">
+                    <path d="M 0,2 l 4,0" stroke="black" stroke-width="0.1" />
+                </pattern>
+                <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#hatch)" stroke-width="4" />
+                </a>
+            </svg>
+        </div>
+    
+    </div>
 </div>
 
 </body>
