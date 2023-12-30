@@ -24,16 +24,18 @@
                 </a>
             </svg>
             <div class="sector-name"></div>
-            <svg class="sector-star" height="25%" width="25%" viewbox="0 0 100 100">
+            <svg class="sector-star" height="30%" width="30%" viewbox="0 0 100 100">
                 <defs>
-                    <filter id="glow">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
-                        <feMerge>
-                            <feMergeNode />
-                            <feMergeNode in="SourceGraphic" />
-                        </feMerge>
+                    <filter id="blur_v">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="0,10" />
                     </filter>
-                    <filter id="displacementFilter" x="0%" y="0%">
+                    <filter id="blur_h">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5,0" />
+                    </filter>
+                    <filter id="blur_c">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="5" />
+                    </filter>
+                    <!--<filter id="displacementFilter" x="0%" y="0%">
                         <feTurbulence
                             type="turbulence"
                             baseFrequency="0.15"
@@ -46,10 +48,12 @@
                             scale="15"
                             xChannelSelector="R"
                             yChannelSelector="G" />
-                    </filter>
+                    </filter>-->
                 </defs>
-                <circle cx="50" cy="50" r="30" fill="yellow" filter="url(#glow)" />
-                <circle cx="46" cy="46" r="25" stroke="black" stroke-width="5" fill="none" filter="url(#displacementFilter)" />
+                <ellipse cx="50" cy="50" rx="5" ry="40" fill="yellow" filter="url(#blur_v)" />
+                <ellipse cx="50" cy="50" rx="25" ry="10" fill="yellow" filter="url(#blur_h)" />
+                <circle cx="50" cy="50" r="18" fill="white" filter="url(#blur_c)" />
+                <!--<circle cx="46" cy="46" r="25" stroke="black" stroke-width="5" fill="none" filter="url(#displacementFilter)" />-->
             </svg>
         </div>
     

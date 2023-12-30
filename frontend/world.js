@@ -98,10 +98,11 @@ function world( api, hexFieldSize = 200 )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
-                console.log( sector.celestial_set.length );
+                console.log( sector.celestial_set[0] );
                 if( sector.celestial_set.length )
                 {
                     hexField.find('.sector-star').css( 'display', 'inline' );
+                    hexField.find('.sector-star ellipse').attr( 'fill', 'orange' );
                 }
             }
         });
