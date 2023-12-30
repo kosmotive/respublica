@@ -1,6 +1,10 @@
 function world( api, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
+    const events =
+    {
+        hex_field_click: function() {}
+    };
 
     /* Returns the pixel coordinates of a hex field given in hex grid coordinates.
      */
@@ -24,7 +28,7 @@ function world( api, hexFieldSize = 200 )
         hexField.find('a').attr( 'y', y );
         hexField.find('a').click( function()
         {
-            console.log('clicked: ' + this.getAttribute('x') + ', ' + this.getAttribute('y'));
+            events.hex_field_click( this.getAttribute('x'), this.getAttribute('y') );
         });
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
@@ -177,8 +181,10 @@ function world( api, hexFieldSize = 200 )
         }
     });
 
-    return
+    const ret =
     {
+        events: events,
         centerMap: centerMap
     };
+    return ret;
 }
