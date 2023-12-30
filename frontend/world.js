@@ -139,6 +139,10 @@ function world( api, hexFieldSize = 200 )
                         $.get( celestial.sector, function( sector )
                         {
                             centerMap( sector.position[0], sector.position[1] );
+
+                            /* Show the map.
+                             */
+                            $( '#hex-map-container' ).css( 'visibility', 'visible' );
                         });
                     });
                 });
