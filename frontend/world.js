@@ -1,6 +1,7 @@
 function world( api, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
+    const movables = {};
     const events =
     {
         /* Fired when a hex field is cliked (x, y, sectorUrl).
@@ -42,6 +43,26 @@ function world( api, hexFieldSize = 200 )
         hexField.find('.sector-star').css( 'display', 'none' );
         return hexField;
     }
+
+    /* Load all movables.
+     */
+    $.get( api.url + '/movables?depth=1', function( data )
+    {
+        for( const movable of data )
+        {
+            const key = `x=${movable.position[0]} y=${movable.position[1]}`;
+            if( !movables[key] ) movables[key] = [];
+            movables[key].push( movable );
+        }
+    });
+
+    /* Returns movables at specified position in hex coordinates.
+     */
+    function getMovables( x, y )
+    {
+        const key = `x=${x} y=${y}`;
+        return movables[key];
+    };
 
     /* Centers the hex map upon the hex field specified in hex grid coordinates.
      */
@@ -109,7 +130,7 @@ function world( api, hexFieldSize = 200 )
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
                 hexField.find( '.sector-star' ).css( 'display', 'inline' );
-                hexField.find( '.sector-star ellipse' ).attr( 'fill', 'orange' );
+                hexField.find( '.sector-star .star-brush' ).attr( 'fill', 'orange' );
                 hexField.attr( 'sector', sector.url );
             }
         });
@@ -193,7 +214,9 @@ function world( api, hexFieldSize = 200 )
     const ret =
     {
         events: events,
-        centerMap: centerMap
+        centerMap: centerMap,
+        movables: movables,
+        getMovables: getMovables
     };
     return ret;
 }

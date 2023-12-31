@@ -8,3 +8,11 @@
   background-color: dimgrey;
   color: white;
 }
+
+#movable-template {
+  display: none !important;
+}
+
+#ship-template {
+  display: none !important;
+}

@@ -82,6 +82,11 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
             position_y = models.OuterRef('position_y'))
         return Movable.objects.filter(models.Exists(unveiled_qs))
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['depth'] = int(self.request.query_params.get('depth', 0))
+        return context
+
     @action(detail = True, methods = ['post'])
     def move_to(self, request, pk = None):
         movable = self.get_object()

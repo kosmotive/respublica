@@ -76,6 +76,10 @@ class MovableSerializer(serializers.HyperlinkedModelSerializer):
         model  = Movable
         fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner', 'process']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.Meta.depth = self.context.get('depth', 0)
+
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):
 

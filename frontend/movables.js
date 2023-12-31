@@ -6,11 +6,23 @@ function movables( api, world )
 
     /* Creates a new movable view.
      */
-    function createMovableView( sector, movable )
+    function createMovableView( movable )
     {
         const movableView = $( '#movable-template' ).clone();
-        movableView.prependTo( '#movables-view' );
+        movableView.appendTo( '#movables-list' );
         movableView.attr( 'id', '' );
+
+        const shipTemplate = movableView.find( '#ship-template' ).clone();
+        for( const ship in movable.ship_set )
+        {
+            const shipView = shipTemplate.clone();
+            shipView.attr( 'id', '' );
+            shipView.appendTo( movableView.find( '.ship-list' ) );
+            shipView.text( ship );
+        }
+        shipTemplate.remove();
+
+        console.log( movable );
         return movableView;
     }
 
@@ -25,7 +37,22 @@ function movables( api, world )
             {
                 /* Show or hide the sector view, depending on whether the clicked hex contains movables
                  */
-                $( '#movables-view' ).fadeIn( 200 );
+                const movables = world.getMovables( x, y );
+                if( movables )
+                {
+                    $( '#movables-view .movable:not(#movable-template)' ).remove();
+
+                    for( const movable of movables )
+                    {
+                        createMovableView( movable );
+                    }
+
+                    $( '#movables-view' ).fadeIn( 200 );
+                }
+                else
+                {
+                    $( '#movables-view' ).fadeOut( 200 );
+                }
             });
         }
     })

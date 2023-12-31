@@ -53,7 +53,6 @@ function sector( api, world )
                     {
                         $( '#sector-view .sector-name' ).text( sector.name );
                         $( '#sector-view .celestial:not(#celestial-template)' ).remove();
-                        $( '#sector-view' ).fadeIn( 200 );
 
                         /* Load celestials.
                          */
@@ -61,6 +60,8 @@ function sector( api, world )
                         {
                             createCelestialView( sector, celestial );
                         }
+
+                        $( '#sector-view' ).fadeIn( 200 );
                     });
                 }
                 else
