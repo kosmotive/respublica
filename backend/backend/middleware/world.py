@@ -1,3 +1,5 @@
+from django.db.utils import OperationalError
+
 from world.models import World
 
 
@@ -8,5 +10,10 @@ class WorldTickMiddleware:
 
     def __call__(self, request):
         world = World.objects.get()
-        world.do_pending_ticks()
+
+        try:
+            world.do_pending_ticks()
+        except OperationalError:
+            pass  ## an update is already being performed
+
         return self.get_response(request)
