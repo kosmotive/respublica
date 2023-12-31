@@ -35,7 +35,7 @@ function movables( api, world )
         movableView.appendTo( $( '#movables-view .movables-list' ) );
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
-        movableView.find( '.movable-name' ).text( 'Group X' );
+        movableView.find( '.movable-name' ).text( movable.name );
         movableView.find( '.action-move' ).on( 'click',
             function()
             {

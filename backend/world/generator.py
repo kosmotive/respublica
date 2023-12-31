@@ -110,6 +110,7 @@ def generate_test_world(*args, **kwargs):
             empire = empire,
             base_id = 'ships/colony-ship'),
         movable = Movable.objects.create(
+            name = 'Group 1',
             position_x = celestial.sector.position_x,
             position_y = celestial.sector.position_y))
 

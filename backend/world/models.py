@@ -92,6 +92,7 @@ class Movable(Positionable):
     destination_y = models.IntegerField(null = True)
 
     custom_speed = models.FloatField(null = True, default = None)
+    name = models.CharField(max_length = 50, default = 'Unnamed');
 
     class Meta:
         constraints = [

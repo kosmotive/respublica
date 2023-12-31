@@ -50,7 +50,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         const movables = getMovables( x, y );
         for( const movable of movables )
         {
-            $( `<li class="movable">${ "Group X" }</li>` ).appendTo( hexField.find('.sector-movables') );
+            $( `<li class="movable">${ movable.name }</li>` ).appendTo( hexField.find('.sector-movables') );
         }
 
         return hexField;
