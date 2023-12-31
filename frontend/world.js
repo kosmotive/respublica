@@ -1,4 +1,4 @@
-function world( api, hexFieldSize = 200 )
+function world( api, blueprints, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const movables = {};
@@ -46,13 +46,18 @@ function world( api, hexFieldSize = 200 )
 
     /* Load all movables.
      */
-    $.get( api.url + '/movables?depth=1', function( data )
+    const loadMovables = $.get( api.url + '/movables?depth=1', function( data )
     {
         for( const movable of data )
         {
             const key = `x=${movable.position[0]} y=${movable.position[1]}`;
             if( !movables[key] ) movables[key] = [];
             movables[key].push( movable );
+
+            for( const ship of movable.ship_set )
+            {
+                blueprints.require( ship.blueprint );
+            }
         }
     });
 
@@ -143,72 +148,103 @@ function world( api, hexFieldSize = 200 )
         return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
-    /* Load the content.
+    /* Resolve blueprints and load the world content.
+     */
+    $.when( loadMovables ).done(
+        function()
+        {
+            blueprints.resolve();
+            blueprints.whenResolved(
+                function()
+                {
+                    /* Update the required blueprints with the resolved data.
+                     */
+                    for( const movablesList of Object.values( movables ) )
+                    {
+                        for( const movable of movablesList )
+                        {
+                            for( const ship of movable.ship_set )
+                            {
+                                ship.blueprint = blueprints.get( ship.blueprint );
+                            }
+                        }
+                    }
+
+                    /* Load the content.
+                     */
+                    $( document ).ready(
+                        function()
+                        {
+                            if( $( '#hex-map' ).length )
+                            {
+                                /* Load the map.
+                                 */
+                                $( '#hex-map-container' ).hide();
+                                loadMap();
+                           
+                                /* Center the map upon the home world.
+                                 */ 
+                                $.get( api.url + '/users', function( users )
+                                {
+                                    $.get( users[0].empire, function( empire )
+                                    {
+                                        $.get( empire.habitat[0], function( celestial )
+                                        {
+                                            $.get( celestial.sector, function( sector )
+                                            {
+                                                centerMap( sector.position[0], sector.position[1] );
+
+                                                /* Show the map.
+                                                 */
+                                                $( '#hex-map-container' ).fadeIn( 200 );
+                                            });
+                                        });
+                                    });
+                                });
+                            } // if( $( '#hex-map' ).length )
+                        }
+                    ); // $( document ).ready
+                }
+            ); // blueprints.whenResolved
+        }
+    );
+
+    /* Update displays according to game status.
      */
     $( document ).ready( function()
     {
-        if( $( '#hex-map' ).length )
+        $.get( api.url + '/worlds', function( worlds )
         {
-            /* Load the map.
-             */
-            $( '#hex-map-container' ).hide();
-            loadMap();
-       
-            /* Center the map upon the home world.
-             */ 
-            $.get( api.url + '/users', function( users )
+            var remainingSeconds = worlds[0].remaining_seconds
+            const updateRemainingSeconds = function()
             {
-                $.get( users[0].empire, function( empire )
+                var remainingTime;
+
+                if( remainingSeconds <= 60 )
+                    remainingTime = `${ remainingSeconds } seconds`
+                else
+                if( remainingSeconds <= 60 * 60 )
+                    remainingTime = `${ Math.floor( remainingSeconds / 60 ) } minutes`
+                else
+                    remainingTime = `${ Math.floor( remainingSeconds / ( 60 * 60 ) ) } hours`
+
+                if( remainingSeconds >= 0 )
                 {
-                    $.get( empire.habitat[0], function( celestial )
-                    {
-                        $.get( celestial.sector, function( sector )
-                        {
-                            centerMap( sector.position[0], sector.position[1] );
-
-                            /* Show the map.
-                             */
-                            $( '#hex-map-container' ).fadeIn( 200 );
-                        });
-                    });
-                });
-            });
-
-            /* Update displays according to game status.
-             */
-            $.get( api.url + '/worlds', function( worlds )
-            {
-                var remainingSeconds = worlds[0].remaining_seconds
-                const updateRemainingSeconds = function()
+                    $(' #remaining-time ').text( remainingTime );
+                    --remainingSeconds;
+                }
+                else
                 {
-                    var remainingTime;
+                    clearTimeout( updateRemainingSeconds );
+                    location.reload();
+                }
+            };
 
-                    if( remainingSeconds <= 60 )
-                        remainingTime = `${ remainingSeconds } seconds`
-                    else
-                    if( remainingSeconds <= 60 * 60 )
-                        remainingTime = `${ Math.floor( remainingSeconds / 60 ) } minutes`
-                    else
-                        remainingTime = `${ Math.floor( remainingSeconds / ( 60 * 60 ) ) } hours`
+            $(' #ticks ').text( worlds[0].now );
 
-                    if( remainingSeconds >= 0 )
-                    {
-                        $(' #remaining-time ').text( remainingTime );
-                        --remainingSeconds;
-                    }
-                    else
-                    {
-                        clearTimeout( updateRemainingSeconds );
-                        location.reload();
-                    }
-                };
-
-                $(' #ticks ').text( worlds[0].now );
-
-                updateRemainingSeconds();
-                const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
-            });
-        }
+            updateRemainingSeconds();
+            const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
+        });
     });
 
     const ret =

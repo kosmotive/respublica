@@ -4,13 +4,15 @@ function login( api )
     {
         if( $( '#login' ).length )
         {
+            api.config.redirect403 = false;
+
             $( '#login' ).on( 'submit', function( event )
             {
                 event.preventDefault();
 
                 $.ajax({
                     type: 'POST',
-                    url: api + $( '#login' ).attr('action'),
+                    url: api.url + $( '#login' ).attr('action'),
                     data: $( '#login' ).serialize(),
                     statusCode:
                     {

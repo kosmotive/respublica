@@ -16,3 +16,59 @@
 #ship-template {
   display: none !important;
 }
+
+#movables-view .movables-list {
+  list-style-type: none;
+  margin: 1rem;
+  margin-top: 0.2rem;
+  padding: 0;
+}
+
+#movables-view .movables-list .movable {
+  background-color: white;
+  color: black;
+  border: 1px solid white;
+  border-radius: 1em;
+  padding: 1em;
+}
+
+#movables-view .movables-list .movable-name {
+  font-weight: bold;
+}
+
+#movables-view .movables-list .movable .ship-list {
+}
+
+#movables-view .movables-list .movable .ship-list .ship {
+}
+
+#movables-view .movables-list .movable .action-list {
+  list-style-type: none;
+  margin: 0;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+#movables-view .movables-list .movable .action-list .action {
+  display: inline-block;
+  font-size: 0.8em;
+}
+
+#movables-view .movables-list .movable .action-list .action {
+  border-radius: 2em;
+  background-color: dimgrey;
+  color: white;
+  text-decoration: none;
+  padding: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  cursor: pointer;
+}
+
+#movables-view .movables-list .movable .action-list .action:hover {
+  background-color: gray;
+}
+
+#movables-view .movables-list .movable .action-list .action-toggled {
+  color: red;
+}
