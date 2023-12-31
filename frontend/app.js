@@ -1,3 +1,14 @@
+/* Load CallbackStack.
+ */
+$.ajax({
+    url: 'callbacks.js',
+    dataType: 'script',
+    async: false
+});
+
+
+/* Load modules.
+ */
 function loadModule( module, ...args )
 {
     this.load = 
@@ -10,6 +21,8 @@ function loadModule( module, ...args )
 }
 
 
+/* Plug the modules together.
+ */
 const app = Object()
 
 app.api        = loadModule( 'api'       , url = 'http://127.0.0.1:8000/api' );

@@ -6,8 +6,10 @@ function world( api, blueprints, hexFieldSize = 200 )
     {
         /* Fired when a hex field is cliked (x, y, sectorUrl).
          */
-        hex_field_click: $.Callbacks()
+        hex_field_click: new CallbackStack()
     };
+
+    var clickableMap = false; // indicates whether click events on #hex-map should be treated as map clicks
 
     /* Returns the pixel coordinates of a hex field given in hex grid coordinates.
      */
@@ -31,6 +33,9 @@ function world( api, blueprints, hexFieldSize = 200 )
         hexField.find('a').attr( 'y', y );
         hexField.find('a').click( function()
         {
+            console.log( clickableMap );
+            if( !clickableMap ) return;
+
             const x = parseInt( this.getAttribute( 'x' ) );
             const y = parseInt( this.getAttribute( 'y' ) );
 
@@ -107,11 +112,13 @@ function world( api, blueprints, hexFieldSize = 200 )
                 this.setAttribute( 'y', offsetY + event.clientY - initialY );
                 updateMap();
     
+                clickableMap = false;
                 event.preventDefault();
             },
             mousedown: function( event )
             {
                 dragging = true;
+                clickableMap = true;
     
                 initialX = event.clientX;
                 initialY = event.clientY;

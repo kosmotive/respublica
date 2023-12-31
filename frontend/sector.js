@@ -43,7 +43,7 @@ function sector( api, world )
         if( $( '#sector-view' ).length )
         {
             $( '#sector-view' ).hide();
-            world.events.hex_field_click.add( function( x, y, sectorUrl )
+            world.events.hex_field_click.push( function( x, y, sectorUrl )
             {
                 /* Show or hide the sector view, depending on whether the clicked hex field is a sector
                  */
@@ -68,6 +68,7 @@ function sector( api, world )
                 {
                     $( '#sector-view' ).fadeOut( 200 );
                 }
+                return true;
             });
         }
     })
