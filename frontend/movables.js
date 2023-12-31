@@ -10,12 +10,18 @@ function movables( api, world )
     function moveTo( x, y )
     {
         if( !selectedMovable ) return true;
+        const movable = selectedMovable;
         $.ajax({
             type: 'POST',
-            url: selectedMovable.url + 'move_to/',
+            url: movable.url + 'move_to/',
             contentType: 'application/json',
             data: `{"x":${x}, "y":${y}}`,
-            beforeSend: api.augmentRequestWithCSRFToken                
+            beforeSend: api.augmentRequestWithCSRFToken,
+            success: function( data )
+            {
+                Object.assign( movable, data );
+                updateMovableView( movable );
+            }
         });
         $( `#movables-view .movable[url="${ selectedMovable.url }"] .action-move` ).trigger( 'click' );
         return false;
@@ -58,7 +64,31 @@ function movables( api, world )
         }
         shipTemplate.remove();
 
+        updateMovableView( movable );
         return movableView;
+    }
+
+    /* Update the movable view.
+     */
+    function updateMovableView( movable )
+    {
+        const movableView = $( `.movable[url="${ movable.url }"]` );
+        if( JSON.stringify( movable.destination ) == JSON.stringify( movable.position ) )
+        {
+            movableView.find( '.movable-status' ).text( '' );
+        }
+        else
+        {
+            movableView.find( '.movable-status' ).html( '&nbsp;' );
+            $.get( movable.process,
+                function( process )
+                {
+                    var turns = process.end_tick - world.status.tick;
+                    turns = turns == 1 ? `${ turns } turn` : `${ turns } turns`;
+                    movableView.find( '.movable-status' ).text( `Jumping in ${ turns }` );
+                }
+            );
+        }
     }
 
     /* Load the content.

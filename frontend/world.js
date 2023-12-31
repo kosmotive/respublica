@@ -2,6 +2,7 @@ function world( api, blueprints, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const movables = {};
+    const status = {};
     const events =
     {
         /* Fired when a hex field is cliked (x, y, sectorUrl).
@@ -33,7 +34,6 @@ function world( api, blueprints, hexFieldSize = 200 )
         hexField.find('a').attr( 'y', y );
         hexField.find('a').click( function()
         {
-            console.log( clickableMap );
             if( !clickableMap ) return;
 
             const x = parseInt( this.getAttribute( 'x' ) );
@@ -248,6 +248,7 @@ function world( api, blueprints, hexFieldSize = 200 )
             };
 
             $(' #ticks ').text( worlds[0].now );
+            status.tick = worlds[0].now;
 
             updateRemainingSeconds();
             const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
@@ -259,7 +260,8 @@ function world( api, blueprints, hexFieldSize = 200 )
         events: events,
         centerMap: centerMap,
         movables: movables,
-        getMovables: getMovables
+        getMovables: getMovables,
+        status: status
     };
     return ret;
 }

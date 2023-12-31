@@ -20,20 +20,25 @@
 #movables-view .movables-list {
   list-style-type: none;
   margin: 1rem;
+  margin-right: 0;
   margin-top: 0.2rem;
   padding: 0;
 }
 
 #movables-view .movables-list .movable {
-  background-color: white;
+  background-color: whitesmoke;
   color: black;
-  border: 1px solid white;
-  border-radius: 1em;
+  border-top-left-radius: 1em;
+  border-bottom-left-radius: 1em;
   padding: 1em;
 }
 
 #movables-view .movables-list .movable-name {
   font-weight: bold;
+}
+
+#movables-view .movables-list .movable-status {
+  font-size: 0.8em;
 }
 
 #movables-view .movables-list .movable .ship-list {
