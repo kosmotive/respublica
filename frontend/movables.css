@@ -1,0 +1,10 @@
+#movables-view {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  top: 2rem;
+  width: 15rem;
+  z-index: 2;
+  background-color: dimgrey;
+  color: white;
+}

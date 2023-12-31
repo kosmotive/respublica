@@ -1,0 +1,55 @@
+#hex-map-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+#hex-map {
+  position: absolute;
+}
+
+.hex-field {
+  width: 200px;
+  height: 200px;
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hex-field:hover {
+  z-index: 1;
+}
+
+.hex-field svg a {
+  pointer-events: all;
+}
+
+.hex-field a:hover polygon {
+  stroke: white;
+}
+
+.hex-field .sector-name {
+  position: absolute;
+  text-align: center;
+  font-family: cursive;
+  left: 0;
+  right: 0;
+  bottom: 22%;
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 0.15em black);
+}
+
+.hex-field .sector-star {
+  position: absolute;
+  transform: rotate(-26.5deg);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+#hex-field-template {
+  display: none;
+}
+

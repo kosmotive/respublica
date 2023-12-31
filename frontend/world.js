@@ -3,7 +3,9 @@ function world( api, hexFieldSize = 200 )
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const events =
     {
-        hex_field_click: function( x, y, sectorUrl ) {}
+        /* Fired when a hex field is cliked (x, y, sectorUrl).
+         */
+        hex_field_click: $.Callbacks()
     };
 
     /* Returns the pixel coordinates of a hex field given in hex grid coordinates.
@@ -32,7 +34,7 @@ function world( api, hexFieldSize = 200 )
             const y = parseInt( this.getAttribute( 'y' ) );
 
             const hexField = getHexField( x, y );
-            events.hex_field_click( x, y, hexField.attr( 'sector' ) );
+            events.hex_field_click.fire( x, y, hexField.attr( 'sector' ) );
         });
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
