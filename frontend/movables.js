@@ -103,7 +103,7 @@ function movables( api, world )
                 /* Show or hide the sector view, depending on whether the clicked hex contains movables
                  */
                 const movables = world.getMovables( x, y );
-                if( movables )
+                if( movables.length )
                 {
                     $( '#movables-view .movable:not(#movable-template)' ).remove();
 

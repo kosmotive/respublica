@@ -46,6 +46,13 @@ function world( api, blueprints, hexFieldSize = 200 )
             left: getHexX( x ), top: getHexY( y )
         });
         hexField.find('.sector-star').css( 'display', 'none' );
+
+        const movables = getMovables( x, y );
+        for( const movable of movables )
+        {
+            $( `<li class="movable">${ "Group X" }</li>` ).appendTo( hexField.find('.sector-movables') );
+        }
+
         return hexField;
     }
 
@@ -71,7 +78,7 @@ function world( api, blueprints, hexFieldSize = 200 )
     function getMovables( x, y )
     {
         const key = `x=${x} y=${y}`;
-        return movables[key];
+        return movables[key] || [];
     };
 
     /* Centers the hex map upon the hex field specified in hex grid coordinates.
