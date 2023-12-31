@@ -48,10 +48,12 @@ function movables( api, world )
         function( x, y, sectorUrl )
         {
             if( !selectedMovable ) return;
-            $.post({
+            $.ajax({
+                type: 'POST',
                 url: selectedMovable.url + 'move_to/',
                 contentType: 'application/json',
-                data: `{"x":${x}, "y":${y}}`
+                data: `{"x":${x}, "y":${y}}`,
+                beforeSend: api.augmentRequestWithCSRFToken                
             });
             selectedMovable = null;
         }
