@@ -3,6 +3,7 @@ function world( api, blueprints, hexFieldSize = 200 )
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const movables = {};
     const status = {};
+    const empires = {};
     const events =
     {
         /* Fired when a hex field is cliked (x, y, sectorUrl).
@@ -53,6 +54,12 @@ function world( api, blueprints, hexFieldSize = 200 )
             $( `<li class="movable">${ movable.name }</li>` ).appendTo( hexField.find('.sector-movables') );
         }
 
+        const owners = getHexOwners( x, y );
+        if( owners.length )
+        {
+            hexField.find( '.hex-field-hatch' ).attr( 'stroke', 'cornflowerblue' );
+        }
+
         return hexField;
     }
 
@@ -73,11 +80,18 @@ function world( api, blueprints, hexFieldSize = 200 )
         }
     });
 
+    /* Encodes hex coordinates into string (required for inclusion testing in javascript).
+     */
+    function hex2str( x, y )
+    {
+        return `x=${x} y=${y}`;
+    }
+
     /* Returns movables at specified position in hex coordinates.
      */
     function getMovables( x, y )
     {
-        const key = `x=${x} y=${y}`;
+        const key = hex2str( x, y);
         return movables[key] || [];
     };
 
@@ -162,9 +176,42 @@ function world( api, blueprints, hexFieldSize = 200 )
         return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
+    /* Load discovered empires (territories are required for rendering the world map).
+     */
+    const loadEmpires = $.get( api.url + '/empires',
+        function( data )
+        {
+            for( const empire of data )
+            {
+                empires[ empire.url ] = empire;
+                const territory = [];
+                for( c of empire.territory )
+                {
+                    territory.push( hex2str( c[ 0 ], c[ 1 ] ) );
+                }
+                empire.territory = territory;
+            }
+        }
+    );
+
+    /* Get owners of a hex field (by hex coordinates).
+     */
+    function getHexOwners( x, y )
+    {
+        owners = [];
+        for( const empire of Object.values( empires ) )
+        {
+            if( empire.territory.includes( hex2str( x, y ) ) )
+            {
+                owners.push( empire );
+            }
+        }
+        return owners;
+    }
+
     /* Resolve blueprints and load the world content.
      */
-    $.when( loadMovables ).done(
+    $.when( loadMovables, loadEmpires ).done(
         function()
         {
             blueprints.resolve();
@@ -268,7 +315,8 @@ function world( api, blueprints, hexFieldSize = 200 )
         centerMap: centerMap,
         movables: movables,
         getMovables: getMovables,
-        status: status
+        status: status,
+        empires: empires
     };
     return ret;
 }

@@ -242,6 +242,7 @@ class EmpireTest(BaseRestTest):
                 'movables': [
                     reverse('movable-detail', kwargs = dict(pk = process.pk)) for process in obj.movables.all()
                 ],
+                'territory': [[-2, 2], [-1, 1], [-1, 3], [0, 2], [1, 1], [1, 3], [2, 2]],
             }
             for obj in objects
         ]
