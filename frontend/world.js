@@ -363,6 +363,48 @@ function world( api, blueprints, hexFieldSize = 200 )
         });
     });
 
+    /* Shows trajectory of the given movable (or null to show none).
+     */
+    function showTrajectory( movable )
+    {
+        const margin = 5; // margin by which the SVG surface is to be increased
+        $( '#trajectory polyline' ).attr( 'points', '' );
+        if( movable && movable.trajectory.length )
+        {
+            /* Determine required image size.
+             */
+            const xList = [ getHexX( movable.position[ 0 ] ) ], yList = [ getHexY( movable.position[ 1 ] ) ];
+            for( const c of movable.trajectory )
+            {
+                xList.push( getHexX( c[ 0 ] ) );
+                yList.push( getHexY( c[ 1 ] ) );
+            }
+            const xOffset = Math.min( ...xList );
+            const yOffset = Math.min( ...yList );
+            const xSize = Math.max( ...xList ) - xOffset;
+            const ySize = Math.max( ...yList ) - yOffset;
+            $( '#trajectory' ).attr(  'width', xSize + margin * 2 );
+            $( '#trajectory' ).attr( 'height', ySize + margin * 2 );
+            $( '#trajectory' ).css( 'left', xOffset - margin + getHexX( 1 ) );
+            $( '#trajectory' ).css(  'top', yOffset - margin + getHexY( 0.5 ) / 0.75 );
+
+            /* Build SVG vertex list.
+             */
+            vertices = [];
+            function addVertex( x, y )
+            {
+                vertices.push( `${ Math.round( getHexX( x ) ) - xOffset + margin },${ Math.round( getHexY( y ) ) - yOffset + margin }` );
+            }
+            addVertex( movable.position[ 0 ], movable.position[ 1 ] );
+            for( const c of movable.trajectory )
+            {
+                addVertex( c[ 0 ], c[ 1 ] );
+            }
+            vertices = vertices.join( ' ' );
+            $( '#trajectory polyline' ).attr( 'points', vertices );
+        }
+    }
+
     const ret =
     {
         events: events,
@@ -371,7 +413,8 @@ function world( api, blueprints, hexFieldSize = 200 )
         getMovables: getMovables,
         status: status,
         empires: empires,
-        getHexField: getHexField
+        getHexField: getHexField,
+        showTrajectory: showTrajectory
     };
     return ret;
 }

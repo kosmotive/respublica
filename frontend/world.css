@@ -8,6 +8,12 @@
   position: absolute;
 }
 
+#trajectory {
+  pointer-events: none;
+  z-index: 2;
+  position: absolute;
+}
+
 .hex-field {
   width: 200px;
   height: 200px;

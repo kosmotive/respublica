@@ -27,6 +27,19 @@
 
 <div id="hex-map-container">
     <div id="hex-map" x="0" y="0">
+        <svg id="trajectory">
+            <defs>
+                <marker id="dot-marker"
+                        viewBox="0 0 10 10"
+                        refX="5"
+                        refY="5"
+                        markerWidth="5"
+                        markerHeight="5">
+                    <circle cx="5" cy="5" r="2" fill="red" />
+                </marker>
+            </defs>
+            <polyline points="" stroke="black" stroke-width="5" stroke-dasharray="4" fill="none" marker-mid="url(#dot-marker)" marker-end="url(#dot-marker)"/>
+        </svg>
     
         <div class="hex-field" id="hex-field-template">
 

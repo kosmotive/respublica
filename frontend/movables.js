@@ -36,18 +36,26 @@ function movables( api, world )
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
         movableView.find( '.movable-name' ).text( '★ ' + movable.name );
+        movableView.on( 'click',
+            function()
+            {
+                if( selectedMovable && selectedMovable.url == movable.url ) return;
+                $( '#movables-view .movables-list .movable-active' ).removeClass( 'movable-active' );
+                movableView.addClass( 'movable-active' );
+                selectedMovable = movable;
+                world.showTrajectory( selectedMovable );
+            }
+        );
         movableView.find( '.action-move' ).on( 'click',
             function()
             {
-                if( selectedMovable )
+                if( $( this ).hasClass( 'action-toggled' ) )
                 {
-                    selectedMovable = null;
                     $( this ).removeClass( 'action-toggled' );
                     world.events.hex_field_click.pop( moveTo );
                 }
                 else
                 {
-                    selectedMovable = movable;
                     $( this ).addClass( 'action-toggled' );
                     world.events.hex_field_click.push( moveTo );
                 }
@@ -101,6 +109,9 @@ function movables( api, world )
             $( '#movables-view' ).hide();
             world.events.hex_field_click.push( function( x, y, sectorUrl )
             {
+                selectedMovable = null;
+                world.showTrajectory( selectedMovable );
+
                 /* Show or hide the sector view, depending on whether the clicked hex contains movables
                  */
                 const movables = world.getMovables( x, y );

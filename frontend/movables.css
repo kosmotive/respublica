@@ -20,17 +20,27 @@
 #movables-view .movables-list {
   list-style-type: none;
   margin: 1rem;
-  margin-right: 0;
+  margin-right: 0.5rem;
   margin-top: 0.2rem;
   padding: 0;
 }
 
 #movables-view .movables-list .movable {
-  background-color: whitesmoke;
+  background-color: silver;
   color: black;
   border-top-left-radius: 1em;
   border-bottom-left-radius: 1em;
   padding: 1em;
+  cursor: pointer;
+}
+
+#movables-view .movables-list .movable:not(.movable-active):hover {
+  background-color: whitesmoke;
+}
+
+#movables-view .movables-list .movable.movable-active {
+  background-color: whitesmoke;
+  cursor: default;
 }
 
 #movables-view .movables-list .movable-name {
@@ -40,6 +50,7 @@
 #movables-view .movables-list .movable-status {
   font-size: 0.8em;
   line-height: 0.9em;
+  font-style: italic;
 }
 
 #movables-view .movables-list .movable-status .movable-status-line {
@@ -48,6 +59,8 @@
 
 #movables-view .movables-list .movable .ship-list {
   margin-top: 0.5em;
+  list-style-type: none;
+  padding: 0;
 }
 
 #movables-view .movables-list .movable .ship-list .ship {
@@ -58,6 +71,11 @@
   margin: 0;
   margin-top: 1rem;
   padding: 0;
+  display: none;
+}
+
+#movables-view .movables-list .movable.movable-active .action-list {
+  display: block;
 }
 
 #movables-view .movables-list .movable .action-list .action {
