@@ -89,7 +89,7 @@ class BuildingHandler(BaseHandler):
     def create_process(start_tick, blueprint, celestial):
         process = celestial.sector.process
         if process is not None:
-            self.cancel(process)
+            process.handler.cancel(process)
         return Process.objects.create(
             start_tick = start_tick,
             end_tick   = start_tick + blueprint.cost,
