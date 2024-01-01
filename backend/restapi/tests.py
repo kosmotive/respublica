@@ -139,7 +139,8 @@ class MovableTest(BaseRestTest):
                 ],
                 'owner': reverse('empire-detail', kwargs = dict(pk = obj.owner.pk)),
                 'process': None if obj.process is None else reverse('process-detail', kwargs = dict(pk = obj.process.pk)),
-                'name': 'Group 1',
+                'name': obj.name,
+                'trajectory': obj.trajectory,
             }
             for obj in objects
         ]

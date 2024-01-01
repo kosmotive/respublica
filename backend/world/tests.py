@@ -32,6 +32,10 @@ class MovableTest(TestCase):
         self.movable.move_to((2,2))
         self.assertSequenceEqual(self.movable.next_position.tolist(), (1,1))
 
+    def test_trajectory(self):
+        self.movable.move_to((2,2))
+        self.assertSequenceEqual(np.asarray(self.movable.trajectory).tolist(), np.asarray([(1,1), (2,2)]).tolist())
+
     def test_speed(self):
         from game.models import Empire, Blueprint, Ship
         player    = User.objects.create(username = 'testuser', password = 'password')

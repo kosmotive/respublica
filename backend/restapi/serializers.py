@@ -74,7 +74,7 @@ class MovableSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Movable
-        fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner', 'process', 'name']
+        fields = ['url', 'position', 'destination', 'speed', 'next_position', 'ship_set', 'owner', 'process', 'name', 'trajectory']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

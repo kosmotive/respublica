@@ -12,12 +12,39 @@ u ~ v  iff  |d.y| ≤ 1  or  |d.x| ≤ 2
 ```
 """
 
+import math
+
 import numpy as np
 from sklearn.cluster import DBSCAN
 
 
 def check_hex_coordinates(c):
     assert np.sum(c) % 2 == 0, f'hex coordinates {tuple(c)} are invalid'
+
+
+def get_next_position_towards(position, destination, speed):
+    u = position
+    check_hex_coordinates(u)
+    for _ in range(math.ceil(speed)):
+        v = np.asarray(destination, dtype=int)
+        check_hex_coordinates(v)
+        d = v - u
+        d = d.clip(-2, +2)
+        if abs(d[1]) >= 1:
+            d = d.clip(-1, +1)
+            if np.sum(u + d) % 2 == 1: d[0] -= 1
+        u += d
+        check_hex_coordinates(u)
+    return u
+
+
+def get_trajectory_towards(position, destination, speed):
+    pos = np.asarray(position);
+    trajectory = list()
+    while (pos != destination).all():
+        pos = get_next_position_towards(pos, destination, speed)
+        trajectory.append(pos.copy())
+    return trajectory
 
 
 class Halfspace:

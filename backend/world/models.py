@@ -1,4 +1,3 @@
-import math
 import time
 
 from django.db import models
@@ -145,19 +144,11 @@ class Movable(Positionable):
 
     @property
     def next_position(self):
-        u = self.position
-        hexgrid.check_hex_coordinates(u)
-        for _ in range(math.ceil(self.speed)):
-            v = np.asarray(self.destination, dtype=int)
-            hexgrid.check_hex_coordinates(v)
-            d = v - u
-            d = d.clip(-2, +2)
-            if abs(d[1]) >= 1:
-                d = d.clip(-1, +1)
-                if np.sum(u + d) % 2 == 1: d[0] -= 1
-            u += d
-            hexgrid.check_hex_coordinates(u)
-        return u
+        return hexgrid.get_next_position_towards(self.position, self.destination, self.speed)
+
+    @property
+    def trajectory(self):
+        return hexgrid.get_trajectory_towards(self.position, self.destination, self.speed)
 
     @property
     def owner(self):
