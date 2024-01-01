@@ -147,6 +147,7 @@ function world( api, blueprints, hexFieldSize = 200 )
             {
                 dragging = true;
                 clickableMap = true;
+                event.preventDefault();
     
                 initialX = event.clientX;
                 initialY = event.clientY;
