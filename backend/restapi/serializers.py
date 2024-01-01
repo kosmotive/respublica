@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from world.models import (
     World,
@@ -116,7 +117,7 @@ class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'habitat', 'movables', 'ships', 'territory', 'origin']
+        fields = ['url', 'name', 'habitat', 'movables', 'ships', 'territory', 'origin', 'blueprint_set']
 
     def get_territory(self, empire):
         return empire.territory.explicit();
@@ -147,6 +148,19 @@ class ShipSerializer(serializers.HyperlinkedModelSerializer):
 
 class ProcessSerializer(serializers.HyperlinkedModelSerializer):
 
+    data = serializers.SerializerMethodField();
+
     class Meta:
         model  = Process
         fields = ['url', 'start_tick', 'end_tick', 'handler_id', 'data']
+
+    def get_data(self, process):
+        data = dict()
+        for key, value in process.data.items():
+            if key.endswith('_id'):
+                basename = key[:-3]
+                url = reverse(f'{basename}-detail', kwargs=dict(pk = value), request = self.context.get('request'))
+                data[f'{basename}_url'] = url
+            else:
+                data[key] = value
+        return data

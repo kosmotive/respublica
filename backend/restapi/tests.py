@@ -245,6 +245,9 @@ class EmpireTest(BaseRestTest):
                 ],
                 'territory': obj.territory.explicit(),
                 'origin': obj.origin,
+                'blueprint_set': [
+                    reverse('blueprint-detail', kwargs = dict(pk = blueprint.pk)) for blueprint in obj.blueprint_set.all()
+                ],
             }
             for obj in objects
         ]
@@ -363,13 +366,21 @@ class ProcessTest(BaseRestTest):
         blueprint.build(celestial = celestial)
 
     def expected_details(self, objects):
+        def resolve_data(handler_id, data):
+            data = dict(data)
+            if handler_id == 'BuildingHandler':
+                data['blueprint_url'] = reverse(f'blueprint-detail', kwargs = dict(pk = data.pop('blueprint_id')))
+                data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
+            if handler_id == 'MovementHandler':
+                data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
+            return data
         return [
             {
                 'url': reverse('process-detail', kwargs = dict(pk = obj.pk)),
                 'start_tick': obj.start_tick,
                 'end_tick': obj.end_tick,
                 'handler_id': obj.handler_id,
-                'data': obj.data,
+                'data': None if obj.data is None else resolve_data(obj.handler_id, obj.data),
             }
             for obj in objects
         ]
