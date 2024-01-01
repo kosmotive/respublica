@@ -10,17 +10,17 @@ function movables( api, world )
     function moveTo( x, y )
     {
         if( !selectedMovable ) return true;
-        const movable = selectedMovable;
         $.ajax({
             type: 'POST',
-            url: movable.url + 'move_to/',
+            url: selectedMovable.url + 'move_to/',
             contentType: 'application/json',
             data: `{"x":${x}, "y":${y}}`,
             beforeSend: api.augmentRequestWithCSRFToken,
             success: function( data )
             {
-                Object.assign( movable, data );
-                updateMovableView( movable );
+                Object.assign( selectedMovable, data );
+                updateMovableView( selectedMovable );
+                world.showTrajectory( selectedMovable );
             }
         });
         $( `#movables-view .movable[url="${ selectedMovable.url }"] .action-move` ).trigger( 'click' );
