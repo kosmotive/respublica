@@ -99,8 +99,8 @@ function world( api, blueprints, hexFieldSize = 200 )
      */
     function centerMap( x, y )
     {
-        $( '#hex-map' ).attr( 'x', $( '#hex-map-container' ). width() / 2 - getHexX( x ) - hexFieldSize / 2 );
-        $( '#hex-map' ).attr( 'y', $( '#hex-map-container' ).height() / 2 - getHexY( y ) - hexFieldSize / 2 );
+        $( '#hex-map' ).attr( 'x', Math.round( $( '#hex-map-container' ). width() / 2 - getHexX( x ) - hexFieldSize / 2 ) );
+        $( '#hex-map' ).attr( 'y', Math.round( $( '#hex-map-container' ).height() / 2 - getHexY( y ) - hexFieldSize / 2 ) );
         updateMap();
     }
 
@@ -136,10 +136,10 @@ function world( api, blueprints, hexFieldSize = 200 )
                     return;
                 }
     
-                this.setAttribute( 'x', offsetX + event.clientX - initialX );
-                this.setAttribute( 'y', offsetY + event.clientY - initialY );
+                this.setAttribute( 'x', Math.round( offsetX + event.clientX - initialX ) );
+                this.setAttribute( 'y', Math.round( offsetY + event.clientY - initialY ) );
                 updateMap();
-    
+
                 clickableMap = false;
                 event.preventDefault();
             },
@@ -294,19 +294,23 @@ function world( api, blueprints, hexFieldSize = 200 )
                                          */ 
                                         loadMap( empire.origin );
 
-                                        /* Center the map upon the home world.
-                                         */ 
-                                        $.get( empire.habitat[0], function( celestial )
+                                        /* Center the map upon the home world (if no explicit coordinates are given in URL).
+                                         */
+                                        const mapPosition = window.location.hash.substr(1).split(',')
+                                        if( mapPosition.length == 2 )
                                         {
-                                            $.get( celestial.sector, function( sector )
-                                            {
-                                                centerMap( sector.position[0], sector.position[1] );
+                                            $( '#hex-map' ).attr( 'x', mapPosition[ 0 ] );
+                                            $( '#hex-map' ).attr( 'y', mapPosition[ 1 ] );
+                                            updateMap();
+                                        }
+                                        else
+                                        {
+                                            centerMap( empire.origin[ 0 ], empire.origin[ 1 ] );
+                                        }
 
-                                                /* Show the map.
-                                                 */
-                                                $( '#hex-map-container' ).fadeIn( 200 );
-                                            });
-                                        });
+                                        /* Show the map.
+                                         */
+                                        $( '#hex-map-container' ).fadeIn( 200 );
                                     });
                                 });
                             } // if( $( '#hex-map' ).length )
@@ -344,6 +348,8 @@ function world( api, blueprints, hexFieldSize = 200 )
                 else
                 {
                     clearTimeout( updateRemainingSeconds );
+                    const x = $( '#hex-map' ).attr( 'x' ), y = $( '#hex-map' ).attr( 'y' );
+                    window.location.hash = `${ x },${ y }`;
                     location.reload();
                 }
             };
