@@ -41,7 +41,7 @@ def get_next_position_towards(position, destination, speed):
 def get_trajectory_towards(position, destination, speed):
     pos = np.asarray(position);
     trajectory = list()
-    while (pos != destination).all():
+    while (pos != destination).any():
         pos = get_next_position_towards(pos, destination, speed)
         trajectory.append(pos.copy())
     return trajectory
