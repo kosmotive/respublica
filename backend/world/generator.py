@@ -45,6 +45,12 @@ def create_sector(used_names, x, y):
         recipe = random.choice(compatible_recipes)
         features = dict()
         for feature in recipe.keys():
+
+            if feature == 'variants':
+                variants = recipe['variants']
+                features['variant'] = random.choice(variants);
+                continue
+
             if feature.startswith('min-'):
                 basename = feature[4:]
                 if basename == 'position': continue

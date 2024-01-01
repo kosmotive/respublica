@@ -19,10 +19,44 @@ function sector( api, world )
                 celestialView.find( '.celestial-' + type ).remove();
             }
         }
-        var features = ''
+        var features = '', variant = undefined;
+        celestialView.find( '.celestial-star' ).hide();
+        switch( celestial.features.variant )
+        {
+
+        case 'white-mainline': 
+            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'silver' );
+            celestialView.find( '.celestial-star-mainline' ).show();
+            variant = 'White / Mainline';
+            break;
+
+        case 'yellow-mainline': 
+            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'orange' );
+            celestialView.find( '.celestial-star-mainline' ).show();
+            variant = 'Yellow / Mainline';
+            break;
+
+        case 'blue-mainline': 
+            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
+            celestialView.find( '.celestial-star-mainline' ).show();
+            variant = 'Blue / Mainline';
+            break;
+
+        case 'white-dwarf':
+            celestialView.find( '.celestial-star-white-dwarf' ).show();
+            variant = 'White Dwarf';
+            break;
+
+        case 'red-giant':
+            celestialView.find( '.celestial-star-red-giant' ).show();
+            variant = 'Red Giant';
+            break;
+
+        }
+        if( variant ) features += `<li>${ variant }</li>`;
         for( const [key, value] of Object.entries( celestial.features ) )
         {
-            if( key != 'type' )
+            if( key != 'type' && key != 'variant' )
             {
                 featureName = key.charAt( 0 ).toUpperCase() + key.slice( 1 );
                 features += `<li>${ featureName }: ${ value }</li>`
@@ -51,7 +85,6 @@ function sector( api, world )
                 {
                     $.get( sectorUrl + '?depth=1', function( sector )
                     {
-                        $( '#sector-view .sector-name' ).text( sector.name );
                         $( '#sector-view .celestial:not(#celestial-template)' ).remove();
 
                         /* Load celestials.

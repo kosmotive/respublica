@@ -1,5 +1,11 @@
 - type: star
   max-position: 0
+  variants:
+    - white-mainline
+    - white-dwarf
+    - yellow-mainline
+    - blue-mainline
+    - red-giant
 
 - type: planet
   min-position: 1

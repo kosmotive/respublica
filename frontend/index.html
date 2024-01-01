@@ -29,6 +29,8 @@
     <div id="hex-map" x="0" y="0">
     
         <div class="hex-field" id="hex-field-template">
+
+            <!-- Background -->
             <svg height="100%" width="100%" viewbox="-2 -2 104 104">
                 <a href="#">
                 <pattern id="hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)" y="1">
@@ -37,9 +39,13 @@
                 <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#hatch)" stroke-width="4" />
                 </a>
             </svg>
+
+            <!-- Others -->
             <div class="sector-name"></div>
             <ul class="sector-movables"></ul>
-            <svg class="sector-star" height="30%" width="30%" viewbox="0 0 100 100">
+
+            <!-- Star icons -->
+            <svg class="sector-star sector-star-mainline" height="30%" width="30%" viewbox="0 0 100 100">
                 <defs>
                     <mask id="flares">
                         <rect width="100%" height="100%" fill="white"/>
@@ -58,16 +64,44 @@
                 </g>
                 <circle cx="50" cy="50" r="15" fill="white" class="star-brush" />
             </svg>
+            <svg class="sector-star sector-star-white-dwarf" height="30%" width="30%" viewbox="0 0 100 100">
+                <defs>
+                    <mask id="flares">
+                        <rect width="100%" height="100%" fill="white"/>
+                        <circle r="50" cx=  "0" cy=  "0" fill="black"/>
+                        <circle r="50" cx=  "0" cy="100" fill="black"/>
+                        <circle r="50" cx="100" cy="100" fill="black"/>
+                        <circle r="50" cx="100" cy=  "0" fill="black"/>
+                    </mask>
+                    <filter id="blur">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+                    </filter>
+                </defs>
+                <circle cx="50" cy="50" r="20" fill="black" filter="url(#blur)" class="star-brush" />
+                <g transform="scale(0.6 0.6) translate(33 33)">
+                    <circle cx="50" cy="50" r="50" mask="url(#flares)" />
+                </g>
+                <circle cx="50" cy="50" r="15" fill="white" class="star-brush" />
+            </svg>
+            <svg class="sector-star sector-star-red-giant" height="30%" width="30%" viewbox="0 0 100 100">
+                <defs>
+                    <filter id="blur">
+                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+                    </filter>
+                </defs>
+                <circle cx="50" cy="50" r="20" fill="black" filter="url(#blur)" class="star-brush" />
+                <circle cx="50" cy="50" r="15" fill="firebrick" class="star-brush" />
+            </svg>
         </div>
     
     </div>
 </div>
 
 <div id="sector-view">
-    <div class="sector-name"></div>
     <div class="celestial" id="celestial-template">
 
-        <svg class="celestial-star" viewbox="0 0 100 100">
+        <!-- Star icons -->
+        <svg class="celestial-star celestial-star-mainline" viewbox="0 0 100 100">
             <defs>
                 <filter id="surface">
                     <feTurbulence
@@ -100,9 +134,71 @@
                         yChannelSelector="G" />
                 </filter>
             </defs>
-            <circle cx="50" cy="50" r="33" fill="orange" filter="url(#surface)" />
+            <circle cx="50" cy="50" r="33" fill="orange" filter="url(#surface)" class="star-brush" />
             <circle cx="45" cy="45" r="30" stroke="black" stroke-width="5" fill="none" filter="url(#corona)" />
         </svg>
+        <svg class="celestial-star celestial-star-white-dwarf" viewbox="0 0 100 100">
+            <defs>
+                <filter id="surface">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
+                    <feBlend in="SourceGraphic" in2="surface2" mode="color-dodge" />
+                </filter>
+                <filter id="corona" x="0%" y="0%">
+                    <feTurbulence
+                        type="turbulence"
+                        baseFrequency="0.15"
+                        numOctaves="1"
+                        result="turbulence" />
+                    <feDisplacementMap
+                        in2="turbulence"
+                        in="SourceGraphic"
+                        result="DisplacedGraphic"
+                        scale="10"
+                        xChannelSelector="R"
+                        yChannelSelector="G" />
+                </filter>
+            </defs>
+            <circle cx="50" cy="50" r="28" fill="white" filter="url(#surface)" />
+            <circle cx="47" cy="47" r="25" stroke="black" stroke-width="2" fill="none" filter="url(#corona)" />
+        </svg>
+        <svg class="celestial-star celestial-star-red-giant" viewbox="0 0 100 100">
+            <defs>
+                <filter id="surface">
+                    <feTurbulence
+                        type="turbulence"
+                        baseFrequency="0.2"
+                        numOctaves="2"
+                        result="turbulence" />
+                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
+                    <feColorMatrix
+                        in="clouds"
+                        result="gray_clouds"
+                        type="saturate"
+                        values="0" />
+                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
+                    <feBlend in="surface1" in2="surface2" mode="color-dodge" />
+                </filter>
+                <filter id="corona" x="0%" y="0%">
+                    <feTurbulence
+                        type="turbulence"
+                        baseFrequency="0.15"
+                        numOctaves="1"
+                        result="turbulence" />
+                    <feDisplacementMap
+                        in2="turbulence"
+                        in="SourceGraphic"
+                        result="DisplacedGraphic"
+                        scale="15"
+                        xChannelSelector="R"
+                        yChannelSelector="G" />
+                </filter>
+            </defs>
+            <circle cx="50" cy="50" r="40" fill="firebrick" filter="url(#surface)" />
+            <circle cx="45" cy="45" r="40" stroke="black" stroke-width="7" fill="none" filter="url(#corona)" />
+        </svg>
+
+        <!-- Planet icons -->
         <svg class="celestial-planet" viewbox="0 0 100 100">
             <defs>
                 <radialGradient id="sphere" cx="80%">
@@ -127,6 +223,7 @@
             <circle cx="50" cy="50" r="15" fill="url(#sphere)" filter="url(#surface)" stroke="black" stroke-width="1" />
         </svg>
 
+        <!-- Others -->
         <div class="celestial-habitated">Habitated</div>
         <div class="celestial-name"></div>
         <ul class="celestial-features"></ul>

@@ -46,7 +46,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
         });
-        hexField.find('.sector-star').css( 'display', 'none' );
+        hexField.find( '.sector-star ').css( 'display', 'none' );
 
         const movables = getMovables( x, y );
         for( const movable of movables )
@@ -57,7 +57,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         const owners = getHexOwners( x, y );
         if( owners.length )
         {
-            hexField.find( '.hex-field-hatch' ).attr( 'stroke', 'cornflowerblue' );
+            hexField.find( '.hex-field-hatch' ).attr( 'stroke', 'dodgerblue' );
         }
 
         return hexField;
@@ -162,9 +162,38 @@ function world( api, blueprints, hexFieldSize = 200 )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.find( '.sector-name' ).text( sector.name );
-                hexField.find( '.sector-star' ).css( 'display', 'inline' );
-                hexField.find( '.sector-star .star-brush' ).attr( 'fill', 'orange' );
                 hexField.attr( 'sector', sector.url );
+
+                switch( sector.celestial_set[0].features.variant )
+                {
+
+                case 'white-mainline': 
+                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' );
+                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    break;
+
+                case 'yellow-mainline': 
+                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'orange' );
+                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    break;
+
+                case 'blue-mainline': 
+                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
+                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    break;
+
+                case 'white-dwarf':
+                    hexField.find( '.sector-star-white-dwarf' ).css( 'display', 'inline' );
+                    break;
+
+                case 'red-giant':
+                    hexField.find( '.sector-star-red-giant' ).css( 'display', 'inline' );
+                    break;
+
+                default:
+                    console.log( `Unknown star variant: "${ sector.celestial_set[0].features.variant }"` );
+
+                }
             }
         });
     }

@@ -40,8 +40,8 @@
 }
 
 .hex-field .sector-star {
-  position: absolute;
   transform: rotate(-26.5deg);
+  position: absolute;
   left: 0;
   right: 0;
   top: 0;

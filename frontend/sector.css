@@ -1,5 +1,5 @@
 #sector-view {
-  background: linear-gradient(#F5F5F500 0%, whitesmoke 70%);
+  background: linear-gradient(#F5F5F500 0%, whitesmoke 30%);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -7,16 +7,7 @@
   height: 15rem;
   z-index: 2;
   text-align: right;
-}
-
-#sector-view .sector-name {
-  position: absolute;
-  font-family: cursive;
-  top: -2em;
-  right: 1rem;
-  font-size: 2rem;
-  filter: drop-shadow(0 0 0.15em black);
-  border-bottom: 2px solid black;
+  padding-right: 1rem;
 }
 
 #sector-view .celestial {
