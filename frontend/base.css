@@ -17,10 +17,36 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 2;
+  z-index: 100;
 }
 
 header .display {
   display: inline-block;
   margin-left: 1rem;
+}
+
+.action-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.action-list .action {
+  font-size: 0.8em;
+  border-radius: 2em;
+  background-color: dimgrey;
+  color: white;
+  text-decoration: none;
+  padding: 0.5em;
+  padding-left: 1em;
+  padding-right: 1em;
+  cursor: pointer;
+}
+
+.action-list .action:hover {
+  background-color: gray;
+}
+
+.action-list .action-toggled {
+  color: red;
 }

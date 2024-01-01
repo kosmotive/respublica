@@ -1,4 +1,4 @@
-function sector( api, world )
+function sector( api, world, build )
 {
     const events =
     {
@@ -8,10 +8,12 @@ function sector( api, world )
      */
     function createCelestialView( sector, celestial )
     {
+        celestial.name = sector.name + ( celestial.position > 0 ? ' ' + celestial.position : '' );
+
         const celestialView = $( '#celestial-template' ).clone();
         celestialView.prependTo( '#sector-view' );
         celestialView.attr( 'id', '' );
-        celestialView.find( '.celestial-name' ).text( sector.name + ( celestial.position > 0 ? ' ' + celestial.position : '' ) );
+        celestialView.find( '.celestial-name' ).text( celestial.name );
         for( const type of [ 'star', 'planet' ] )
         {
             if( celestial.features.type != type )
@@ -66,6 +68,19 @@ function sector( api, world )
         if( !celestial.habitated_by )
         {
             celestialView.find( '.celestial-habitated' ).remove();
+        }
+        if( celestial.habitated_by != world.game.empire.url )
+        {
+            celestialView.find( '.celestial-options' ).remove();
+        }
+        else
+        {
+            celestialView.find( '.celestial-options' ).on( 'click',
+                function()
+                {
+                    build.openMenu( sector, celestial );
+                }
+            );
         }
         return celestialView;
     }

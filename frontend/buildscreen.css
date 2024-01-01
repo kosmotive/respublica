@@ -1,0 +1,99 @@
+#buildscreen {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 2rem;
+  bottom: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background-color: #fffa;
+  padding-top: 8rem;
+  padding-bottom: 4rem;
+  z-index: 20;
+}
+
+#buildscreen .container {
+  width: 40rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#buildscreen .container .celestial-name {
+  font-family: cursive;
+  font-size: 3rem;
+  filter: drop-shadow(0 0 0.15em black);
+  margin-bottom: 1rem;
+}
+
+#buildscreen .container .content {
+  background-color: whitesmoke;
+  filter: drop-shadow(0 0 0.5em dimgray);
+  border-radius: 1rem;
+  padding: 2rem;
+  position: relative;
+}
+
+#buildscreen .container .content .close-button {
+  font-size: 1.5rem;
+  position: absolute;
+  top: 0.8rem;
+  right: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#buildscreen .container .content .content-row {
+  margin-bottom: 1rem;
+}
+
+#buildscreen .container .content .columns {
+  vertical-align: top;
+  display: flex;
+  font-size: 0;
+}
+
+#buildscreen .container .content .content-column {
+  font-size: 1rem;
+  width: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  height: 10rem;
+}
+
+#buildscreen .container .content .content-column:first-child {
+  padding-right: 1rem;
+}
+
+#buildscreen .container .content .content-column:last-child {
+  padding-left: 1rem;
+}
+
+#buildscreen .container .content .build-options-list,
+#buildscreen .container .content .constructions-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#buildscreen .container .content .build-options-list .build-option,
+#buildscreen .container .content .constructions-list .construction {
+  background-color: white;
+  border-radius: 2em;
+  padding: 0.5em 1em 0.5em 1em;
+  margin-bottom: 0.3em;
+}
+
+#buildscreen .container .content .build-options-list .build-option:last-child,
+#buildscreen .container .content .constructions-list .construction:last-child {
+  margin-bottom: 0;
+}
+
+#buildscreen .container .content .build-options-list .build-option:hover,
+#buildscreen .container .content .constructions-list .construction:hover {
+  background-color: floralwhite;
+  cursor: pointer;
+}
+
+#buildscreen .container .content .build-process-info {
+  font-size: 0.8rem;
+  background-color: white;
+}

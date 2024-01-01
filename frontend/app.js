@@ -29,5 +29,6 @@ app.api        = loadModule( 'api'       , url = 'http://127.0.0.1:8000/api' );
 app.blueprints = loadModule( 'blueprints', api = app.api );
 app.world      = loadModule( 'world'     , api = app.api, blueprints = app.blueprints, hexFieldSize = 200 );
 app.login      = loadModule( 'login'     , api = app.api );
-app.sector     = loadModule( 'sector'    , api = app.api, world = app.world );
+app.build      = loadModule( 'build'     , api = app.api, world = app.world, blueprints = app.blueprints );
+app.sector     = loadModule( 'sector'    , api = app.api, world = app.world, build = app.build );
 app.movables   = loadModule( 'movables'  , api = app.api, world = app.world );

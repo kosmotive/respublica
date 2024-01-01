@@ -2,7 +2,7 @@ function world( api, blueprints, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const movables = {};
-    const status = {};
+    const game = {};
     const empires = {};
     const events =
     {
@@ -291,6 +291,8 @@ function world( api, blueprints, hexFieldSize = 200 )
                                 {
                                     $.get( users[0].empire, function( empire )
                                     {
+                                        game.empire = empire;
+
                                         /* Load the map.
                                          */ 
                                         loadMap( empire.origin );
@@ -356,7 +358,7 @@ function world( api, blueprints, hexFieldSize = 200 )
             };
 
             $(' #ticks ').text( worlds[0].now );
-            status.tick = worlds[0].now;
+            game.tick = worlds[0].now;
 
             updateRemainingSeconds();
             const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
@@ -419,7 +421,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         centerMap: centerMap,
         movables: movables,
         getMovables: getMovables,
-        status: status,
+        game: game,
         empires: empires,
         getHexField: getHexField,
         selectHexField: selectHexField,

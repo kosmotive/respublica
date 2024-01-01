@@ -4,7 +4,7 @@
   left: 0;
   top: 2rem;
   width: 15rem;
-  z-index: 2;
+  z-index: 10;
   background-color: dimgrey;
   color: white;
 }
@@ -67,10 +67,7 @@
 }
 
 #movables-view .movables-list .movable .action-list {
-  list-style-type: none;
-  margin: 0;
   margin-top: 1rem;
-  padding: 0;
   display: none;
 }
 
@@ -80,24 +77,4 @@
 
 #movables-view .movables-list .movable .action-list .action {
   display: inline-block;
-  font-size: 0.8em;
-}
-
-#movables-view .movables-list .movable .action-list .action {
-  border-radius: 2em;
-  background-color: dimgrey;
-  color: white;
-  text-decoration: none;
-  padding: 0.5em;
-  padding-left: 1em;
-  padding-right: 1em;
-  cursor: pointer;
-}
-
-#movables-view .movables-list .movable .action-list .action:hover {
-  background-color: gray;
-}
-
-#movables-view .movables-list .movable .action-list .action-toggled {
-  color: red;
 }

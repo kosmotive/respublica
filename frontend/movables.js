@@ -93,7 +93,7 @@ function movables( api, world )
                 function( process )
                 {
                     const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
-                    var turns = process.end_tick - world.status.tick;
+                    var turns = process.end_tick - world.game.tick;
                     turns = turns == 1 ? `${ turns } turn` : `${ turns } turns`;
                     movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
                 }

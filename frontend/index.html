@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="world.css">
 <link rel="stylesheet" href="sector.css">
 <link rel="stylesheet" href="movables.css">
+<link rel="stylesheet" href="buildscreen.css">
 
 </head>
 <body>
@@ -241,6 +242,7 @@
         <div class="celestial-habitated">Habitated</div>
         <div class="celestial-name"></div>
         <ul class="celestial-features"></ul>
+        <ul class="celestial-options action-list"><li class="action">Production</li></ul>
     </div>
 </div>
 
@@ -260,6 +262,47 @@
             </ul>
         </li>
     </ul>
+</div>
+
+<div id="buildscreen">
+    <div class="container">
+        <div class="celestial-name">Name</div>
+        <div class="content">
+
+            <div class="close-button">&times;</div>
+
+            <div class="content-row build-process">
+                <b>Current build process in the <span class="sector-name"></span> sector:</b>
+                <div class="build-process-info">
+                    <b><span class="build-process-name"></span></b> (<span class="build-process-progress"></span>)<br>
+                    <b>Building on:</b> <span class="build-process-celestial"></span><br>
+                    <b>Finished in:</b> <span class="build-process-remaining"></span>
+                </div>
+                <div class="build-process-none">
+                    No build process
+                </div>
+            </div>
+
+            <div class="columns">
+
+                <div class="content-column">
+                    <b>Build options:</b>
+                    <ul class="build-options-list">
+                        <li>No build options</li>
+                    </ul>
+                </div>
+
+                <div class="content-column">
+                    <b>Constructions:</b>
+                    <ul class="constructions-list">
+                        <li>No constructions</li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </div>
 
 </body>
