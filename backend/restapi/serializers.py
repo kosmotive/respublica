@@ -116,7 +116,7 @@ class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'habitat', 'movables', 'ships', 'territory']
+        fields = ['url', 'name', 'habitat', 'movables', 'ships', 'territory', 'origin']
 
     def get_territory(self, empire):
         return empire.territory.explicit();

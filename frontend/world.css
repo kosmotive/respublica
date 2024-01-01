@@ -28,15 +28,19 @@
   stroke: white;
 }
 
-.hex-field .sector-name {
+.hex-field .hex-field-name {
   position: absolute;
   text-align: center;
   font-family: cursive;
   left: 0;
   right: 0;
   bottom: 22%;
-  font-size: 1.2rem;
+  font-size: 0.8rem;
   filter: drop-shadow(0 0 0.15em black);
+}
+
+.hex-field .hex-field-name.sector-name {
+  font-size: 1.2rem;
 }
 
 .hex-field .sector-star {
@@ -49,7 +53,7 @@
   margin: auto;
 }
 
-.hex-field .sector-movables {
+.hex-field .hex-field-movables {
   list-style-type: none;
   margin: 0;
   padding: 0;

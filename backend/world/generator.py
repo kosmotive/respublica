@@ -101,12 +101,17 @@ def generate_test_world(*args, **kwargs):
         username='testuser',
         password='password')
 
-    # Create empire
-    from game.models import Empire, Blueprint, Ship
-    empire = Empire.objects.create(name = 'Foos', player = user)
-
     # Find a habitable planet
     celestial = Celestial.objects.filter(features__capacity__gte = 1)[0]
+
+    # Create empire
+    from game.models import Empire, Blueprint, Ship
+    empire = Empire.objects.create(
+        name     = 'Foos',
+        player   = user,
+        origin_x = celestial.sector.position_x,
+        origin_y = celestial.sector.position_y)
+
     celestial.habitated_by = empire
     celestial.save()
 

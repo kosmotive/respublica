@@ -1,5 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.db import models
+import numpy as np
 
 from world import hexgrid
 from game.blueprints import base_blueprints
@@ -7,8 +8,14 @@ from game.blueprints import base_blueprints
 
 class Empire(models.Model):
 
-    name   = models.CharField(max_length = 100)
-    player = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    name     = models.CharField(max_length = 100)
+    player   = models.OneToOneField('auth.User', on_delete=models.CASCADE)
+    origin_x = models.IntegerField();
+    origin_y = models.IntegerField();
+
+    @property
+    def origin(self):
+        return np.asarray((self.origin_x, self.origin_y), dtype=int)
 
     @property
     def habitated_sectors(self):

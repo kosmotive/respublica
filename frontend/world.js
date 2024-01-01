@@ -51,7 +51,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         const movables = getMovables( x, y );
         for( const movable of movables )
         {
-            $( `<li class="movable">${ movable.name }</li>` ).appendTo( hexField.find('.sector-movables') );
+            $( `<li class="movable">${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
         }
 
         const owners = getHexOwners( x, y );
@@ -112,9 +112,9 @@ function world( api, blueprints, hexFieldSize = 200 )
         $( '#hex-map' ).css(  'top', $( '#hex-map' ).attr( 'y' ) );
     }
 
-    /* Loads the map.
+    /* Loads the map (with *displayed* coordiantes centered at `origin`).
      */
-    function loadMap()
+    function loadMap( origin )
     {
         var initialX = null, initialY = null; // the coordinates of the mouse when dragging started
         var offsetX = null; offsetY = null; // the offset of the map before dragging started
@@ -153,7 +153,15 @@ function world( api, blueprints, hexFieldSize = 200 )
         {
             for( const unveiled of data )
             {
-                createHexField( unveiled.position[0], unveiled.position[1] );
+                const x = unveiled.position[ 0 ], y = unveiled.position[ 1 ];
+                const hexField = createHexField( x, y );
+                function fmt( z, negativePrefix, positivePrefix )
+                {
+                    if( z < 0 ) return `${ negativePrefix }${ -z }`;
+                    if( z > 0 ) return `${ positivePrefix }${  z }`;
+                    else return '0';
+                }
+                hexField.find( '.hex-field-name' ).text( `${ fmt( x, "W", "E" ) }/${ fmt( y, "N", "S" ) }` );
             }
         });
         $.get( api.url + '/sectors?depth=1', function( data )
@@ -161,7 +169,8 @@ function world( api, blueprints, hexFieldSize = 200 )
             for( const sector of data )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
-                hexField.find( '.sector-name' ).text( sector.name );
+                hexField.find( '.hex-field-name' ).text( sector.name );
+                hexField.find( '.hex-field-name' ).addClass( 'sector-name' );
                 hexField.attr( 'sector', sector.url );
 
                 switch( sector.celestial_set[0].features.variant )
@@ -267,17 +276,17 @@ function world( api, blueprints, hexFieldSize = 200 )
                         {
                             if( $( '#hex-map' ).length )
                             {
-                                /* Load the map.
-                                 */
                                 $( '#hex-map-container' ).hide();
-                                loadMap();
-                           
-                                /* Center the map upon the home world.
-                                 */ 
                                 $.get( api.url + '/users', function( users )
                                 {
                                     $.get( users[0].empire, function( empire )
                                     {
+                                        /* Load the map.
+                                         */ 
+                                        loadMap( empire.origin );
+
+                                        /* Center the map upon the home world.
+                                         */ 
                                         $.get( empire.habitat[0], function( celestial )
                                         {
                                             $.get( celestial.sector, function( sector )
