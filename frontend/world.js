@@ -328,10 +328,11 @@ function world( api, blueprints, hexFieldSize = 200 )
     {
         $.get( api.url + '/worlds', function( worlds )
         {
-            var remainingSeconds = worlds[0].remaining_seconds
+            const reference = Date.now() / 1000;
+            const referenceRemainingSeconds = worlds[0].remaining_seconds;
             const updateRemainingSeconds = function()
             {
-                var remainingTime;
+                const remainingSeconds = Math.ceil( referenceRemainingSeconds - ( Date.now() / 1000 - reference ) );
 
                 if( remainingSeconds <= 60 )
                     remainingTime = `${ remainingSeconds } seconds`
@@ -344,7 +345,6 @@ function world( api, blueprints, hexFieldSize = 200 )
                 if( remainingSeconds >= 0 )
                 {
                     $(' #remaining-time ').text( remainingTime );
-                    --remainingSeconds;
                 }
                 else
                 {
