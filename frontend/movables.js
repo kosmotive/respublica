@@ -18,6 +18,7 @@ function movables( api, world )
             beforeSend: api.augmentRequestWithCSRFToken,
             success: function( data )
             {
+                delete data.ship_set;
                 Object.assign( selectedMovable, data );
                 updateMovableView( selectedMovable );
                 world.showTrajectory( selectedMovable );
@@ -111,6 +112,7 @@ function movables( api, world )
             {
                 selectedMovable = null;
                 world.showTrajectory( selectedMovable );
+                world.selectHexField( x, y );
 
                 /* Show or hide the sector view, depending on whether the clicked hex contains movables
                  */

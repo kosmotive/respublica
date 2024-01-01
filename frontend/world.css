@@ -26,11 +26,23 @@
   z-index: 1;
 }
 
+.hex-field.hex-field-selected {
+  z-index: 3;
+}
+
+.hex-field.hex-field-selected polygon.hex-field-background {
+  fill: white;
+}
+
+.hex-field.hex-field-selected polygon.hex-field-stroke {
+  stroke: white;
+}
+
 .hex-field svg a {
   pointer-events: all;
 }
 
-.hex-field a:hover polygon {
+.hex-field a:hover polygon.hex-field-stroke {
   stroke: white;
 }
 

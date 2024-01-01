@@ -363,6 +363,14 @@ function world( api, blueprints, hexFieldSize = 200 )
         });
     });
 
+    /* Adds the "hex-field-selected" class to the given hex field (and removes from others).
+     */
+    function selectHexField( x, y )
+    {
+        $( '#hex-map .hex-field.hex-field-selected' ).removeClass( 'hex-field-selected' );
+        if( x !== null && y !== null ) getHexField( x, y ).addClass( 'hex-field-selected' );
+    }
+
     /* Shows trajectory of the given movable (or null to show none).
      */
     function showTrajectory( movable )
@@ -414,6 +422,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         status: status,
         empires: empires,
         getHexField: getHexField,
+        selectHexField: selectHexField,
         showTrajectory: showTrajectory
     };
     return ret;
