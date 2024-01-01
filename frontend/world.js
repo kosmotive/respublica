@@ -51,7 +51,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         const movables = getMovables( x, y );
         for( const movable of movables )
         {
-            $( `<li class="movable">${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
+            $( `<li class="movable">★ ${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
         }
 
         const owners = getHexOwners( x, y );
@@ -112,6 +112,13 @@ function world( api, blueprints, hexFieldSize = 200 )
         $( '#hex-map' ).css(  'top', $( '#hex-map' ).attr( 'y' ) );
     }
 
+    /* Updates the view of a hex field after changing its name.
+     */
+    function updateHexField( hexField )
+    {
+        hexField.find( '.hex-field-name' ).text( hexField.attr( 'name' ) );
+    }
+
     /* Loads the map (with *displayed* coordiantes centered at `origin`).
      */
     function loadMap( origin )
@@ -161,7 +168,8 @@ function world( api, blueprints, hexFieldSize = 200 )
                     if( z > 0 ) return `${ positivePrefix }${  z }`;
                     else return '0';
                 }
-                hexField.find( '.hex-field-name' ).text( `${ fmt( x, "W", "E" ) }/${ fmt( y, "N", "S" ) }` );
+                hexField.attr( 'name', `${ fmt( x - origin[ 0 ], "W", "E" ) }/${ fmt( y - origin[ 1 ], "N", "S" ) }` );
+                updateHexField( hexField );
             }
         });
         $.get( api.url + '/sectors?depth=1', function( data )
@@ -169,9 +177,10 @@ function world( api, blueprints, hexFieldSize = 200 )
             for( const sector of data )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
-                hexField.find( '.hex-field-name' ).text( sector.name );
-                hexField.find( '.hex-field-name' ).addClass( 'sector-name' );
+                hexField.addClass( 'sector' );
+                hexField.attr( 'name', sector.name );
                 hexField.attr( 'sector', sector.url );
+                updateHexField( hexField );
 
                 switch( sector.celestial_set[0].features.variant )
                 {
@@ -354,7 +363,8 @@ function world( api, blueprints, hexFieldSize = 200 )
         movables: movables,
         getMovables: getMovables,
         status: status,
-        empires: empires
+        empires: empires,
+        getHexField: getHexField
     };
     return ret;
 }

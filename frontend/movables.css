@@ -39,9 +39,15 @@
 
 #movables-view .movables-list .movable-status {
   font-size: 0.8em;
+  line-height: 0.9em;
+}
+
+#movables-view .movables-list .movable-status .movable-status-line {
+  white-space: nowrap;
 }
 
 #movables-view .movables-list .movable .ship-list {
+  margin-top: 0.5em;
 }
 
 #movables-view .movables-list .movable .ship-list .ship {

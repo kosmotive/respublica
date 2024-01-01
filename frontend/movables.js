@@ -35,7 +35,7 @@ function movables( api, world )
         movableView.appendTo( $( '#movables-view .movables-list' ) );
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
-        movableView.find( '.movable-name' ).text( movable.name );
+        movableView.find( '.movable-name' ).text( '★ ' + movable.name );
         movableView.find( '.action-move' ).on( 'click',
             function()
             {
@@ -75,7 +75,7 @@ function movables( api, world )
         const movableView = $( `.movable[url="${ movable.url }"]` );
         if( JSON.stringify( movable.destination ) == JSON.stringify( movable.position ) )
         {
-            movableView.find( '.movable-status' ).text( '' );
+            movableView.find( '.movable-status' ).text( 'Standing by.' );
         }
         else
         {
@@ -83,9 +83,10 @@ function movables( api, world )
             $.get( movable.process,
                 function( process )
                 {
+                    const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
                     var turns = process.end_tick - world.status.tick;
                     turns = turns == 1 ? `${ turns } turn` : `${ turns } turns`;
-                    movableView.find( '.movable-status' ).text( `Jumping in ${ turns }` );
+                    movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
                 }
             );
         }
