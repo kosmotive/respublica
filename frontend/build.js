@@ -17,7 +17,7 @@ function build( api, world, blueprints )
         );
     })
 
-    function setBuildProcess( process )
+    function setBuildProcess( process, sector, celestial )
     {
         if( process )
         {
@@ -30,7 +30,7 @@ function build( api, world, blueprints )
             const progress = `${ Math.round( 100 * ( world.game.tick - process.start_tick ) / ( process.end_tick - process.start_tick ) ) }%`
 
             view.find( '.build-process-name' ).text( blueprint.data.name );
-            view.find( '.build-process-celestial' ).text( process.data.celestial_url );
+            view.find( '.build-process-celestial' ).text( world.getCelestialName( sector, celestial ) );
             view.find( '.build-process-progress' ).text( progress );
             view.find( '.build-process-remaining' ).text( turns );
 
@@ -55,7 +55,7 @@ function build( api, world, blueprints )
             success: function( process )
             {
                 sector.process = process;
-                setBuildProcess( process );
+                setBuildProcess( process, sector, celestial );
             }
         });
     }
@@ -76,13 +76,20 @@ function build( api, world, blueprints )
             {
                 /* Fetch info on current build process in this sector.
                  */
+                setBuildProcess( null );
                 if( sector.process )
                 {
-                    $.get( sector.process, setBuildProcess );
-                }
-                else
-                {
-                    setBuildProcess( null );
+                    $.get( sector.process,
+                        function( process )
+                        {
+                            $.get( process.data.celestial_url,
+                                function( processCelestial )
+                                {
+                                    setBuildProcess( process, sector, processCelestial );
+                                }
+                            );
+                        }
+                    );
                 }
 
                 /* Create build options.

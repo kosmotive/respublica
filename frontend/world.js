@@ -415,6 +415,11 @@ function world( api, blueprints, hexFieldSize = 200 )
         }
     }
 
+    function getCelestialName( sector, celestial )
+    {
+        return sector.name + ( celestial.position > 0 ? ' ' + celestial.position : '' );
+    }
+
     const ret =
     {
         events: events,
@@ -425,7 +430,8 @@ function world( api, blueprints, hexFieldSize = 200 )
         empires: empires,
         getHexField: getHexField,
         selectHexField: selectHexField,
-        showTrajectory: showTrajectory
+        showTrajectory: showTrajectory,
+        getCelestialName: getCelestialName
     };
     return ret;
 }

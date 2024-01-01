@@ -8,7 +8,7 @@ function sector( api, world, build )
      */
     function createCelestialView( sector, celestial )
     {
-        celestial.name = sector.name + ( celestial.position > 0 ? ' ' + celestial.position : '' );
+        celestial.name = world.getCelestialName( sector, celestial );
 
         const celestialView = $( '#celestial-template' ).clone();
         celestialView.prependTo( '#sector-view' );
