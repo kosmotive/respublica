@@ -1,4 +1,4 @@
-# Backend
+# Backend management
 
 ## Prerequisities
 
@@ -63,3 +63,5 @@ Generate random world:
 python manage.py shell -c "from world.generator import *; generate_world(10, 0.5, 0, exist_ok=True, tickrate=60)"
 ```
 Use `generate_test_world` instead of `generate_world` to populate the world with some test data.
+
+Tickrate is given in ticks per hour.
