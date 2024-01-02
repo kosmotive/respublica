@@ -93,7 +93,7 @@ function sector( api, world, build )
         {
             for( const construction of data )
             {
-                if( !( construction.celestial in Object.keys( constructions ) ) )
+                if( !Object.keys( constructions ).includes( construction.celestial ) )
                 {
                     constructions[ construction.celestial ] = []
                 }
@@ -127,7 +127,7 @@ function sector( api, world, build )
                                      */
                                     for( const celestial of sector.celestial_set )
                                     {
-                                        celestial.constructions = constructions[ celestial.url ];
+                                        celestial.constructions = Object.keys( constructions ).includes( celestial.url ) ? constructions[ celestial.url ] : [];
                                         createCelestialView( sector, celestial );
                                     }
 
