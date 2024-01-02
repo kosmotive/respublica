@@ -21,7 +21,7 @@ source venv/bin/activate
 
 Install dependencies into virtual environment:
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ## Reset the database
