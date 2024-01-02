@@ -80,6 +80,14 @@ class MovableSerializer(serializers.HyperlinkedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.Meta.depth = self.context.get('depth', 0)
+        assert self.Meta.depth in (0, 1)
+
+
+class CelestialSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model  = Celestial
+        fields = ['url', 'sector', 'position', 'features', 'habitated_by', 'remaining_capacity']
 
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):
@@ -93,13 +101,13 @@ class SectorSerializer(serializers.HyperlinkedModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.Meta.depth = self.context.get('depth', 0)
+        assert self.Meta.depth in (0, 1)
 
-
-class CelestialSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model  = Celestial
-        fields = ['url', 'sector', 'position', 'features', 'habitated_by']
+    def get_fields(self):
+        fields = super().get_fields()
+        if self.Meta.depth == 1:
+            fields['celestial_set'] = CelestialSerializer(read_only = True, many = True)
+        return fields
 
 
 class UnveiledSerializer(serializers.HyperlinkedModelSerializer):

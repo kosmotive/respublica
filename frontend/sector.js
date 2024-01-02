@@ -60,8 +60,20 @@ function sector( api, world, build )
         {
             if( key != 'type' && key != 'variant' )
             {
+                var formattedValue;
+                switch( key )
+                {
+
+                case 'capacity':
+                    formattedValue = celestial.habitated_by ? `${ celestial.remaining_capacity }/${ value }` : value;
+                    break;
+
+                default:
+                    formattedValue = value;
+
+                };
                 featureName = key.charAt( 0 ).toUpperCase() + key.slice( 1 );
-                features += `<li>${ featureName }: ${ value }</li>`
+                features += `<li>${ featureName }: ${ formattedValue }</li>`
             }
         }
         celestialView.find( '.celestial-features' ).html( features );

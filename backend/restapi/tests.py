@@ -204,6 +204,7 @@ class CelestialTest(BaseRestTest):
                 'position': obj.position,
                 'features': obj.features,
                 'habitated_by': None if obj.habitated_by is None else reverse('empire-detail', kwargs = dict(pk = obj.habitated_by.pk)),
+                'remaining_capacity': obj.remaining_capacity,
             }
             for obj in objects
         ]
