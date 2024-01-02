@@ -1,11 +1,16 @@
 import time
+import multiprocessing
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import CheckConstraint, Q
 import numpy as np
 
 from . import hexgrid
-from . import git 
+from . import git
+
+
+# Lock used to synchronize `world.do_pending_ticks` within a single process (transactions should prevent race conditions across processes)
+_world_lock = multiprocessing.Lock()
 
 
 class World(models.Model):
@@ -46,9 +51,14 @@ class World(models.Model):
         assert isinstance(pending_ticks, int)
         return pending_ticks
 
+    @transaction.atomic()
     def do_pending_ticks(self):
-        for _ in range(self.pending_ticks):
-            self.tick()
+        _world_lock.acquire()
+        try:
+            for _ in range(self.pending_ticks):
+                self.tick()
+        finally:
+            _world_lock.release()
 
     @property
     def remaining_seconds(self):
