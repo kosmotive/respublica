@@ -1,6 +1,12 @@
 function blueprints( api )
 {
+    /* Maps blueprint URLs to the the actual blueprint data.
+     */
     const blueprintsData = {};
+
+    /* Maps blueprint `base_id` field to the name of the blueprint.
+     */
+    const blueprintNames = {}
 
     function require( blueprintUrl )
     {
@@ -26,6 +32,10 @@ function blueprints( api )
                 const ajaxCall = $.get( blueprintUrl, function( blueprint )
                 {
                     blueprintsData[ blueprintUrl ] = blueprint;
+                    if( !Object.keys( blueprintNames ).includes( blueprint.base_id ) )
+                    {
+                        blueprintNames[ blueprint.base_id ] = blueprint.data.name;
+                    }
                 });
                 ajaxCalls.push( ajaxCall );
             }
@@ -61,7 +71,8 @@ function blueprints( api )
         require: require,
         resolve: resolve,
         whenResolved: whenResolved,
-        get: get
+        get: get,
+        resolveBaseIdToName: function( baseId ) { return blueprintNames[ baseId ]; }
     };
     return ret;
 }

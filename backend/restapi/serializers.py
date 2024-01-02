@@ -135,7 +135,7 @@ class BlueprintSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Blueprint
-        fields = ['url', 'base_id', 'empire', 'data']
+        fields = ['url', 'base_id', 'empire', 'data', 'requirements']
 
 
 class ConstructionSerializer(serializers.HyperlinkedModelSerializer):

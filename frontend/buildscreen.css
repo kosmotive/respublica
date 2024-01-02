@@ -77,7 +77,7 @@
 #buildscreen .container .content .build-options-list .build-option,
 #buildscreen .container .content .constructions-list .construction {
   background-color: white;
-  border-radius: 2em;
+  border-radius: 0.7em;
   padding: 0.5em 1em 0.5em 1em;
   margin-bottom: 0.3em;
 }
@@ -87,13 +87,39 @@
   margin-bottom: 0;
 }
 
-#buildscreen .container .content .build-options-list .build-option:hover,
-#buildscreen .container .content .constructions-list .construction:hover {
+#buildscreen .container .content .build-options-list .build-option:hover {
   background-color: floralwhite;
   cursor: pointer;
 }
 
-#build-option-template {
+#buildscreen .container .content .build-options-list .build-option .build-option-cost:before,
+#buildscreen .container .content .build-options-list .build-option .build-option-size:before,
+#buildscreen .container .content .constructions-list .construction .construction-size:before {
+  margin-left: 0.3em;
+  margin-right: 0.2em;
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-cost:before {
+  content: '\23F1 ';
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-size:before,
+#buildscreen .container .content .constructions-list .construction .construction-size:before {
+  content: '\2302 ';
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-requirements {
+  font-size: 0.8em;
+  display: block;
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-requirements:before {
+  content: 'Requires: ';
+  font-weight: bold;
+}
+
+#build-option-template,
+#construction-template {
   display: none;
 }
 

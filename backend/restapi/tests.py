@@ -279,6 +279,7 @@ class BlueprintTest(BaseRestTest):
                 'base_id': obj.base_id,
                 'empire': reverse('empire-detail', kwargs = dict(pk = obj.empire.pk)),
                 'data': obj.data,
+                'requirements': obj.requirements,
             }
             for obj in objects
         ]

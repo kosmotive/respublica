@@ -100,12 +100,28 @@ function build( api, world, blueprints )
                     for( const blueprintUrl of world.game.empire.blueprint_set )
                     {
                         const blueprint = blueprints.get( blueprintUrl );
+                        const requirements = blueprint.requirements.map( blueprints.resolveBaseIdToName ).join( ', ' );
                         const buildOption = $( '#build-option-template' ).clone();
                         buildOption.attr( 'id', '' );
                         buildOption.attr( 'url', blueprint.url );
                         buildOption.find( '.build-option-name' ).text( blueprint.data.name );
                         buildOption.find( '.build-option-cost' ).text( blueprint.data.cost );
-                        buildOption.find( '.build-option-requirements' ).text( blueprint.data.requirements );
+                        if( blueprint.data.size )
+                        {
+                            buildOption.find( '.build-option-size' ).text( blueprint.data.size );
+                        }
+                        else
+                        {
+                            buildOption.find( '.build-option-size' ).remove();
+                        }
+                        if( requirements.length )
+                        {
+                            buildOption.find( '.build-option-requirements' ).text( requirements );
+                        }
+                        else
+                        {
+                            buildOption.find( '.build-option-requirements' ).remove();
+                        }
                         buildOption.appendTo( $( '#buildscreen .build-options-list' ) );
                         buildOption.on( 'click',
                             function()
@@ -120,11 +136,15 @@ function build( api, world, blueprints )
                  */
                 if( celestial.constructions.length )
                 {
-                    $( '#buildscreen .constructions-list' ).empty();
+                    $( '#buildscreen .constructions-list li:not(#construction-template)' ).remove();
                     for( const construction of celestial.constructions )
                     {
                         const blueprint = blueprints.get( construction.blueprint );
-                        const constructionView = $( `<li class="construction" url="${ construction.url }">${ blueprint.data.name }</li>` );
+                        const constructionView = $( '#construction-template' ).clone();
+                        constructionView.attr( 'id', '' );
+                        constructionView.attr( 'url', blueprint.url );
+                        constructionView.find( '.construction-name' ).text( blueprint.data.name );
+                        constructionView.find( '.construction-size' ).text( blueprint.data.size );
                         constructionView.appendTo( $( '#buildscreen .constructions-list' ) );
                     }
                 }

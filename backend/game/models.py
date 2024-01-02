@@ -41,7 +41,7 @@ class Empire(models.Model):
                     Blueprint.objects.create(
                         base_id = f'{bp_type}/{bp_name}',
                         empire  = self,
-                        data    = {key: bp[key] for key in ['name', 'cost', 'speed'] if key in bp})
+                        data    = {key: bp[key] for key in ['name', 'cost', 'size', 'speed'] if key in bp})
 
     @property
     def movables(self):
