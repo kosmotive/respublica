@@ -18,11 +18,24 @@ header {
   left: 0;
   right: 0;
   z-index: 100;
+  display: flex;
+}
+
+header .display-spacer {
+  display: inline-block;
+  width: 100%;
 }
 
 header .display {
   display: inline-block;
   margin-left: 1rem;
+  white-space: nowrap;
+}
+
+header .display a,
+header .display a:hover {
+  color: white;
+  text-decoration: none;
 }
 
 .action-list {
