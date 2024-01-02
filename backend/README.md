@@ -1,5 +1,7 @@
 # Backend management
 
+The working directory should be the directory which contains this file.
+
 Remember to activate the virtual environment, except for the *Prerequisites* section:
 ```bash
 source ../venv/bin/activate
