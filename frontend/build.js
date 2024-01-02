@@ -94,19 +94,38 @@ function build( api, world, blueprints )
 
                 /* Create build options.
                  */
-                $( '#buildscreen .build-options-list' ).empty();
-                for( const blueprintUrl of world.game.empire.blueprint_set )
+                if( world.game.empire.blueprint_set.length )
                 {
-                    const blueprint = blueprints.get( blueprintUrl );
-                    const buildOption = $( `<li class="build-option" url="${ blueprint.url }">${ blueprint.data.name }</li>` );
-                    buildOption.appendTo( $( '#buildscreen .build-options-list' ) );
-                    buildOption.on( 'click',
-                        function()
-                        {
-                            build( sector, celestial, blueprint );
-                        }
-                    );
+                    $( '#buildscreen .build-options-list' ).empty();
+                    for( const blueprintUrl of world.game.empire.blueprint_set )
+                    {
+                        const blueprint = blueprints.get( blueprintUrl );
+                        const buildOption = $( `<li class="build-option" url="${ blueprint.url }">${ blueprint.data.name }</li>` );
+                        buildOption.appendTo( $( '#buildscreen .build-options-list' ) );
+                        buildOption.on( 'click',
+                            function()
+                            {
+                                build( sector, celestial, blueprint );
+                            }
+                        );
+                    }
                 }
+
+                /* Create constructions list.
+                 */
+                if( celestial.constructions.length )
+                {
+                    $( '#buildscreen .constructions-list' ).empty();
+                    for( const construction of celestial.constructions )
+                    {
+                        const blueprint = blueprints.get( construction.blueprint );
+                        const constructionView = $( `<li class="construction" url="${ construction.url }">${ blueprint.data.name }</li>` );
+                        constructionView.appendTo( $( '#buildscreen .constructions-list' ) );
+                    }
+                }
+
+                /* Show the build screen.
+                 */
                 $( '#buildscreen' ).fadeIn( 200 );
             }
         );

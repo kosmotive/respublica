@@ -85,41 +85,66 @@ function sector( api, world, build )
         return celestialView;
     }
 
+    /* Load all constructions (by celestial).
+     */
+    var constructions = {};
+    const loadConstructions = $.get( api.url + '/constructions',
+        function( data )
+        {
+            for( const construction of data )
+            {
+                if( !( construction.celestial in Object.keys( constructions ) ) )
+                {
+                    constructions[ construction.celestial ] = []
+                }
+                constructions[ construction.celestial ].push( construction );
+            }
+        }
+    );
+
     /* Load the content.
      */
-    $( document ).ready( function()
-    {
-        if( $( '#sector-view' ).length )
+    $.when( loadConstructions ).done(
+        function()
         {
-            $( '#sector-view' ).hide();
-            world.events.hex_field_click.push( function( x, y, sectorUrl )
-            {
-                /* Show or hide the sector view, depending on whether the clicked hex field is a sector
-                 */
-                if( sectorUrl )
+            $( document ).ready(
+                function()
                 {
-                    $.get( sectorUrl + '?depth=1', function( sector )
+                    if( $( '#sector-view' ).length )
                     {
-                        $( '#sector-view .celestial:not(#celestial-template)' ).remove();
-
-                        /* Load celestials.
-                         */
-                        for( const celestial of sector.celestial_set )
+                        $( '#sector-view' ).hide();
+                        world.events.hex_field_click.push( function( x, y, sectorUrl )
                         {
-                            createCelestialView( sector, celestial );
-                        }
+                            /* Show or hide the sector view, depending on whether the clicked hex field is a sector
+                             */
+                            if( sectorUrl )
+                            {
+                                $.get( sectorUrl + '?depth=1', function( sector )
+                                {
+                                    $( '#sector-view .celestial:not(#celestial-template)' ).remove();
 
-                        $( '#sector-view' ).fadeIn( 200 );
-                    });
+                                    /* Load celestials.
+                                     */
+                                    for( const celestial of sector.celestial_set )
+                                    {
+                                        celestial.constructions = constructions[ celestial.url ];
+                                        createCelestialView( sector, celestial );
+                                    }
+
+                                    $( '#sector-view' ).fadeIn( 200 );
+                                });
+                            }
+                            else
+                            {
+                                $( '#sector-view' ).fadeOut( 200 );
+                            }
+                            return true;
+                        });
+                    }
                 }
-                else
-                {
-                    $( '#sector-view' ).fadeOut( 200 );
-                }
-                return true;
-            });
+            );
         }
-    })
+    );
 
     const ret =
     {
