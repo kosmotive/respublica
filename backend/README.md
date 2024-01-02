@@ -1,5 +1,10 @@
 # Backend management
 
+Remember to activate the virtual environment, except for prerequisites:
+```bash
+source venv/bin/activate
+```
+
 ## Prerequisities
 
 **This is required only once for inital setup.**
@@ -32,11 +37,6 @@ rm -rf */migrations
 ## Initialize the database
 
 **This is only required after initial setup or after resetting the database.**
-
-Activate virtual environment:
-```bash
-source venv/bin/activate
-```
 
 Create migrations:
 
