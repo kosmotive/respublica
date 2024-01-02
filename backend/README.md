@@ -2,7 +2,7 @@
 
 Remember to activate the virtual environment, except for the *Prerequisites* section:
 ```bash
-source venv/bin/activate
+source ../venv/bin/activate
 ```
 
 ## Prerequisites
@@ -11,12 +11,12 @@ source venv/bin/activate
 
 Create virtual environment:
 ```bash
-python -m venv venv
+python -m venv ../venv
 ```
 
 Activate virtual environment:
 ```bash
-source venv/bin/activate
+source ../venv/bin/activate
 ```
 
 Install dependencies into virtual environment:
