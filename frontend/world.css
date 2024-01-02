@@ -96,3 +96,24 @@
   display: none;
 }
 
+#world-version {
+  position: absolute;
+  top: 3rem;
+  right: 1rem;
+  z-index: 10;
+  background-color: lemonchiffon;
+  color: black;
+  padding: 0.5em;
+  font-size: 0.8rem;
+  border: 1px solid black;
+}
+
+#world-version a {
+  color: black;
+  text-decoration: none;
+}
+
+#world-version a:hover {
+  color: black;
+  text-decoration: underline;
+}

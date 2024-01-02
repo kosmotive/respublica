@@ -362,6 +362,10 @@ function world( api, blueprints, hexFieldSize = 200 )
 
             updateRemainingSeconds();
             const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
+
+            $( '#world-version-sha' ).text( worlds[ 0 ].version.sha.substr( 0, 7 ) );
+            $( '#world-version-sha' ).attr( 'href', `https://github.com/search?q=repo%3Akostrykin%2Frespublica+${ worlds[ 0 ].version.sha }&type=commits` );
+            $( '#world-version-date' ).text( worlds[ 0 ].version.date );
         });
     });
 

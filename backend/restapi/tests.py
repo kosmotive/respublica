@@ -108,6 +108,7 @@ class WorldTest(BaseRestTest):
                 'now': 1,
                 'last_tick_timestamp': round(time.time()),
                 'remaining_seconds': 60,
+                'version': obj.version,
             }
             for obj in objects
         ]

@@ -5,6 +5,7 @@ from django.db.models import CheckConstraint, Q
 import numpy as np
 
 from . import hexgrid
+from . import git 
 
 
 class World(models.Model):
@@ -12,6 +13,7 @@ class World(models.Model):
     now = models.PositiveBigIntegerField(default = 0)
     last_tick_timestamp = models.PositiveBigIntegerField(null = True)
     tickrate = models.FloatField(default = 0)
+    version  = models.JSONField(null = True)
 
     class Meta:
         constraints = [
@@ -60,6 +62,7 @@ class World(models.Model):
 
         # If the world is newly created, then do an initial tick to initialize the fields
         if is_newly_created:
+            self.version = git.get_head_info()
             self.tick()
 
 

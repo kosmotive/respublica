@@ -65,7 +65,7 @@ class WorldSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = World
-        fields = ['url', 'now', 'last_tick_timestamp', 'remaining_seconds']
+        fields = ['url', 'now', 'last_tick_timestamp', 'remaining_seconds', 'version']
 
 
 class MovableSerializer(serializers.HyperlinkedModelSerializer):
