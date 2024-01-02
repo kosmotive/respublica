@@ -96,11 +96,16 @@ function build( api, world, blueprints )
                  */
                 if( world.game.empire.blueprint_set.length )
                 {
-                    $( '#buildscreen .build-options-list' ).empty();
+                    $( '#buildscreen .build-options-list li:not(#build-option-template)' ).remove();
                     for( const blueprintUrl of world.game.empire.blueprint_set )
                     {
                         const blueprint = blueprints.get( blueprintUrl );
-                        const buildOption = $( `<li class="build-option" url="${ blueprint.url }">${ blueprint.data.name }</li>` );
+                        const buildOption = $( '#build-option-template' ).clone();
+                        buildOption.attr( 'id', '' );
+                        buildOption.attr( 'url', blueprint.url );
+                        buildOption.find( '.build-option-name' ).text( blueprint.data.name );
+                        buildOption.find( '.build-option-cost' ).text( blueprint.data.cost );
+                        buildOption.find( '.build-option-requirements' ).text( blueprint.data.requirements );
                         buildOption.appendTo( $( '#buildscreen .build-options-list' ) );
                         buildOption.on( 'click',
                             function()

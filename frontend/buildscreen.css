@@ -93,6 +93,10 @@
   cursor: pointer;
 }
 
+#build-option-template {
+  display: none;
+}
+
 #buildscreen .container .content .build-process-info {
   font-size: 0.8rem;
   background-color: white;
