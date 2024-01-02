@@ -9,6 +9,15 @@
   z-index: 10;
   text-align: right;
   padding-right: 1rem;
+  white-space: nowrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  flex-direction: row-reverse;
+  display: flex;
+}
+
+body.open-movables-view #sector-view {
+  left: 15rem;
 }
 
 #sector-view .celestial {

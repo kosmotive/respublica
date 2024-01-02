@@ -126,10 +126,15 @@ function movables( api, world )
                         createMovableView( movable );
                     }
 
-                    $( '#movables-view' ).fadeIn( 200 );
+                    $( '#movables-view' ).fadeIn( 200, function()
+                        {
+                            $( 'body' ).addClass( 'open-movables-view' );
+                        }
+                    );
                 }
                 else
                 {
+                    $( 'body' ).removeClass( 'open-movables-view' );
                     $( '#movables-view' ).fadeOut( 200 );
                 }
                 return true;

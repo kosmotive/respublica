@@ -11,7 +11,7 @@ function sector( api, world, build )
         celestial.name = world.getCelestialName( sector, celestial );
 
         const celestialView = $( '#celestial-template' ).clone();
-        celestialView.prependTo( '#sector-view' );
+        celestialView.appendTo( '#sector-view' );
         celestialView.attr( 'id', '' );
         celestialView.find( '.celestial-name' ).text( celestial.name );
         for( const type of [ 'star', 'planet' ] )
