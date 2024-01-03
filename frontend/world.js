@@ -171,6 +171,8 @@ function world( api, blueprints, hexFieldSize = 200 )
                 hexField.attr( 'sector', sector.url );
                 updateHexField( hexField );
 
+                /* Select and show the proper icon.
+                 */
                 switch( sector.celestial_set[ 0 ].features.variant )
                 {
 
@@ -206,6 +208,14 @@ function world( api, blueprints, hexFieldSize = 200 )
                     console.log( `Unknown star variant: "${ sector.celestial_set[0].features.variant }"` );
 
                 }
+
+                /* Displace the icon randomly.
+                 */
+                Math.seedrandom( sector.url );
+                const dx = ( Math.random() - 0.5 ) * hexFieldSize;
+                const dy = ( Math.random() - 0.25 ) * 0.5 * hexFieldSize;
+                hexField.find( '.sector-star' ).css( 'left', `${ dx }px` );
+                hexField.find( '.sector-star' ).css( 'bottom', `${ dy }px` );
             }
             $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
         });
