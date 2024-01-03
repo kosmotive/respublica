@@ -25,7 +25,7 @@ class EmpireTest(TestCase):
     def setUp(self):
         player = User.objects.create(username = 'testuser', password = 'password')
         self.world = World.objects.create()
-        self.empire = Empire.objects.create(name = 'Foos', player = player, origin_x = 0, origin_y = 0) 
+        self.empire = Empire.objects.create(name = 'Foos', player = player, origin_x = 0, origin_y = 0, color_hue = 0)
 
         sector1 = Sector.objects.create(position_x =  1, position_y =  1, name = 'S1')
         sector2 = Sector.objects.create(position_x = -1, position_y = -1, name = 'S2')
@@ -68,7 +68,7 @@ class BlueprintTest(TestCase):
     def setUp(self):
         player = User.objects.create(username = 'testuser', password = 'password')
         self.world = World.objects.create()
-        self.empire = Empire.objects.create(name = 'Foos', player = player, origin_x = 0, origin_y = 0)
+        self.empire = Empire.objects.create(name = 'Foos', player = player, origin_x = 0, origin_y = 0, color_hue = 0)
         self.construction_blueprint = Blueprint.objects.get(base_id = 'constructions/digital-cave')
         self.ship_blueprint = Blueprint.objects.get(base_id = 'ships/colony-ship')
 

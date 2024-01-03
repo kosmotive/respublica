@@ -51,13 +51,18 @@ function world( api, blueprints, hexFieldSize = 200 )
         const movables = getMovables( x, y );
         for( const movable of movables )
         {
-            $( `<li class="movable">★ ${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
+            $( `<li class="movable">&starf; ${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
         }
 
         const owners = getHexOwners( x, y );
-        if( owners.length )
+        if( owners.length == 1 )
         {
-            hexField.find( '.hex-field-hatch' ).attr( 'stroke', 'dodgerblue' );
+            hexField.find( '.hex-field-hatch' ).attr( 'stroke', hsl2hex( owners[ 0 ].color_hue, 1, 0.56 ) );
+        }
+        else
+        if( owners.length > 1 )
+        {
+            // TODO: add some rainbow pattern
         }
 
         return hexField;
@@ -156,9 +161,9 @@ function world( api, blueprints, hexFieldSize = 200 )
                 updateHexField( hexField );
             }
         });
-        $.get( api.url + '/sectors?depth=1', function( data )
+        $.get( api.url + '/sectors?depth=1', function( sectors )
         {
-            for( const sector of data )
+            for( const sector of sectors )
             {
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.addClass( 'sector' );
@@ -166,30 +171,35 @@ function world( api, blueprints, hexFieldSize = 200 )
                 hexField.attr( 'sector', sector.url );
                 updateHexField( hexField );
 
-                switch( sector.celestial_set[0].features.variant )
+                switch( sector.celestial_set[ 0 ].features.variant )
                 {
 
                 case 'white-mainline': 
-                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' );
-                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' )
+                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' )
+                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
                     break;
 
                 case 'yellow-mainline': 
                     hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'orange' );
                     hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
                     break;
 
                 case 'blue-mainline': 
                     hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
                     hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
                     break;
 
                 case 'white-dwarf':
                     hexField.find( '.sector-star-white-dwarf' ).css( 'display', 'inline' );
+                    hexField.find( '.sector-star-white-dwarf' ).attr( 'active', 'true' );
                     break;
 
                 case 'red-giant':
                     hexField.find( '.sector-star-red-giant' ).css( 'display', 'inline' );
+                    hexField.find( '.sector-star-red-giant' ).attr( 'active', 'true' );
                     break;
 
                 default:
@@ -197,6 +207,7 @@ function world( api, blueprints, hexFieldSize = 200 )
 
                 }
             }
+            $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
         });
     }
 

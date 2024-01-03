@@ -8,10 +8,18 @@ from game.blueprints import base_blueprints
 
 class Empire(models.Model):
 
-    name     = models.CharField(max_length = 100)
-    player   = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    origin_x = models.IntegerField();
-    origin_y = models.IntegerField();
+    name      = models.CharField(max_length = 100, unique = True)
+    player    = models.OneToOneField('auth.User', on_delete = models.SET_NULL, null = True)
+    origin_x  = models.IntegerField();
+    origin_y  = models.IntegerField();
+    color_hue = models.FloatField()
+
+    class Meta:
+        constraints = (
+            models.CheckConstraint(
+                check = models.Q(color_hue__gte = 0) & models.Q(color_hue__lte = 1),
+                name = 'color_hue_range'),
+            )
 
     @property
     def origin(self):

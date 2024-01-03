@@ -1,7 +1,7 @@
 /* Load CallbackStack.
  */
 $.ajax({
-    url: 'callbacks.js',
+    url: 'tools.js',
     dataType: 'script',
     async: false
 });

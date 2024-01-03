@@ -36,7 +36,7 @@ function movables( api, world )
         movableView.appendTo( $( '#movables-view .movables-list' ) );
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
-        movableView.find( '.movable-name' ).text( '★ ' + movable.name );
+        movableView.find( '.movable-name' ).html( '&starf; ' + movable.name );
         movableView.on( 'click',
             function()
             {

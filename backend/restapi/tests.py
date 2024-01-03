@@ -250,6 +250,7 @@ class EmpireTest(BaseRestTest):
                 'blueprint_set': [
                     reverse('blueprint-detail', kwargs = dict(pk = blueprint.pk)) for blueprint in obj.blueprint_set.all()
                 ],
+                'color_hue': obj.color_hue,
             }
             for obj in objects
         ]
