@@ -98,3 +98,73 @@ class BuildingHandler(BaseHandler):
             data = dict(
                 blueprint_id = blueprint.id,
                 celestial_id = celestial.id))
+
+
+class ColonializationHandler(BaseHandler):
+    """
+    Habitates a celestial when the colonialization process completes.
+
+    Requires either another already habitated celestial or a colony ship in the same sector as the colonized celestial.
+    """
+
+    def finish(self, process):
+        from world.models import Celestial
+
+        # Spawn the colony
+        celestial = Celestial.objects.get(id = process.data['celestial_id'])
+        empire    = Empire   .objects.get(id = process.data[   'empire_id'])
+        assert celestial.habitated_by is None
+        celestial.habitated_by = empire
+        celestial.save()
+
+        # Delete the process
+        process.delete()
+
+        # Consume the colony ship, if one was used
+        if self.movable is not None:
+            ships_qs = self.movable.ship_set.filter('ships/colony-ship')
+            assert ships_qs.count() >= 1
+            ships_qs[0].remove()
+
+    def movable(self, process):
+        from world.models import Movable
+        movable_id = process.data.get('movable_id', None)
+        if movable_id is None:
+            return None
+        else:
+            return Movable.objects.get(id = movable_id)
+
+    @staticmethod
+    def create_process(start_tick, empire, celestial, movable):
+        from game.models import Blueprint
+        data = dict(
+            celestial_id = celestial.id,
+            empire_id    = empire_id)
+
+        # Cancel any previous build process in the sector
+        process = celestial.sector.process
+        if process is not None:
+            process.handler.cancel(process)
+
+        # Cancel any previous order of the movable (if a colony ship is used)
+        if movable is not None:
+            assert movable.ship_set.filter('ships/colony-ship').count() >= 1
+            Process.objects.filter(data__movable_id = movable.id).delete()
+            data['movable_id'] = movable.id
+
+        # Determine how long it is gonna take (1 tick for colony ships, or the cost of the cheapest available colony ship otherwise)
+        if movable is not None:
+            qs = Blueprint.objects.filter(
+                empire  = empire,
+                base_id = 'ships/colony-ship').order_by('data__cost')
+            cost = qs[0].data['cost']
+        else:
+            cost = 1
+
+        # Spawn the process
+        return Process.objects.create(
+            start_tick = start_tick,
+            end_tick   = start_tick + cost,
+            owner      = celestial.habitated_by,
+            handler_id = ColonializationHandler.__qualname__,
+            data       = data)
