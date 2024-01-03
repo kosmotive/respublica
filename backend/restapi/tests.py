@@ -93,6 +93,8 @@ class BaseRestTest(APITestCase):
         response = self.client.get(self.list_url, format='json')
         self.check_different_user_list_response(response)
 
+        return user
+
     def setup_different_user_test(self, user):
         pass
 
@@ -162,12 +164,29 @@ class MovableTest(BaseRestTest):
         self.assertEqual(normalize(response.data), normalize(self.expected_details([self.movable])[0]))
         self.test_detail()
 
+    def setup_different_user_test(self, user):
+        blocked_planet = Empire.objects.get().habitat.get()
+        celestial = Celestial.objects.exclude(sector = blocked_planet.sector).filter(features__capacity__gte = 1).all()[0]
+        empire = Empire.objects.create(
+            name      = 'Bars',
+            player    =  user,
+            origin_x  =  celestial.sector.position[0],
+            origin_y  =  celestial.sector.position[1],
+            color_hue =  0)
+        celestial.habitated_by = empire
+        celestial.save()
+
     def test_different_user(self):
-        super(MovableTest, self).test_different_user()
+        user = super(MovableTest, self).test_different_user()
 
-        # FIXME: Unveil the object
+        # Check for 404 when using "move_to" action on a non-unveiled object
+        response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-        # Check forbidden access to "move_to" action
+        # Unveil the object
+        Unveiled.objects.create(by_whom = user.empire, position_x = self.object.position_x, position_y = self.object.position_y)
+
+        # Check forbidden access to "move_to" action on a foreign unveiled object
         response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
