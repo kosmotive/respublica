@@ -30,12 +30,14 @@
   border-top-left-radius: 1em;
   border-bottom-left-radius: 1em;
   padding: 1em;
-  cursor: pointer;
+  padding-left: 1.5em;
   border-left: 1em solid #fff;
+  margin-bottom: 1rem;
 }
 
-#movables-view .movables-list .movable:not(.movable-active):hover {
+#movables-view .movables-list .movable:not(.movable-active):not(.foreign):hover {
   background-color: whitesmoke;
+  cursor: pointer;
 }
 
 #movables-view .movables-list .movable.movable-active {
@@ -47,10 +49,26 @@
   font-weight: bold;
 }
 
-#movables-view .movables-list .movable-status {
+#movables-view .movables-list .movable-icon {
+  color: white;
+  position: absolute;
+  transform: translate(-2.5em, -0.5em);
+  border-radius: 2em;
+  width: 2em;
+  height: 2em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#movables-view .movables-list .movable-status:not(.foreign) {
   font-size: 0.8em;
   line-height: 0.9em;
   font-style: italic;
+}
+
+#movables-view .movables-list .movable.foreign .movable-status {
+  display: none;
 }
 
 #movables-view .movables-list .movable-status .movable-status-line {

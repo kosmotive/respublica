@@ -33,37 +33,46 @@ function movables( api, world )
      */
     function createMovableView( movable )
     {
+        const color = world.empires[ movable.owner ].color;
         const movableView = $( '#movable-template' ).clone();
         movableView.appendTo( $( '#movables-view .movables-list' ) );
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
-        movableView.find( '.movable-name' ).html( '&starf; ' + movable.name );
-        movableView.css( 'border-color', world.empires[ movable.owner ].color );
-        movableView.on( 'click',
-            function()
-            {
-                if( selectedMovable && selectedMovable.url == movable.url ) return;
-                $( '#movables-view .movables-list .movable-active' ).removeClass( 'movable-active' );
-                movableView.addClass( 'movable-active' );
-                selectedMovable = movable;
-                world.showTrajectory( selectedMovable );
-            }
-        );
-        movableView.find( '.action-move' ).on( 'click',
-            function()
-            {
-                if( $( this ).hasClass( 'action-toggled' ) )
+        movableView.find( '.movable-name' ).text( movable.name );
+        movableView.css( 'border-color', color );
+        movableView.find( '.movable-icon' ).css( 'background-color', color );
+        if( movable.owner == world.game.empire.url )
+        {
+            movableView.on( 'click',
+                function()
                 {
-                    $( this ).removeClass( 'action-toggled' );
-                    world.events.hex_field_click.pop( moveTo );
+                    if( selectedMovable && selectedMovable.url == movable.url ) return;
+                    $( '#movables-view .movables-list .movable-active' ).removeClass( 'movable-active' );
+                    movableView.addClass( 'movable-active' );
+                    selectedMovable = movable;
+                    world.showTrajectory( selectedMovable );
                 }
-                else
+            );
+            movableView.find( '.action-move' ).on( 'click',
+                function()
                 {
-                    $( this ).addClass( 'action-toggled' );
-                    world.events.hex_field_click.push( moveTo );
+                    if( $( this ).hasClass( 'action-toggled' ) )
+                    {
+                        $( this ).removeClass( 'action-toggled' );
+                        world.events.hex_field_click.pop( moveTo );
+                    }
+                    else
+                    {
+                        $( this ).addClass( 'action-toggled' );
+                        world.events.hex_field_click.push( moveTo );
+                    }
                 }
-            }
-        );
+            );
+        }
+        else
+        {
+            movableView.addClass( 'foreign' );
+        }
 
         const shipTemplate = movableView.find( '#ship-template' ).clone();
         for( const ship of movable.ship_set )
