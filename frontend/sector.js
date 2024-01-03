@@ -81,13 +81,33 @@ function sector( api, world, build )
         {
             celestialView.find( '.celestial-habitated' ).remove();
         }
-        if( celestial.habitated_by != world.game.empire.url )
+
+        /* Determine whether there is a celestial habitated by the player within the current sector.
+         */
+        const sectorHabitated = sector.celestial_set.some( ( c ) => { return c.habitated_by == world.game.empire.url; } );
+
+        /* Setup actions.
+         */
+        if( celestial.habitated_by === null && sectorHabitated ) // the celestial is unhabitated but the player already has another celestial habitated in the same sector
         {
-            celestialView.find( '.celestial-options' ).remove();
+            celestialView.find( '.celestial-actions-develop' ).on( 'click',
+                function()
+                {
+                    // TODO: develop the celestial
+                }
+            );
+            celestialView.find( '.celestial-actions-build' ).remove();
         }
         else
+        if( celestial.habitated_by != world.game.empire.url ) // the celestial is habitated by a different player
         {
-            celestialView.find( '.celestial-options' ).on( 'click',
+            celestialView.find( '.celestial-actions-develop' ).remove();
+            celestialView.find( '.celestial-actions-build' ).remove();
+        }
+        else // the celestial is habitated by the player
+        {
+            celestialView.find( '.celestial-actions-develop' ).remove();
+            celestialView.find( '.celestial-actions-build' ).on( 'click',
                 function()
                 {
                     build.openMenu( sector, celestial );
