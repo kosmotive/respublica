@@ -57,7 +57,6 @@
   width: 50%;
   display: inline-block;
   box-sizing: border-box;
-  height: 10rem;
 }
 
 #buildscreen .container .content .content-column:first-child {
@@ -72,6 +71,7 @@
 #buildscreen .container .content .constructions-list {
   list-style-type: none;
   padding: 0;
+  margin-bottom: 0;
 }
 
 #buildscreen .container .content .build-options-list .build-option,
@@ -79,7 +79,7 @@
   background-color: white;
   border-radius: 0.7em;
   padding: 0.5em 1em 0.5em 1em;
-  margin-bottom: 0.3em;
+  margin-bottom: 0.5em;
 }
 
 #buildscreen .container .content .build-options-list .build-option:last-child,
@@ -87,7 +87,7 @@
   margin-bottom: 0;
 }
 
-#buildscreen .container .content .build-options-list .build-option:hover {
+#buildscreen .container .content .build-options-list .build-option:not(.requirements-not-satisfied):hover {
   background-color: floralwhite;
   cursor: pointer;
 }
@@ -111,6 +111,10 @@
 #buildscreen .container .content .build-options-list .build-option .build-option-requirements {
   font-size: 0.8em;
   display: block;
+}
+
+#buildscreen .container .content .build-options-list .build-option.requirements-not-satisfied .build-option-requirements {
+  color: red;
 }
 
 #buildscreen .container .content .build-options-list .build-option .build-option-requirements:before {

@@ -92,6 +92,26 @@ function build( api, world, blueprints )
                     );
                 }
 
+                /* Create constructions list.
+                 */
+                const constructions = [];
+                if( celestial.constructions.length )
+                {
+                    $( '#buildscreen .constructions-list li:not(#construction-template)' ).remove();
+                    for( const construction of celestial.constructions )
+                    {
+                        const blueprint = blueprints.get( construction.blueprint );
+                        constructions.push( blueprint.base_id );
+
+                        const constructionView = $( '#construction-template' ).clone();
+                        constructionView.attr( 'id', '' );
+                        constructionView.attr( 'url', blueprint.url );
+                        constructionView.find( '.construction-name' ).text( blueprint.data.name );
+                        constructionView.find( '.construction-size' ).text( blueprint.data.size );
+                        constructionView.appendTo( $( '#buildscreen .constructions-list' ) );
+                    }
+                }
+
                 /* Create build options.
                  */
                 if( world.game.empire.blueprint_set.length )
@@ -101,11 +121,17 @@ function build( api, world, blueprints )
                     {
                         const blueprint = blueprints.get( blueprintUrl );
                         const requirements = blueprint.requirements.map( blueprints.resolveBaseIdToName ).join( ', ' );
+                        const requirementsOk = blueprint.requirements.every( ( requirement ) => constructions.includes( requirement ) );
+
                         const buildOption = $( '#build-option-template' ).clone();
                         buildOption.attr( 'id', '' );
                         buildOption.attr( 'url', blueprint.url );
                         buildOption.find( '.build-option-name' ).text( blueprint.data.name );
                         buildOption.find( '.build-option-cost' ).text( blueprint.data.cost );
+                        if( !requirementsOk )
+                        {
+                            buildOption.addClass( 'requirements-not-satisfied' );
+                        }
                         if( blueprint.data.size )
                         {
                             buildOption.find( '.build-option-size' ).text( blueprint.data.size );
@@ -123,29 +149,16 @@ function build( api, world, blueprints )
                             buildOption.find( '.build-option-requirements' ).remove();
                         }
                         buildOption.appendTo( $( '#buildscreen .build-options-list' ) );
-                        buildOption.on( 'click',
-                            function()
-                            {
-                                build( sector, celestial, blueprint );
-                            }
-                        );
-                    }
-                }
 
-                /* Create constructions list.
-                 */
-                if( celestial.constructions.length )
-                {
-                    $( '#buildscreen .constructions-list li:not(#construction-template)' ).remove();
-                    for( const construction of celestial.constructions )
-                    {
-                        const blueprint = blueprints.get( construction.blueprint );
-                        const constructionView = $( '#construction-template' ).clone();
-                        constructionView.attr( 'id', '' );
-                        constructionView.attr( 'url', blueprint.url );
-                        constructionView.find( '.construction-name' ).text( blueprint.data.name );
-                        constructionView.find( '.construction-size' ).text( blueprint.data.size );
-                        constructionView.appendTo( $( '#buildscreen .constructions-list' ) );
+                        if( requirementsOk )
+                        {
+                            buildOption.on( 'click',
+                                function()
+                                {
+                                    build( sector, celestial, blueprint );
+                                }
+                            );
+                        }
                     }
                 }
 
