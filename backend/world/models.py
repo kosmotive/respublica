@@ -218,7 +218,7 @@ class Celestial(models.Model):
 
 class Unveiled(Positionable):
 
-    by_whom = models.ForeignKey('game.Empire', on_delete = models.CASCADE)
+    by_whom = models.ForeignKey('game.Empire', on_delete = models.CASCADE, related_name = 'unveiled')
 
     class Meta:
         unique_together = ('position_x', 'position_y', 'by_whom')

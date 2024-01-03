@@ -124,6 +124,9 @@ class UnveiledSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class EmpireSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    Serializer for public empire data.
+    """
 
     territory = serializers.SerializerMethodField();
 
@@ -132,10 +135,19 @@ class EmpireSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name', 'territory', 'color_hue']
 
     def get_territory(self, empire):
-        return empire.territory.explicit();
+        """
+        Returns the explicit intersection of the territory of the empire, and the area unveiled by the player who called the REST endpoint.
+        """
+        request = self.context.get('request')
+        empire2 = request.user.empire  ## the empire of the player who called the REST endpoint
+        unveiled = frozenset((tuple(u.position) for u in empire2.unveiled.all()))
+        return [c for c in empire.territory.explicit() if tuple(c) in unveiled]
 
 
 class PrivateEmpireSerializer(EmpireSerializer):
+    """
+    Serializer for full empire data, including the data which is private to its player.
+    """
 
     movables = serializers.HyperlinkedRelatedField(view_name = 'movable-detail', read_only = True, many = True)
     ships    = serializers.HyperlinkedRelatedField(view_name =    'ship-detail', read_only = True, many = True)

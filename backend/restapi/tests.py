@@ -79,9 +79,10 @@ class BaseRestTest(APITestCase):
 
     def test_different_user(self):
         self.client.logout()
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='testuser2',
             password='password')
+        self.setup_different_user_test(user)
         self.client.login(username='testuser2', password='password')
 
         # Check forbidden access to details
@@ -91,6 +92,9 @@ class BaseRestTest(APITestCase):
         # Check no appearance in list
         response = self.client.get(self.list_url, format='json')
         self.check_different_user_list_response(response)
+
+    def setup_different_user_test(self, user):
+        pass
 
     def check_different_user_detail_response(self, response):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -277,6 +281,18 @@ class PrivateEmpireTest(BaseRestTest):
             }
             for obj, base in zip(objects, EmpireTest().expected_details(objects))
         ]
+
+    def setup_different_user_test(self, user):
+        blocked_planet = Empire.objects.get().habitat.get()
+        celestial = Celestial.objects.exclude(sector = blocked_planet.sector).filter(features__capacity__gte = 1).all()[0]
+        empire = Empire.objects.create(
+            name      = 'Bars',
+            player    =  user,
+            origin_x  =  celestial.sector.position[0],
+            origin_y  =  celestial.sector.position[1],
+            color_hue =  0)
+        celestial.habitated_by = empire
+        celestial.save()
 
     def check_different_user_list_response(self, response):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
