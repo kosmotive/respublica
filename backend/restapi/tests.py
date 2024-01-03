@@ -165,9 +165,11 @@ class MovableTest(BaseRestTest):
     def test_different_user(self):
         super(MovableTest, self).test_different_user()
 
+        # FIXME: Unveil the object
+
         # Check forbidden access to "move_to" action
         response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class SectorTest(BaseRestTest):

@@ -20,7 +20,6 @@
 #movables-view .movables-list {
   list-style-type: none;
   margin: 1rem;
-  margin-right: 0.5rem;
   margin-top: 0.2rem;
   padding: 0;
 }
@@ -32,6 +31,7 @@
   border-bottom-left-radius: 1em;
   padding: 1em;
   cursor: pointer;
+  border-left: 1em solid #fff;
 }
 
 #movables-view .movables-list .movable:not(.movable-active):hover {

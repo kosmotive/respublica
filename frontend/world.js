@@ -51,13 +51,13 @@ function world( api, blueprints, hexFieldSize = 200 )
         const movables = getMovables( x, y );
         for( const movable of movables )
         {
-            $( `<li class="movable">&starf; ${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
+            $( `<li class="movable" style="background-color: ${ empires[ movable.owner ].color };">&starf; ${ movable.name }</li>` ).appendTo( hexField.find('.hex-field-movables') );
         }
 
         const owners = getHexOwners( x, y );
         if( owners.length == 1 )
         {
-            hexField.find( '.hex-field-hatch' ).attr( 'stroke', hsl2hex( owners[ 0 ].color_hue, 1, 0.56 ) );
+            hexField.find( '.hex-field-hatch' ).attr( 'stroke', owners[ 0 ].color );
         }
         else
         if( owners.length > 1 )
@@ -344,6 +344,7 @@ function world( api, blueprints, hexFieldSize = 200 )
                     for( const empire of data )
                     {
                         empires[ empire.url ] = empire;
+                        empire.color = hsl2hex( empire.color_hue, 1, 0.56 )
                         const territory = [];
                         for( c of empire.territory )
                         {

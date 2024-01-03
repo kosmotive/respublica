@@ -152,3 +152,12 @@ def generate_test_world(*args, empire2 = False, **kwargs):
 
         celestial2.habitated_by = empire2
         celestial2.save()
+
+        ship = Ship.objects.create(
+            blueprint = Blueprint.objects.get(
+                empire = empire2,
+                base_id = 'ships/colony-ship'),
+            movable = Movable.objects.create(
+                name = 'Group 1',
+                position_x = celestial2.sector.position_x,
+                position_y = celestial2.sector.position_y))

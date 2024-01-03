@@ -16,6 +16,7 @@ function movables( api, world )
             contentType: 'application/json',
             data: `{"x":${x}, "y":${y}}`,
             beforeSend: api.augmentRequestWithCSRFToken,
+            ignore403: true,
             success: function( data )
             {
                 delete data.ship_set;
@@ -37,6 +38,7 @@ function movables( api, world )
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
         movableView.find( '.movable-name' ).html( '&starf; ' + movable.name );
+        movableView.css( 'border-color', world.empires[ movable.owner ].color );
         movableView.on( 'click',
             function()
             {

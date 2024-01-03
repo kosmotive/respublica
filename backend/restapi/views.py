@@ -8,6 +8,7 @@ from rest_framework import permissions, views, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from restapi.permissions import IsObjectOwner
 from restapi.serializers import (
     UserSerializer,
     LoginSerializer,
@@ -88,7 +89,7 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
         context['depth'] = int(self.request.query_params.get('depth', 0))
         return context
 
-    @action(detail = True, methods = ['post'])
+    @action(detail = True, methods = ['post'], permission_classes = [permissions.IsAuthenticated, IsObjectOwner])
     def move_to(self, request, pk = None):
         movable = self.get_object()
         x = request.data['x']
