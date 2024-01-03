@@ -259,9 +259,8 @@ class PrivateEmpireTest(BaseRestTest):
 
     def expected_details(self, objects):
         return [
+            base |
             {
-                'url': reverse('empire-detail', kwargs = dict(pk = obj.pk)),
-                'name': obj.name,
                 'habitat': [
                     reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.habitat.all()
                 ],
@@ -271,14 +270,12 @@ class PrivateEmpireTest(BaseRestTest):
                 'movables': [
                     reverse('movable-detail', kwargs = dict(pk = process.pk)) for process in obj.movables.all()
                 ],
-                'territory': obj.territory.explicit(),
                 'origin': obj.origin,
                 'blueprint_set': [
                     reverse('blueprint-detail', kwargs = dict(pk = blueprint.pk)) for blueprint in obj.blueprint_set.all()
                 ],
-                'color_hue': obj.color_hue,
             }
-            for obj in objects
+            for obj, base in zip(objects, EmpireTest().expected_details(objects))
         ]
 
     def check_different_user_list_response(self, response):
