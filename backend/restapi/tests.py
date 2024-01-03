@@ -86,10 +86,16 @@ class BaseRestTest(APITestCase):
 
         # Check forbidden access to details
         response = self.client.get(self.object_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.check_different_user_detail_response(response)
 
         # Check no appearance in list
         response = self.client.get(self.list_url, format='json')
+        self.check_different_user_list_response(response)
+
+    def check_different_user_detail_response(self, response):
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def check_different_user_list_response(self, response):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
@@ -230,6 +236,26 @@ class EmpireTest(BaseRestTest):
 
     model = Empire
     test_delete = False
+    test_detail = False
+    test_different_user = False
+
+    def expected_details(self, objects):
+        return [
+            {
+                'url': reverse('empire-detail', kwargs = dict(pk = obj.pk)),
+                'name': obj.name,
+                'territory': obj.territory.explicit(),
+                'color_hue': obj.color_hue,
+            }
+            for obj in objects
+        ]
+
+
+class PrivateEmpireTest(BaseRestTest):
+
+    model = Empire
+    test_delete = False
+    test_list = False
 
     def expected_details(self, objects):
         return [
@@ -254,6 +280,9 @@ class EmpireTest(BaseRestTest):
             }
             for obj in objects
         ]
+
+    def check_different_user_list_response(self, response):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class BlueprintTest(BaseRestTest):

@@ -19,6 +19,7 @@ from restapi.serializers import (
     UnveiledSerializer,
 
     EmpireSerializer,
+    PrivateEmpireSerializer,
     BlueprintSerializer,
     ConstructionSerializer,
     ShipSerializer,
@@ -137,9 +138,16 @@ class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
         return Unveiled.objects.filter(by_whom__player = self.request.user)
 
 
-class EmpireViewSet(viewsets.ReadOnlyModelViewSet):
+class EmpireViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
+    queryset = Empire.objects.all()
     serializer_class = EmpireSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PrivateEmpireViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+    serializer_class = PrivateEmpireSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

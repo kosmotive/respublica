@@ -125,16 +125,24 @@ class UnveiledSerializer(serializers.HyperlinkedModelSerializer):
 
 class EmpireSerializer(serializers.HyperlinkedModelSerializer):
 
-    movables  = serializers.HyperlinkedRelatedField(view_name = 'movable-detail', read_only = True, many = True)
-    ships     = serializers.HyperlinkedRelatedField(view_name =    'ship-detail', read_only = True, many = True)
     territory = serializers.SerializerMethodField();
 
     class Meta:
         model  = Empire
-        fields = ['url', 'name', 'habitat', 'movables', 'ships', 'territory', 'origin', 'blueprint_set', 'color_hue']
+        fields = ['url', 'name', 'territory', 'color_hue']
 
     def get_territory(self, empire):
         return empire.territory.explicit();
+
+
+class PrivateEmpireSerializer(EmpireSerializer):
+
+    movables = serializers.HyperlinkedRelatedField(view_name = 'movable-detail', read_only = True, many = True)
+    ships    = serializers.HyperlinkedRelatedField(view_name =    'ship-detail', read_only = True, many = True)
+
+    class Meta:
+        model  = Empire
+        fields = EmpireSerializer.Meta.fields + ['habitat', 'movables', 'ships', 'origin', 'blueprint_set']
 
 
 class BlueprintSerializer(serializers.HyperlinkedModelSerializer):

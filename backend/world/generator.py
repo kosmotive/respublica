@@ -142,12 +142,13 @@ def generate_test_world(*args, empire2 = False, **kwargs):
             dist_y = F('sector__position_y') - celestial.sector.position_y).annotate(
                 dist = Sqrt(Power('sector__position_x', 2) + Power('sector__position_y', 2))
             ).order_by('dist')[0]
-        print(celestial.sector.name, celestial.sector.position)
-        print(celestial2.sector.name, celestial2.sector.position)
 
         empire2 = Empire.objects.create(
             name      = 'Bars',
             player    = None,
             origin_x  = celestial2.sector.position_x,
             origin_y  = celestial2.sector.position_y,
-            color_hue = (empire.color_hue + 1) % 1)
+            color_hue = (empire.color_hue + 0.5) % 1)
+
+        celestial2.habitated_by = empire2
+        celestial2.save()
