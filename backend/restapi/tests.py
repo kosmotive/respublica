@@ -346,6 +346,8 @@ class ShipTest(BaseRestTest):
                 'blueprint': reverse('blueprint-detail', kwargs = dict(pk = obj.blueprint.pk)),
                 'movable': reverse('movable-detail', kwargs = dict(pk = obj.movable.pk)),
                 'owner': reverse('empire-detail', kwargs = dict(pk = obj.owner.pk)),
+                'type_id': obj.type_id,
+                'type': obj.type,
             }
             for obj in objects
         ]

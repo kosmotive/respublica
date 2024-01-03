@@ -92,7 +92,7 @@ class BuildingHandler(BaseHandler):
             process.handler.cancel(process)
         return Process.objects.create(
             start_tick = start_tick,
-            end_tick   = start_tick + blueprint.cost,
+            end_tick   = start_tick + blueprint.data['cost'],
             owner      = celestial.habitated_by,
             handler_id = BuildingHandler.__qualname__,
             data = dict(

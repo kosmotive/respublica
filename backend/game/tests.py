@@ -115,7 +115,7 @@ class BlueprintTest(TestCase):
         queued = self.ship_blueprint.build(self.celestial)
         self.assertTrue(queued)
 
-        for _ in range(self.ship_blueprint.cost):
+        for _ in range(self.ship_blueprint.data.get('cost')):
             self.assertEqual(len(Process.objects.all()), 1)
             self.world.tick()
 

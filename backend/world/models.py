@@ -212,7 +212,7 @@ class Celestial(models.Model):
 
     @property
     def remaining_capacity(self):
-        occupied_capacity = sum((c.blueprint.size for c in self.construction_set.all()))
+        occupied_capacity = sum((c.blueprint.data.get('size') for c in self.construction_set.all()))
         return self.capacity - occupied_capacity
 
 

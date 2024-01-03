@@ -69,7 +69,7 @@ function movables( api, world )
             const shipView = shipTemplate.clone();
             shipView.attr( 'id', '' );
             shipView.appendTo( movableView.find( '.ship-list' ) );
-            shipView.text( ship.blueprint.data.name );
+            shipView.text( ship.type );
         }
         shipTemplate.remove();
 

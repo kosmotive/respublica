@@ -181,7 +181,13 @@ class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Destr
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Ship.objects.filter(blueprint__empire__player = self.request.user)
+        unveiled_qs = Unveiled.objects.filter(
+            by_whom__player = self.request.user,
+            position_x = models.OuterRef('movable__position_x'),
+            position_y = models.OuterRef('movable__position_y'))
+        qs_unveiled = Ship.objects.filter(models.Exists(unveiled_qs))
+        qs_owned = Ship.objects.filter(blueprint__empire__player = self.request.user)
+        return qs_unveiled | qs_owned
 
 
 class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

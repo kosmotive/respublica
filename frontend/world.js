@@ -63,23 +63,6 @@ function world( api, blueprints, hexFieldSize = 200 )
         return hexField;
     }
 
-    /* Load all movables.
-     */
-    const loadMovables = $.get( api.url + '/movables?depth=1', function( data )
-    {
-        for( const movable of data )
-        {
-            const key = `x=${movable.position[0]} y=${movable.position[1]}`;
-            if( !movables[key] ) movables[key] = [];
-            movables[key].push( movable );
-
-            for( const ship of movable.ship_set )
-            {
-                blueprints.require( ship.blueprint );
-            }
-        }
-    });
-
     /* Encodes hex coordinates into string (required for inclusion testing in javascript).
      */
     function hex2str( x, y )
@@ -224,24 +207,6 @@ function world( api, blueprints, hexFieldSize = 200 )
         return $( `.hex-field a[x="${ x }"][y="${ y }"]` ).parent().parent();
     }
 
-    /* Load discovered empires (territories are required for rendering the world map).
-     */
-    const loadEmpires = $.get( api.url + '/empires',
-        function( data )
-        {
-            for( const empire of data )
-            {
-                empires[ empire.url ] = empire;
-                const territory = [];
-                for( c of empire.territory )
-                {
-                    territory.push( hex2str( c[ 0 ], c[ 1 ] ) );
-                }
-                empire.territory = territory;
-            }
-        }
-    );
-
     /* Get owners of a hex field (by hex coordinates).
      */
     function getHexOwners( x, y )
@@ -256,118 +221,6 @@ function world( api, blueprints, hexFieldSize = 200 )
         }
         return owners;
     }
-
-    /* Resolve blueprints and load the world content.
-     */
-    $.when( loadMovables, loadEmpires ).done(
-        function()
-        {
-            blueprints.resolve();
-            blueprints.whenResolved(
-                function()
-                {
-                    /* Update the required blueprints with the resolved data.
-                     */
-                    for( const movablesList of Object.values( movables ) )
-                    {
-                        for( const movable of movablesList )
-                        {
-                            for( const ship of movable.ship_set )
-                            {
-                                ship.blueprint = blueprints.get( ship.blueprint );
-                            }
-                        }
-                    }
-
-                    /* Load the content.
-                     */
-                    $( document ).ready(
-                        function()
-                        {
-                            if( $( '#hex-map' ).length )
-                            {
-                                $( '#hex-map-container' ).hide();
-                                $.get( api.url + '/users', function( users )
-                                {
-                                    $.get( users[0].empire, function( empire )
-                                    {
-                                        game.empire = empire;
-
-                                        /* Load the map.
-                                         */ 
-                                        loadMap( empire.origin );
-
-                                        /* Center the map upon the home world (if no explicit coordinates are given in URL).
-                                         */
-                                        const mapPosition = window.location.hash.substr(1).split(',')
-                                        if( mapPosition.length == 2 )
-                                        {
-                                            $( '#hex-map' ).attr( 'x', mapPosition[ 0 ] );
-                                            $( '#hex-map' ).attr( 'y', mapPosition[ 1 ] );
-                                            updateMap();
-                                        }
-                                        else
-                                        {
-                                            centerMap( empire.origin[ 0 ], empire.origin[ 1 ] );
-                                        }
-
-                                        /* Show the map.
-                                         */
-                                        $( '#hex-map-container' ).fadeIn( 200 );
-                                    });
-                                });
-                            } // if( $( '#hex-map' ).length )
-                        }
-                    ); // $( document ).ready
-                }
-            ); // blueprints.whenResolved
-        }
-    );
-
-    /* Update displays according to game status.
-     */
-    $( document ).ready( function()
-    {
-        $.get( api.url + '/worlds', function( worlds )
-        {
-            const reference = Date.now() / 1000;
-            const referenceRemainingSeconds = worlds[0].remaining_seconds;
-            const updateRemainingSeconds = function()
-            {
-                const remainingSeconds = Math.ceil( referenceRemainingSeconds - ( Date.now() / 1000 - reference ) );
-
-                if( remainingSeconds <= 60 )
-                    remainingTime = `${ remainingSeconds } seconds`
-                else
-                if( remainingSeconds <= 60 * 60 )
-                    remainingTime = `${ Math.floor( remainingSeconds / 60 ) } minutes`
-                else
-                    remainingTime = `${ Math.floor( remainingSeconds / ( 60 * 60 ) ) } hours`
-
-                if( remainingSeconds >= 0 )
-                {
-                    $(' #remaining-time ').text( remainingTime );
-                }
-                else
-                {
-                    clearTimeout( updateRemainingSeconds );
-                    const x = $( '#hex-map' ).attr( 'x' ), y = $( '#hex-map' ).attr( 'y' );
-                    window.location.hash = `${ x },${ y }`;
-                    location.reload();
-                }
-            };
-
-            $(' #ticks ').text( worlds[0].now );
-            game.tick = worlds[0].now;
-
-            updateRemainingSeconds();
-            const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
-
-            $( '#world-version-sha' ).text( worlds[ 0 ].version.sha.substr( 0, 7 ) );
-            $( '#world-version-sha' ).attr( 'href', `https://github.com/search?q=repo%3Akostrykin%2Frespublica+${ worlds[ 0 ].version.sha }&type=commits` );
-            $( '#world-version-date' ).text( worlds[ 0 ].version.date );
-        });
-    });
 
     /* Adds the "hex-field-selected" class to the given hex field (and removes from others).
      */
@@ -419,10 +272,188 @@ function world( api, blueprints, hexFieldSize = 200 )
         }
     }
 
+    /* Composes a human-readable name for a celestial based on its sector and position.
+     */
     function getCelestialName( sector, celestial )
     {
         return sector.name + ( celestial.position > 0 ? ' ' + celestial.position : '' );
     }
+
+    /* Loads the empire of the player into the game status object.
+     */
+    function loadEmpire( success )
+    {
+        $.get( api.url + '/users',
+            function( users )
+            {
+                loadEmpire = $.get( users[0].empire,
+                    function( empire )
+                    {
+                        game.empire = empire;
+                        success();
+                    }
+                );
+            }
+        );
+    }
+
+    /* Do the loading.
+     */
+    loadEmpire(
+        function()
+        {
+
+            /* Load all movables.
+             */
+            const loadMovables = $.get( api.url + '/movables?depth=1', function( data )
+            {
+                for( const movable of data )
+                {
+                    const key = `x=${movable.position[0]} y=${movable.position[1]}`;
+                    if( !movables[key] ) movables[key] = [];
+                    movables[key].push( movable );
+        
+                    /* Load the blueprint if it is owned by the player.
+                     */
+                    if( movable.owner == game.empire.url )
+                    {
+                        for( const ship of movable.ship_set )
+                        {
+                            blueprints.require( ship.blueprint );
+                        }
+                    }
+                }
+            });
+        
+            /* Load discovered empires (territories are required for rendering the world map).
+             */
+            const loadEmpires = $.get( api.url + '/empires',
+                function( data )
+                {
+                    for( const empire of data )
+                    {
+                        empires[ empire.url ] = empire;
+                        const territory = [];
+                        for( c of empire.territory )
+                        {
+                            territory.push( hex2str( c[ 0 ], c[ 1 ] ) );
+                        }
+                        empire.territory = territory;
+                    }
+                }
+            );
+        
+            /* Resolve blueprints and load the world content.
+             */
+            $.when( loadMovables, loadEmpires ).done(
+                function()
+                {
+                    blueprints.resolve();
+                    blueprints.whenResolved(
+                        function()
+                        {
+                            /* Update the required blueprints with the resolved data.
+                             */
+                            for( const movablesList of Object.values( movables ) )
+                            {
+                                for( const movable of movablesList )
+                                {
+                                    for( const ship of movable.ship_set )
+                                    {
+                                        ship.blueprint = blueprints.get( ship.blueprint );
+                                    }
+                                }
+                            }
+        
+                            /* Load the content.
+                             */
+                            $( document ).ready(
+                                function()
+                                {
+                                    if( $( '#hex-map' ).length )
+                                    {
+                                        $( '#hex-map-container' ).hide();
+        
+                                        /* Load the map.
+                                         */ 
+                                        loadMap( game.empire.origin );
+        
+                                        /* Center the map upon the home world (if no explicit coordinates are given in URL).
+                                         */
+                                        const mapPosition = window.location.hash.substr(1).split(',')
+                                        if( mapPosition.length == 2 )
+                                        {
+                                            $( '#hex-map' ).attr( 'x', mapPosition[ 0 ] );
+                                            $( '#hex-map' ).attr( 'y', mapPosition[ 1 ] );
+                                            updateMap();
+                                        }
+                                        else
+                                        {
+                                            centerMap( game.empire.origin[ 0 ], game.empire.origin[ 1 ] );
+                                        }
+        
+                                        /* Show the map.
+                                         */
+                                        $( '#hex-map-container' ).fadeIn( 200 );
+                                    }
+                                }
+                            ); // $( document ).ready
+                        }
+                    ); // blueprints.whenResolved
+                }
+            );
+
+        }
+    ); // loadEmpire
+
+    /* Update displays according to game status.
+     */
+    $( document ).ready(
+        function()
+        {
+            $.get( api.url + '/worlds',
+                function( worlds )
+                {
+                    const reference = Date.now() / 1000;
+                    const referenceRemainingSeconds = worlds[0].remaining_seconds;
+                    const updateRemainingSeconds = function()
+                    {
+                        const remainingSeconds = Math.ceil( referenceRemainingSeconds - ( Date.now() / 1000 - reference ) );
+
+                        if( remainingSeconds <= 60 )
+                            remainingTime = `${ remainingSeconds } seconds`
+                        else
+                        if( remainingSeconds <= 60 * 60 )
+                            remainingTime = `${ Math.floor( remainingSeconds / 60 ) } minutes`
+                        else
+                            remainingTime = `${ Math.floor( remainingSeconds / ( 60 * 60 ) ) } hours`
+
+                        if( remainingSeconds >= 0 )
+                        {
+                            $(' #remaining-time ').text( remainingTime );
+                        }
+                        else
+                        {
+                            clearTimeout( updateRemainingSeconds );
+                            const x = $( '#hex-map' ).attr( 'x' ), y = $( '#hex-map' ).attr( 'y' );
+                            window.location.hash = `${ x },${ y }`;
+                            location.reload();
+                        }
+                    };
+
+                    $(' #ticks ').text( worlds[0].now );
+                    game.tick = worlds[0].now;
+
+                    updateRemainingSeconds();
+                    const remainingTimer = setInterval( updateRemainingSeconds, 1000 );
+
+                    $( '#world-version-sha' ).text( worlds[ 0 ].version.sha.substr( 0, 7 ) );
+                    $( '#world-version-sha' ).attr( 'href', `https://github.com/search?q=repo%3Akostrykin%2Frespublica+${ worlds[ 0 ].version.sha }&type=commits` );
+                    $( '#world-version-date' ).text( worlds[ 0 ].version.date );
+                }
+            );
+        }
+    );
 
     const ret =
     {

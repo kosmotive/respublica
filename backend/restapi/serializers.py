@@ -82,12 +82,11 @@ class MovableSerializer(serializers.HyperlinkedModelSerializer):
         self.Meta.depth = self.context.get('depth', 0)
         assert self.Meta.depth in (0, 1)
 
-
-class CelestialSerializer(serializers.HyperlinkedModelSerializer):
-
-    class Meta:
-        model  = Celestial
-        fields = ['url', 'sector', 'position', 'features', 'habitated_by', 'remaining_capacity']
+    def get_fields(self):
+        fields = super().get_fields()
+        if self.Meta.depth == 1:
+            fields['ship_set'] = ShipSerializer(read_only = True, many = True)
+        return fields
 
 
 class SectorSerializer(serializers.HyperlinkedModelSerializer):
@@ -108,6 +107,13 @@ class SectorSerializer(serializers.HyperlinkedModelSerializer):
         if self.Meta.depth == 1:
             fields['celestial_set'] = CelestialSerializer(read_only = True, many = True)
         return fields
+
+
+class CelestialSerializer(serializers.HyperlinkedModelSerializer):
+
+    class Meta:
+        model  = Celestial
+        fields = ['url', 'sector', 'position', 'features', 'habitated_by', 'remaining_capacity']
 
 
 class UnveiledSerializer(serializers.HyperlinkedModelSerializer):
@@ -151,7 +157,7 @@ class ShipSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model  = Ship
-        fields = ['url', 'blueprint', 'movable', 'owner']
+        fields = ['url', 'blueprint', 'movable', 'owner', 'type_id', 'type']
 
 
 class ProcessSerializer(serializers.HyperlinkedModelSerializer):

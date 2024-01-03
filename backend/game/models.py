@@ -65,21 +65,13 @@ class Blueprint(models.Model):
         return base_blueprints[bp_type][bp_name]
 
     @property
-    def cost(self):
-        return self.base['cost']
-
-    @property
-    def size(self):
-        return self.base.get('size', 0)
-
-    @property
     def requirements(self):
         return self.base.get('requirements', list())
 
     def requirements_ok(self, celestial):
         if celestial.habitated_by != self.empire:
             raise PermissionDenied()
-        if celestial.remaining_capacity < self.size:
+        if celestial.remaining_capacity < self.data.get('size', 0):
             return False
         for requirement in self.requirements:
             if celestial.construction_set.filter(blueprint__base_id = requirement).count() == 0:
@@ -107,3 +99,11 @@ class Ship(models.Model):
     @property
     def owner(self):
         return self.blueprint.empire
+
+    @property
+    def type_id(self):
+        return self.blueprint.base_id
+
+    @property
+    def type(self):
+        return self.blueprint.data['name']
