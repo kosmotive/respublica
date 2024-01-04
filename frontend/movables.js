@@ -43,6 +43,8 @@ function movables( api, world )
         movableView.find( '.movable-icon' ).css( 'background-color', color );
         if( movable.owner == world.game.empire.url )
         {
+            /* Select the movable on click.
+             */
             movableView.on( 'click',
                 function()
                 {
@@ -53,6 +55,9 @@ function movables( api, world )
                     world.showTrajectory( selectedMovable );
                 }
             );
+
+            /* Activate movement mode when "Move" button is clicked.
+             */
             movableView.find( '.action-move' ).on( 'click',
                 function()
                 {
@@ -68,6 +73,24 @@ function movables( api, world )
                     }
                 }
             );
+
+            /* Check whether a colony-ship is included.
+             */
+            if( movable.ship_set.some( ( ship ) => { return ship.type_id == 'ships/colony-ship'; } ) )
+            {
+                /* Check whether the sector contains a celestial suitable for colonialization.
+                 */
+                const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
+                if( sector )
+                {
+                    const isUnhabitated = sector.celestial_set.every( ( c ) => { return c.habitated_by === null; } );
+                    const hasHabitableCelestial = sector.celestial_set.some( ( c ) => { return c.features.capacity > 0; } );
+                    if( isUnhabitated && hasHabitableCelestial )
+                    {
+                        movableView.addClass( 'can-colonialize' );
+                    }
+                }
+            }
         }
         else
         {

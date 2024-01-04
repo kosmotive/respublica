@@ -2,6 +2,7 @@ function world( api, blueprints, hexFieldSize = 200 )
 {
     const hexScaleFactor = 1 - 4 / 104; // overlap borders of adjacent fields
     const movables = {};
+    const sectors = {};
     const game = {};
     const empires = {};
     const events =
@@ -79,8 +80,16 @@ function world( api, blueprints, hexFieldSize = 200 )
      */
     function getMovables( x, y )
     {
-        const key = hex2str( x, y);
-        return movables[key] || [];
+        const key = hex2str( x, y );
+        return movables[ key ] || [];
+    };
+
+    /* Returns sector at specified position in hex coordinates.
+     */
+    function getSector( x, y )
+    {
+        const key = hex2str( x, y );
+        return sectors[ key ] || null;
     };
 
     /* Centers the hex map upon the hex field specified in hex grid coordinates.
@@ -161,10 +170,13 @@ function world( api, blueprints, hexFieldSize = 200 )
                 updateHexField( hexField );
             }
         });
-        $.get( api.url + '/sectors?depth=1', function( sectors )
+
+        $.get( api.url + '/sectors?depth=1', function( data )
         {
-            for( const sector of sectors )
+            for( const sector of data )
             {
+                sectors[ hex2str( sector.position[ 0 ], sector.position[ 1 ] ) ] = sector;
+
                 const hexField = getHexField( sector.position[0], sector.position[1] );
                 hexField.addClass( 'sector' );
                 hexField.attr( 'name', sector.name );
@@ -500,6 +512,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         centerMap: centerMap,
         movables: movables,
         getMovables: getMovables,
+        getSector: getSector,
         game: game,
         empires: empires,
         getHexField: getHexField,

@@ -96,3 +96,7 @@
 #movables-view .movables-list .movable .action-list .action {
   display: inline-block;
 }
+
+#movables-view .movables-list .movable:not(.can-colonialize) .action-colonialize {
+  display: none;
+}
