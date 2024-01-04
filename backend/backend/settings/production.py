@@ -1,6 +1,6 @@
 import os
 
-from csgo_app.settings.common import *
+from backend.settings.common import *
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
