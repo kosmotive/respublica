@@ -129,6 +129,20 @@ class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
             position_y = models.OuterRef('sector__position_y'))
         return Celestial.objects.filter(models.Exists(unveiled_qs))
 
+    @action(detail = True, methods = ['post'], permission_classes = [permissions.IsAuthenticated])
+    def colonialize(self, request, pk = None):
+        celestial = self.get_object()
+        empire    = request.user.empire
+        movable   = Movable.objects.get(**resolve(urlparse(request.data['movable']).path).kwargs) if len(request.data.get('movable', '')) > 0 else None
+        process   = celestial.colonialize(empire, movable)
+        assert process is not None
+        if movable is not None:
+            serializer = MovableSerializer(movable, context = dict(request = request))
+            return Response(serializer.data)
+        else:
+            serializer = ProcessSerializer(process, context = dict(request = request))
+            return Response(serializer.data)
+
 
 class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
 

@@ -132,12 +132,8 @@ class MovableTest(BaseRestTest):
     test_delete = False
 
     @property
-    def movable(self):
-        return Movable.objects.get()
-
-    @property
     def move_to_url(self):
-        return reverse('movable-move-to', kwargs = dict(pk = self.movable.pk))
+        return reverse('movable-move-to', kwargs = dict(pk = self.object.pk))
 
     def expected_details(self, objects):
         return [
@@ -161,7 +157,7 @@ class MovableTest(BaseRestTest):
     def test_move_to(self):
         response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), normalize(self.expected_details([self.movable])[0]))
+        self.assertEqual(normalize(response.data), normalize(self.expected_details([self.object])[0]))
         self.test_detail()
 
     def setup_different_user_test(self, user):
@@ -239,6 +235,37 @@ class CelestialTest(BaseRestTest):
             }
             for obj in objects
         ]
+
+    @property
+    def colonialize_url(self):
+        return reverse('celestial-colonialize', kwargs = dict(pk = self.object.pk))
+
+    def test_colonialize_intrasector(self):
+        from world.models import Celestial
+
+        # Add already habitated celestial to the same sector
+        sector = self.object.sector
+        celestial2 = Celestial.objects.create(sector = sector, position = len(sector.celestial_set.all()), habitated_by = Empire.objects.get(), features = dict(capacity = 10))
+
+        # Test the endpoint
+        response = self.client.post(self.colonialize_url, dict(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(ProcessTest().expected_details([Process.objects.get()])[0]))
+
+    def test_colonialize_intersector(self):
+        from game.models import Empire, Ship, Blueprint
+        from world.models import Movable
+
+        # Add colony-ship to the same sector
+        ship = Ship.objects.create(
+            blueprint = Blueprint.objects.get(empire = Empire.objects.get(), base_id = 'ships/colony-ship'),
+            movable   = Movable.objects.create(position_x = self.object.sector.position_x, position_y = self.object.sector.position_y))
+        movable_url = reverse('movable-detail', kwargs = dict(pk = ship.movable.pk))
+
+        # Test the endpoint
+        response = self.client.post(self.colonialize_url, dict(movable = movable_url), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(MovableTest().expected_details([ship.movable])[0]))
 
 
 class UnveiledTest(BaseRestTest):
@@ -442,6 +469,12 @@ class ProcessTest(BaseRestTest):
                 data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
             if handler_id == 'MovementHandler':
                 data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
+            if handler_id == 'ColonializationHandler':
+                data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
+                data['empire_url'] = reverse(f'empire-detail', kwargs = dict(pk = data.pop('empire_id')))
+                if 'movable_id' in data.keys():
+                    # Inter-sector colonialization (using a colony ship)
+                    data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
             return data
         return [
             {
