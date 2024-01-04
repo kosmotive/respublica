@@ -124,7 +124,7 @@ function world( api, blueprints, hexFieldSize = 200 )
 
     /* Loads the map (with *displayed* coordiantes centered at `origin`).
      */
-    function loadMap( origin )
+    function loadMap( origin, then )
     {
         var initialX = null, initialY = null; // the coordinates of the mouse when dragging started
         var offsetX = null; offsetY = null; // the offset of the map before dragging started
@@ -242,6 +242,10 @@ function world( api, blueprints, hexFieldSize = 200 )
                             hexField.find( '.sector-star' ).css( 'bottom', `${ dy }px` );
                         }
                         $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
+
+                        /* Proceed with next step.
+                         */
+                        then();
                     }
                 );
             }
@@ -440,10 +444,6 @@ function world( api, blueprints, hexFieldSize = 200 )
                                     {
                                         $( '#hex-map-container' ).hide();
         
-                                        /* Load the map.
-                                         */ 
-                                        loadMap( game.empire.origin );
-        
                                         /* Center the map upon the home world (if no explicit coordinates are given in URL).
                                          */
                                         const mapPosition = window.location.hash.substr(1).split(',')
@@ -458,9 +458,17 @@ function world( api, blueprints, hexFieldSize = 200 )
                                             centerMap( game.empire.origin[ 0 ], game.empire.origin[ 1 ] );
                                         }
         
-                                        /* Show the map.
-                                         */
-                                        $( '#hex-map-container' ).fadeIn( 200 );
+                                        /* Load the map.
+                                         */ 
+                                        loadMap( game.empire.origin,
+                                            function()
+                                            {
+                                                /* Show the map.
+                                                 */
+                                                $( '#hex-map-container' ).fadeIn( 500 );
+                                                $( '#hex-map-loading-screen' ).fadeOut( 500 );
+                                            }
+                                        );
                                     }
                                 }
                             ); // $( document ).ready
