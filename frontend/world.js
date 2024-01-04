@@ -307,7 +307,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         $.get( api.url + '/users',
             function( users )
             {
-                loadEmpire = $.get( users[0].empire,
+                $.get( users[0].empire,
                     function( empire )
                     {
                         game.empire = empire;
@@ -354,7 +354,8 @@ function world( api, blueprints, hexFieldSize = 200 )
                     for( const empire of data )
                     {
                         empires[ empire.url ] = empire;
-                        empire.color = hsl2hex( empire.color_hue, 1, 0.56 )
+                        empire.color = hsl2hex( empire.color_hue, 1, 0.56 );
+                        if( game.empire.url == empire.url ) game.empire.color = empire.color;
                         const territory = [];
                         for( c of empire.territory )
                         {
@@ -362,6 +363,22 @@ function world( api, blueprints, hexFieldSize = 200 )
                         }
                         empire.territory = territory;
                     }
+                }
+            );
+
+            /* Update UI colors.
+             */
+            $( document ).ready(
+                function()
+                {
+                    $.when( loadEmpires ).done(
+                        function( data )
+                        {
+                            $( '#player-color-indicator' ).css( 'background-color', game.empire.color );
+                            $( '#player-empire-name' ).text( game.empire.name );
+                            $( '#display-player' ).show();
+                        }
+                    );
                 }
             );
         
