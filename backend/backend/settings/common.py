@@ -42,6 +42,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'backend.middleware.world.WorldTickMiddleware',
+    'backend.middleware.development.SimulNetworkJitter',
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -128,3 +129,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
+
+
+# Add random delays via middleware to simulate network jitter
+SIMUL_NETWORK_JITTER = False

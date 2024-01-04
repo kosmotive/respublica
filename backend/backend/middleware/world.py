@@ -1,5 +1,3 @@
-from django.db.utils import OperationalError
-
 from world.models import World
 
 
