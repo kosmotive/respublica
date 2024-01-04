@@ -137,7 +137,7 @@ class ColonializationHandler(BaseHandler):
 
     @staticmethod
     def create_process(start_tick, empire, celestial, movable):
-        from game.models import Blueprint
+        from game.models import Blueprint, Empire
         data = dict(
             celestial_id = celestial.id,
             empire_id    = empire.id)
@@ -147,6 +147,9 @@ class ColonializationHandler(BaseHandler):
 
         # Ensure that no other celestial in the same sector is colonized by a different empire
         assert all((c.habitated_by is None or c.habitated_by == empire for c in celestial.sector.celestial_set.all()))
+
+        # Ensure that the celestial is not in the territory of a different empire
+        assert all((celestial.sector.position not in e.territory for e in Empire.objects.all() if e.id != empire.id))
 
         # Cancel any previous build process in the sector
         process = celestial.sector.process

@@ -531,6 +531,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         game: game,
         empires: empires,
         getHexField: getHexField,
+        getHexOwners: getHexOwners,
         selectHexField: selectHexField,
         showTrajectory: showTrajectory,
         getCelestialName: getCelestialName

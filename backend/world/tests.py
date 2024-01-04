@@ -247,14 +247,37 @@ class CelestialTest(TestCase):
         self.celestial1.habitated_by = self.empire
         self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
 
-    def test_colonialize_intersector_foreign(self):
+    def test_colonialize_intersector_foreign_sector1(self):
+        from game.models import Empire
+        player2 = User.objects.create(username = 'testuser2', password = 'password')
+        empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
+
+        # empire2 habitates another celestial in the same sector
+        self.celestial2.habitated_by = empire2
+        self.celestial2.save()
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+
+    def test_colonialize_intersector_foreign_sector2(self):
+        from game.models import Empire
+        player2 = User.objects.create(username = 'testuser2', password = 'password')
+        empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
+
+        # empire2 habitates an adjacent sector, so that this sector is in the territory of empire2
+        sector2 = Sector.objects.create(position_x = 2, position_y = 0, name = 'S2')
+        celestial2 = Celestial.objects.create(sector = sector2, position = 1, features = dict(capacity = 10))
+        celestial2.habitated_by = empire2
+        celestial2.save()
+        self.assertTrue( sector2.position in empire2.territory );
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+
+    def test_colonialize_intersector_foreign_ship(self):
         from game.models import Empire
         player2 = User.objects.create(username = 'testuser2', password = 'password')
         empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
 
         self.celestial2.habitated_by = empire2
         self.celestial2.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(empire2, self.ship.movable))
 
 
 class HexSetTest(TestCase):

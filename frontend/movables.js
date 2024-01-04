@@ -105,35 +105,39 @@ function movables( api, world )
                 const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
                 if( sector )
                 {
-                    const isUnhabitated = sector.celestial_set.every( ( c ) => { return c.habitated_by === null; } );
-                    const habitableCelestials = sector.celestial_set.filter( ( c ) => { return c.features.capacity > 0; } );
-                    if( isUnhabitated && habitableCelestials.length )
+                    const owners = world.getHexOwners( sector.position[ 0 ], sector.position[ 1 ] )
+                    if( owners.length == 0 || ( owners.length == 1 && owners[ 0 ].url == world.game.empire.url ) )
                     {
-                        /* Build menu of available celestials for colonialization.
-                         */
-                        const celestialMenu = movableView.find( '.action-colonialize .popup' );
-                        movableView.addClass( 'can-colonialize' );
-                        celestialMenu.find( '.action-list' ).empty();
-                        for( const celestial of habitableCelestials )
+                        const isUnhabitated = sector.celestial_set.every( ( c ) => { return c.habitated_by === null; } );
+                        const habitableCelestials = sector.celestial_set.filter( ( c ) => { return c.features.capacity > 0; } );
+                        if( isUnhabitated && habitableCelestials.length )
                         {
-                            const action = $( `<li class="action">${ world.getCelestialName( sector, celestial ) }</li>` );
-                            action.appendTo( celestialMenu.find( '.action-list' ) );
-                            action.on( 'click',
+                            /* Build menu of available celestials for colonialization.
+                             */
+                            const celestialMenu = movableView.find( '.action-colonialize .popup' );
+                            movableView.addClass( 'can-colonialize' );
+                            celestialMenu.find( '.action-list' ).empty();
+                            for( const celestial of habitableCelestials )
+                            {
+                                const action = $( `<li class="action">${ world.getCelestialName( sector, celestial ) }</li>` );
+                                action.appendTo( celestialMenu.find( '.action-list' ) );
+                                action.on( 'click',
+                                    function()
+                                    {
+                                        colonize( celestial );
+                                    }
+                                );
+                            }
+
+                            /* Show the menu.
+                             */
+                            movableView.find( '.action-colonialize' ).on( 'click',
                                 function()
                                 {
-                                    colonize( celestial );
+                                    celestialMenu.popup();
                                 }
                             );
                         }
-
-                        /* Show the menu.
-                         */
-                        movableView.find( '.action-colonialize' ).on( 'click',
-                            function()
-                            {
-                                celestialMenu.popup();
-                            }
-                        );
                     }
                 }
             }
