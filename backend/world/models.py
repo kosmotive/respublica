@@ -3,6 +3,8 @@ import multiprocessing
 
 from django.db import models, transaction
 from django.db.models import CheckConstraint, Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 import numpy as np
 
 from . import hexgrid
@@ -176,6 +178,11 @@ class Movable(Positionable):
         except Process.DoesNotExist:
             return None
 
+    @receiver(post_delete, sender = 'game.Ship')
+    def delete_if_empty(sender, instance, **kwargs):
+        if instance.movable.ship_set.count() == 0:
+            instance.movable.delete()
+
 
 class Sector(Positionable):
 
@@ -214,6 +221,10 @@ class Celestial(models.Model):
     def remaining_capacity(self):
         occupied_capacity = sum((c.blueprint.data.get('size') for c in self.construction_set.all()))
         return self.capacity - occupied_capacity
+
+    def colonialize(self, empire, movable):
+        from processes.models import ColonializationHandler
+        return ColonializationHandler.create_process(World.objects.get().now, empire, self, movable)
 
 
 class Unveiled(Positionable):
