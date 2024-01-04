@@ -66,3 +66,9 @@ python manage.py shell -c "from world.generator import *; generate_world(10, 0.5
 ```
 Use `generate_test_world` instead of `generate_world` to populate the world with some test data.
 Tickrate is given in ticks per hour.
+
+Run the local server:
+```bash
+python manage.py runserver
+```
+Use the environment variable `SIMUL_NETWORK_JITTER=true` to simulate network jitter.
