@@ -11,4 +11,4 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['respublica.evoid.de']
 
-STATIC_ROOT = BASE_DIR / 'static-deployed'
+STATIC_ROOT = BASE_DIR / '../deployed'

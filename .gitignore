@@ -1,5 +1,6 @@
 /venv
 /envvars
+/deployed
 .DS_Store
 *.swp
 /backend/db.sqlite3
