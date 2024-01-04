@@ -205,7 +205,6 @@ function movables( api, world )
     {
         if( $( '#movables-view' ).length )
         {
-            $( '#movables-view' ).hide();
             world.events.hex_field_click.push( function( x, y, sectorUrl )
             {
                 selectedMovable = null;

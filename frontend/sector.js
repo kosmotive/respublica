@@ -144,7 +144,6 @@ function sector( api, world, build )
                 {
                     if( $( '#sector-view' ).length )
                     {
-                        $( '#sector-view' ).hide();
                         world.events.hex_field_click.push( function( x, y, sectorUrl )
                         {
                             /* Show or hide the sector view, depending on whether the clicked hex field is a sector

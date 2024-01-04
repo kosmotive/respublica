@@ -114,6 +114,12 @@ function world( api, blueprints, hexFieldSize = 200 )
     function updateHexField( hexField )
     {
         hexField.find( '.hex-field-name' ).text( hexField.attr( 'name' ) );
+
+        const habitatedBy = hexField.attr( 'habitated-by' );
+        if( habitatedBy )
+        {
+            hexField.addClass( 'habitated' );
+        }
     }
 
     /* Loads the map (with *displayed* coordiantes centered at `origin`).
@@ -154,7 +160,7 @@ function world( api, blueprints, hexFieldSize = 200 )
             }
         });
     
-        $.get( api.url + '/unveiled', function( data )
+        const loadUnveiled = $.get( api.url + '/unveiled', function( data )
         {
             for( const unveiled of data )
             {
@@ -171,66 +177,75 @@ function world( api, blueprints, hexFieldSize = 200 )
             }
         });
 
-        $.get( api.url + '/sectors?depth=1', function( data )
-        {
-            for( const sector of data )
+        $.when( loadUnveiled ).done( function()
             {
-                sectors[ hex2str( sector.position[ 0 ], sector.position[ 1 ] ) ] = sector;
+                $.get( api.url + '/sectors?depth=1',
+                    function( data )
+                    {
+                        for( const sector of data )
+                        {
+                            sectors[ hex2str( sector.position[ 0 ], sector.position[ 1 ] ) ] = sector;
+                            const habitatedCelestial = sector.celestial_set.find( ( c ) => { return c.habitated_by; } );
+                            const habitatedBy = habitatedCelestial ? habitatedCelestial.habitated_by : '';
 
-                const hexField = getHexField( sector.position[0], sector.position[1] );
-                hexField.addClass( 'sector' );
-                hexField.attr( 'name', sector.name );
-                hexField.attr( 'sector', sector.url );
-                updateHexField( hexField );
+                            const hexField = getHexField( sector.position[0], sector.position[1] );
+                            hexField.addClass( 'sector' );
+                            hexField.attr( 'name', sector.name );
+                            hexField.attr( 'sector', sector.url );
+                            hexField.attr( 'habitated-by', habitatedBy );
+                            updateHexField( hexField );
 
-                /* Select and show the proper icon.
-                 */
-                switch( sector.celestial_set[ 0 ].features.variant )
-                {
+                            /* Select and show the proper icon.
+                             */
+                            switch( sector.celestial_set[ 0 ].features.variant )
+                            {
 
-                case 'white-mainline': 
-                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' )
-                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' )
-                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                    break;
+                            case 'white-mainline': 
+                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' )
+                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' )
+                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
+                                break;
 
-                case 'yellow-mainline': 
-                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'orange' );
-                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
-                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                    break;
+                            case 'yellow-mainline': 
+                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'orange' );
+                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
+                                break;
 
-                case 'blue-mainline': 
-                    hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
-                    hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
-                    hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                    break;
+                            case 'blue-mainline': 
+                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
+                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
+                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
+                                break;
 
-                case 'white-dwarf':
-                    hexField.find( '.sector-star-white-dwarf' ).css( 'display', 'inline' );
-                    hexField.find( '.sector-star-white-dwarf' ).attr( 'active', 'true' );
-                    break;
+                            case 'white-dwarf':
+                                hexField.find( '.sector-star-white-dwarf' ).css( 'display', 'inline' );
+                                hexField.find( '.sector-star-white-dwarf' ).attr( 'active', 'true' );
+                                break;
 
-                case 'red-giant':
-                    hexField.find( '.sector-star-red-giant' ).css( 'display', 'inline' );
-                    hexField.find( '.sector-star-red-giant' ).attr( 'active', 'true' );
-                    break;
+                            case 'red-giant':
+                                hexField.find( '.sector-star-red-giant' ).css( 'display', 'inline' );
+                                hexField.find( '.sector-star-red-giant' ).attr( 'active', 'true' );
+                                break;
 
-                default:
-                    console.log( `Unknown star variant: "${ sector.celestial_set[0].features.variant }"` );
+                            default:
+                                console.log( `Unknown star variant: "${ sector.celestial_set[0].features.variant }"` );
 
-                }
+                            }
 
-                /* Displace the icon randomly.
-                 */
-                Math.seedrandom( sector.url );
-                const dx = ( Math.random() - 0.5 ) * hexFieldSize;
-                const dy = ( Math.random() - 0.25 ) * 0.5 * hexFieldSize;
-                hexField.find( '.sector-star' ).css( 'left', `${ dx }px` );
-                hexField.find( '.sector-star' ).css( 'bottom', `${ dy }px` );
+                            /* Displace the icon randomly.
+                             */
+                            Math.seedrandom( sector.url );
+                            const dx = ( Math.random() - 0.5 ) * hexFieldSize;
+                            const dy = ( Math.random() - 0.25 ) * 0.5 * hexFieldSize;
+                            hexField.find( '.sector-star' ).css( 'left', `${ dx }px` );
+                            hexField.find( '.sector-star' ).css( 'bottom', `${ dy }px` );
+                        }
+                        $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
+                    }
+                );
             }
-            $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
-        });
+        );
     }
 
     /* Returns the hex field at the specified hex grid coordinates.

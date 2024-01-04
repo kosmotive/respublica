@@ -8,7 +8,6 @@ function build( api, world, blueprints )
      */
     $( document ).ready( function()
     {
-        $( '#buildscreen' ).hide();
         $( '#buildscreen .close-button' ).on( 'click',
             function()
             {

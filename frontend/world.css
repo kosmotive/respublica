@@ -61,6 +61,9 @@
   font-size: 1.2rem;
 }
 
+.hex-field.sector.habitated .hex-field-name {
+}
+
 .hex-field .sector-star {
   transform: rotate(-26.5deg);
   position: absolute;
