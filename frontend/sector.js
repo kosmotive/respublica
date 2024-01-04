@@ -93,7 +93,7 @@ function sector( api, world, build )
             celestialView.find( '.celestial-actions-develop' ).on( 'click',
                 function()
                 {
-                    // TODO: develop the celestial
+                    build.develop( sector, celestial );
                 }
             );
             celestialView.find( '.celestial-actions-build' ).remove();

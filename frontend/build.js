@@ -21,7 +21,24 @@ function build( api, world, blueprints )
     {
         if( process )
         {
-            const blueprint = blueprints.get( process.data.blueprint_url );
+            var name;
+            if( process.data.blueprint_url )
+            {
+                const blueprint = blueprints.get( process.data.blueprint_url );
+                name = blueprint.data.name;
+            }
+            else
+            {
+                var target;
+                for( celestial2 of sector.celestial_set )
+                {
+                    if( celestial2.url == process.data.celestial_url )
+                    {
+                        target = world.getCelestialName( sector, celestial2 );
+                    }
+                }
+                name = `Developing ${ target } for exploitation`;
+            }
             const view = $( '#buildscreen .build-process-info' )
 
             var turns = process.end_tick - world.game.tick;
@@ -29,7 +46,7 @@ function build( api, world, blueprints )
 
             const progress = `${ Math.round( 100 * ( world.game.tick - process.start_tick ) / ( process.end_tick - process.start_tick ) ) }%`
 
-            view.find( '.build-process-name' ).text( blueprint.data.name );
+            view.find( '.build-process-name' ).text( name );
             view.find( '.build-process-celestial' ).text( world.getCelestialName( sector, celestial ) );
             view.find( '.build-process-progress' ).text( progress );
             view.find( '.build-process-remaining' ).text( turns );
@@ -60,11 +77,58 @@ function build( api, world, blueprints )
         });
     }
 
+    function develop( sector, celestial )
+    {
+        function _openMenu()
+        {
+            openMenu( sector, celestial );
+            $( '#buildscreen' ).addClass( 'hide-options' );
+            $( '#buildscreen' ).addClass( 'hide-constructions' );
+        }
+        function _develop()
+        {
+            $.ajax({
+                type: 'POST',
+                url: celestial.url + 'colonialize/',
+                contentType: 'application/json',
+                beforeSend: api.augmentRequestWithCSRFToken,
+                success: function( process )
+                {
+                    sector.process = process;
+                    _openMenu();
+                }
+            });
+        }
+        if( sector.process )
+        {
+            $.get( sector.process,
+                function( process )
+                {
+                    console.log(process);
+                    if( process.handler_id != 'ColonializationHandler' || process.data.celestial_url != celestial.url )
+                    {
+                        _develop();
+                    }
+                    else
+                    {
+                        _openMenu();
+                    }
+                }
+            );
+        }
+        else
+        {
+            _develop();
+        }
+    }
+
     function openMenu( sector, celestial )
     {
         $( '#buildscreen .sector-name' ).text( sector.name );
         $( '#buildscreen .celestial-name' ).text( celestial.name );
         $( '#buildscreen .build-process-info' ).hide();
+        $( '#buildscreen' ).removeClass( 'hide-options' );
+        $( '#buildscreen' ).removeClass( 'hide-constructions' );
 
         for( const blueprintUrl of world.game.empire.blueprint_set )
         {
@@ -172,7 +236,8 @@ function build( api, world, blueprints )
     const ret =
     {
         events: events,
-        openMenu: openMenu
+        openMenu: openMenu,
+        develop: develop
     };
     return ret;
 }

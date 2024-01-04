@@ -42,7 +42,7 @@
   cursor: pointer;
 }
 
-#buildscreen .container .content .content-row {
+#buildscreen:not(.hide-options.hide-constructions) .container .content .content-row {
   margin-bottom: 1rem;
 }
 
@@ -65,6 +65,14 @@
 
 #buildscreen .container .content .content-column:last-child {
   padding-left: 1rem;
+}
+
+#buildscreen.hide-options .container .content .build-options {
+  display: none;
+}
+
+#buildscreen.hide-constructions .container .content .constructions {
+  display: none;
 }
 
 #buildscreen .container .content .build-options-list,
@@ -130,4 +138,5 @@
 #buildscreen .container .content .build-process-info {
   font-size: 0.8rem;
   background-color: white;
+  padding: 0.5rem;
 }
