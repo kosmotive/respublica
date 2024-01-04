@@ -1,18 +1,31 @@
 $.fn.popup = function()
 {
     if( !this.hasClass( 'popup' ) ) return;
-    const content = this;
+    const popup  = this;
+    const parent = popup.parent();
 
     const curtain = $( '<div id="popup-curtain"></div>' );
     curtain.appendTo( $( 'body' ) );
     curtain.on( 'click',
         function()
         {
-            $( '#popup-curtain' ).remove();
-            content.fadeOut( 200 );
+            popup.fadeOut( 200,
+                function()
+                {
+                    popup.appendTo( parent );
+                    popup.css( 'left', '' );
+                    popup.css(  'top', '' );
+                    $( '#popup-curtain' ).remove();
+                }
+            );
         }
     );
 
-    content.fadeIn( 200 );
+    popup.fadeIn( 200 );
+
+    const offset = popup.offset();
+    popup.appendTo( curtain );
+    popup.css( 'left', offset.left - curtain.offset().left );
+    popup.css(  'top', offset.top  - curtain.offset().top  );
 }
 

@@ -93,20 +93,10 @@
   display: block;
 }
 
-#movables-view .movables-list .movable .action-list .action {
+#movables-view .movables-list .movable > .action-list > .action {
   display: inline-block;
 }
 
 #movables-view .movables-list .movable:not(.can-colonialize) .action-colonialize {
   display: none;
-}
-
-#movables-view .movables-list .movable .action-colonialize .popup {
-  white-space: nowrap;
-}
-
-#movables-view .movables-list .movable .action-colonialize .popup .action-list .action {
-  display: block;
-  box-shadow: 0 0 0.5rem black;
-  margin-bottom: 0.5rem;
 }

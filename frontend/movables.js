@@ -14,7 +14,7 @@ function movables( api, world )
             type: 'POST',
             url: selectedMovable.url + 'move_to/',
             contentType: 'application/json',
-            data: `{"x":${x}, "y":${y}}`,
+            data: `{"x": ${ x }, "y": ${ y }}`,
             beforeSend: api.augmentRequestWithCSRFToken,
             ignore403: true,
             success: function( data )
@@ -27,6 +27,28 @@ function movables( api, world )
         });
         $( `#movables-view .movable[url="${ selectedMovable.url }"] .action-move` ).trigger( 'click' );
         return false;
+    }
+
+    /* Dispatch "colonize" action for the selected movable (if any).
+     */
+    function colonize( celestial )
+    {
+        if( !selectedMovable ) return;
+        $.ajax({
+            type: 'POST',
+            url: celestial.url + 'colonialize/',
+            contentType: 'application/json',
+            data: `{"movable": "${ selectedMovable.url }"}`,
+            beforeSend: api.augmentRequestWithCSRFToken,
+            ignore403: true,
+            success: function( data )
+            {
+                delete data.ship_set;
+                Object.assign( selectedMovable, data );
+                updateMovableView( selectedMovable );
+                world.showTrajectory( selectedMovable );
+            }
+        });
     }
 
     /* Creates a new movable view.
@@ -99,7 +121,7 @@ function movables( api, world )
                             action.on( 'click',
                                 function()
                                 {
-                                    console.log( `Colonize: ${ celestial.url }` );
+                                    colonize( celestial );
                                 }
                             );
                         }
@@ -140,22 +162,40 @@ function movables( api, world )
     function updateMovableView( movable )
     {
         const movableView = $( `.movable[url="${ movable.url }"]` );
-        if( JSON.stringify( movable.destination ) == JSON.stringify( movable.position ) )
-        {
-            movableView.find( '.movable-status' ).text( 'Standing by.' );
-        }
-        else
+        if( movable.process )
         {
             movableView.find( '.movable-status' ).html( '&nbsp;' );
             $.get( movable.process,
                 function( process )
                 {
-                    const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
                     var turns = process.end_tick - world.game.tick;
                     turns = turns == 1 ? `${ turns } turn` : `${ turns } turns`;
-                    movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
+
+                    switch( process.handler_id )
+                    {
+
+                    case 'MovementHandler':
+                        const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
+                        movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
+                        break;
+
+                    case 'ColonializationHandler':
+                        const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
+                        const celestial = sector.celestial_set.find( ( c ) => { return c.url == process.data.celestial_url; } );
+                        const celestialName = world.getCelestialName( sector, celestial );
+                        movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Colonizing <b>${ celestialName }</b></span> <span class="movable-status-line">in <b>${ turns }</b>.</span>` );
+                        break;
+
+                    default:
+                        console.log( `Unknown process handler: "${ process.handler_id }"` );
+
+                    }
                 }
             );
+        }
+        else
+        {
+            movableView.find( '.movable-status' ).text( 'Standing by.' );
         }
     }
 

@@ -1,8 +1,14 @@
 .popup {
   display: none;
   position: absolute;
-  z-index: 1001;
   font-size: 1rem;
+  white-space: nowrap;
+}
+
+.popup .action-list .action {
+  display: block;
+  box-shadow: 0 0 0.5rem black;
+  margin-bottom: 0.5rem;
 }
 
 #popup-curtain
