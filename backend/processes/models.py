@@ -100,9 +100,9 @@ class BuildingHandler(BaseHandler):
                 celestial_id = celestial.id))
 
 
-class ColonializationHandler(BaseHandler):
+class ColonizationHandler(BaseHandler):
     """
-    Habitates a celestial when the colonialization process completes.
+    Habitates a celestial when the colonization process completes.
 
     Requires either another already habitated celestial or a colony ship in the same sector as the colonized celestial.
     """
@@ -178,5 +178,5 @@ class ColonializationHandler(BaseHandler):
             start_tick = start_tick,
             end_tick   = start_tick + cost,
             owner      = empire,
-            handler_id = ColonializationHandler.__qualname__,
+            handler_id = ColonizationHandler.__qualname__,
             data       = data)

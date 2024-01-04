@@ -222,9 +222,9 @@ class Celestial(models.Model):
         occupied_capacity = sum((c.blueprint.data.get('size') for c in self.construction_set.all()))
         return self.capacity - occupied_capacity
 
-    def colonialize(self, empire, movable):
-        from processes.models import ColonializationHandler
-        return ColonializationHandler.create_process(World.objects.get().now, empire, self, movable)
+    def colonize(self, empire, movable):
+        from processes.models import ColonizationHandler
+        return ColonizationHandler.create_process(World.objects.get().now, empire, self, movable)
 
 
 class Unveiled(Positionable):

@@ -237,10 +237,10 @@ class CelestialTest(BaseRestTest):
         ]
 
     @property
-    def colonialize_url(self):
-        return reverse('celestial-colonialize', kwargs = dict(pk = self.object.pk))
+    def colonize_url(self):
+        return reverse('celestial-colonize', kwargs = dict(pk = self.object.pk))
 
-    def test_colonialize_intrasector(self):
+    def test_colonize_intrasector(self):
         from world.models import Celestial
 
         # Add already habitated celestial to the same sector
@@ -248,11 +248,11 @@ class CelestialTest(BaseRestTest):
         celestial2 = Celestial.objects.create(sector = sector, position = len(sector.celestial_set.all()), habitated_by = Empire.objects.get(), features = dict(capacity = 10))
 
         # Test the endpoint
-        response = self.client.post(self.colonialize_url, dict(), format='json')
+        response = self.client.post(self.colonize_url, dict(), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(normalize(response.data), normalize(ProcessTest().expected_details([Process.objects.get()])[0]))
 
-    def test_colonialize_intersector(self):
+    def test_colonize_intersector(self):
         from game.models import Empire, Ship, Blueprint
         from world.models import Movable
 
@@ -263,7 +263,7 @@ class CelestialTest(BaseRestTest):
         movable_url = reverse('movable-detail', kwargs = dict(pk = ship.movable.pk))
 
         # Test the endpoint
-        response = self.client.post(self.colonialize_url, dict(movable = movable_url), format='json')
+        response = self.client.post(self.colonize_url, dict(movable = movable_url), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(normalize(response.data), normalize(MovableTest().expected_details([ship.movable])[0]))
 
@@ -469,11 +469,11 @@ class ProcessTest(BaseRestTest):
                 data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
             if handler_id == 'MovementHandler':
                 data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
-            if handler_id == 'ColonializationHandler':
+            if handler_id == 'ColonizationHandler':
                 data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
                 data['empire_url'] = reverse(f'empire-detail', kwargs = dict(pk = data.pop('empire_id')))
                 if 'movable_id' in data.keys():
-                    # Inter-sector colonialization (using a colony ship)
+                    # Inter-sector colonization (using a colony ship)
                     data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
             return data
         return [

@@ -36,7 +36,7 @@ function movables( api, world )
         if( !selectedMovable ) return;
         $.ajax({
             type: 'POST',
-            url: celestial.url + 'colonialize/',
+            url: celestial.url + 'colonize/',
             contentType: 'application/json',
             data: `{"movable": "${ selectedMovable.url }"}`,
             beforeSend: api.augmentRequestWithCSRFToken,
@@ -100,7 +100,7 @@ function movables( api, world )
              */
             if( movable.ship_set.some( ( ship ) => { return ship.type_id == 'ships/colony-ship'; } ) )
             {
-                /* Check whether the sector contains a celestial suitable for colonialization.
+                /* Check whether the sector contains a celestial suitable for colonization.
                  */
                 const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
                 if( sector )
@@ -112,10 +112,10 @@ function movables( api, world )
                         const habitableCelestials = sector.celestial_set.filter( ( c ) => { return c.features.capacity > 0; } );
                         if( isUnhabitated && habitableCelestials.length )
                         {
-                            /* Build menu of available celestials for colonialization.
+                            /* Build menu of available celestials for colonization.
                              */
-                            const celestialMenu = movableView.find( '.action-colonialize .popup' );
-                            movableView.addClass( 'can-colonialize' );
+                            const celestialMenu = movableView.find( '.action-colonize .popup' );
+                            movableView.addClass( 'can-colonize' );
                             celestialMenu.find( '.action-list' ).empty();
                             for( const celestial of habitableCelestials )
                             {
@@ -131,7 +131,7 @@ function movables( api, world )
 
                             /* Show the menu.
                              */
-                            movableView.find( '.action-colonialize' ).on( 'click',
+                            movableView.find( '.action-colonize' ).on( 'click',
                                 function()
                                 {
                                     celestialMenu.popup();
@@ -183,7 +183,7 @@ function movables( api, world )
                         movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
                         break;
 
-                    case 'ColonializationHandler':
+                    case 'ColonizationHandler':
                         const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
                         const celestial = sector.celestial_set.find( ( c ) => { return c.url == process.data.celestial_url; } );
                         const celestialName = world.getCelestialName( sector, celestial );

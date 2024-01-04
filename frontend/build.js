@@ -88,7 +88,7 @@ function build( api, world, blueprints )
         {
             $.ajax({
                 type: 'POST',
-                url: celestial.url + 'colonialize/',
+                url: celestial.url + 'colonize/',
                 contentType: 'application/json',
                 beforeSend: api.augmentRequestWithCSRFToken,
                 success: function( process )
@@ -104,7 +104,7 @@ function build( api, world, blueprints )
                 function( process )
                 {
                     console.log(process);
-                    if( process.handler_id != 'ColonializationHandler' || process.data.celestial_url != celestial.url )
+                    if( process.handler_id != 'ColonizationHandler' || process.data.celestial_url != celestial.url )
                     {
                         _develop();
                     }

@@ -178,13 +178,13 @@ class CelestialTest(TestCase):
             blueprint = Blueprint.objects.get(empire = self.empire, base_id = 'ships/colony-ship'),
             movable   = Movable.objects.create(position_x = 0, position_y = 0))
 
-    def test_colonialize_intrasector(self):
+    def test_colonize_intrasector(self):
         self.celestial2.habitated_by = self.empire
         self.celestial2.save()
         self.ship.delete()
         cost = self.ship.blueprint.data['cost']
 
-        process = self.celestial1.colonialize(self.empire, movable = None)
+        process = self.celestial1.colonize(self.empire, movable = None)
         self.assertIsNone(self.celestial1.habitated_by)
         self.assertEqual(process.owner, self.empire)
         self.assertEqual(process.end_tick, self.world.now + cost)
@@ -200,15 +200,15 @@ class CelestialTest(TestCase):
         self.assertEqual(self.celestial1.habitated_by, self.empire)
         self.assertEqual(self.celestial2.habitated_by, self.empire)
 
-    def test_colonialize_intrasector_already_habitated(self):
+    def test_colonize_intrasector_already_habitated(self):
         self.ship.delete()
         self.celestial1.habitated_by = self.empire
         self.celestial2.habitated_by = self.empire
         self.celestial1.save()
         self.celestial2.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, movable = None))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, movable = None))
 
-    def test_colonialize_intrasector_foreign(self):
+    def test_colonize_intrasector_foreign(self):
         from game.models import Empire
         player2 = User.objects.create(username = 'testuser2', password = 'password')
         empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
@@ -216,12 +216,12 @@ class CelestialTest(TestCase):
         self.ship.delete()
         self.celestial2.habitated_by = empire2
         self.celestial2.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, movable = None))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, movable = None))
 
-    def test_colonialize_intersector(self):
+    def test_colonize_intersector(self):
         from game.models import Ship
 
-        process = self.celestial1.colonialize(self.empire, self.ship.movable)
+        process = self.celestial1.colonize(self.empire, self.ship.movable)
         self.assertIsNone(self.celestial1.habitated_by)
         self.assertIsNone(self.celestial2.habitated_by)
         self.assertEqual(process.owner, self.empire)
@@ -238,16 +238,16 @@ class CelestialTest(TestCase):
         self.assertIsNone(self.celestial2.habitated_by)
         self.assertTrue(self.sector.position in self.empire.territory)
 
-    def test_colonialize_intersector_without_ship(self):
+    def test_colonize_intersector_without_ship(self):
         self.ship.blueprint.base_id = 'ships/wrong-ship'
         self.ship.blueprint.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, self.ship.movable))
 
-    def test_colonialize_intersector_already_habitated(self):
+    def test_colonize_intersector_already_habitated(self):
         self.celestial1.habitated_by = self.empire
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, self.ship.movable))
 
-    def test_colonialize_intersector_foreign_sector1(self):
+    def test_colonize_intersector_foreign_sector1(self):
         from game.models import Empire
         player2 = User.objects.create(username = 'testuser2', password = 'password')
         empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
@@ -255,9 +255,9 @@ class CelestialTest(TestCase):
         # empire2 habitates another celestial in the same sector
         self.celestial2.habitated_by = empire2
         self.celestial2.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, self.ship.movable))
 
-    def test_colonialize_intersector_foreign_sector2(self):
+    def test_colonize_intersector_foreign_sector2(self):
         from game.models import Empire
         player2 = User.objects.create(username = 'testuser2', password = 'password')
         empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
@@ -268,16 +268,16 @@ class CelestialTest(TestCase):
         celestial2.habitated_by = empire2
         celestial2.save()
         self.assertTrue( sector2.position in empire2.territory );
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(self.empire, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(self.empire, self.ship.movable))
 
-    def test_colonialize_intersector_foreign_ship(self):
+    def test_colonize_intersector_foreign_ship(self):
         from game.models import Empire
         player2 = User.objects.create(username = 'testuser2', password = 'password')
         empire2 = Empire.objects.create(name = 'Bars', player = player2, origin_x = 0, origin_y = 0, color_hue = 0)
 
         self.celestial2.habitated_by = empire2
         self.celestial2.save()
-        self.assertRaises(AssertionError, lambda: self.celestial1.colonialize(empire2, self.ship.movable))
+        self.assertRaises(AssertionError, lambda: self.celestial1.colonize(empire2, self.ship.movable))
 
 
 class HexSetTest(TestCase):

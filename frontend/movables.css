@@ -97,6 +97,6 @@
   display: inline-block;
 }
 
-#movables-view .movables-list .movable:not(.can-colonialize) .action-colonialize {
+#movables-view .movables-list .movable:not(.can-colonize) .action-colonize {
   display: none;
 }
