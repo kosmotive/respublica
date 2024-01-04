@@ -1,0 +1,17 @@
+.popup {
+  display: none;
+  position: absolute;
+  z-index: 1001;
+  font-size: 1rem;
+}
+
+#popup-curtain
+{
+  z-index: 1000;
+  pointer-events: all;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}

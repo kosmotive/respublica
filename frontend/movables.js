@@ -84,10 +84,34 @@ function movables( api, world )
                 if( sector )
                 {
                     const isUnhabitated = sector.celestial_set.every( ( c ) => { return c.habitated_by === null; } );
-                    const hasHabitableCelestial = sector.celestial_set.some( ( c ) => { return c.features.capacity > 0; } );
-                    if( isUnhabitated && hasHabitableCelestial )
+                    const habitableCelestials = sector.celestial_set.filter( ( c ) => { return c.features.capacity > 0; } );
+                    if( isUnhabitated && habitableCelestials.length )
                     {
+                        /* Build menu of available celestials for colonialization.
+                         */
+                        const celestialMenu = movableView.find( '.action-colonialize .popup' );
                         movableView.addClass( 'can-colonialize' );
+                        celestialMenu.find( '.action-list' ).empty();
+                        for( const celestial of habitableCelestials )
+                        {
+                            const action = $( `<li class="action">${ world.getCelestialName( sector, celestial ) }</li>` );
+                            action.appendTo( celestialMenu.find( '.action-list' ) );
+                            action.on( 'click',
+                                function()
+                                {
+                                    console.log( `Colonize: ${ celestial.url }` );
+                                }
+                            );
+                        }
+
+                        /* Show the menu.
+                         */
+                        movableView.find( '.action-colonialize' ).on( 'click',
+                            function()
+                            {
+                                celestialMenu.popup();
+                            }
+                        );
                     }
                 }
             }
