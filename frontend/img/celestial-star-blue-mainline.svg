@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <defs>
+        <filter id="surface">
+            <feTurbulence
+                type="turbulence"
+                baseFrequency="0.2"
+                numOctaves="2"
+                result="turbulence" />
+            <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
+            <feColorMatrix
+                in="clouds"
+                result="gray_clouds"
+                type="saturate"
+                values="0" />
+            <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
+            <feBlend in="surface1" in2="surface2" mode="color-dodge" />
+        </filter>
+        <filter id="corona" x="0%" y="0%">
+            <feTurbulence
+                type="turbulence"
+                baseFrequency="0.15"
+                numOctaves="1"
+                result="turbulence" />
+            <feDisplacementMap
+                in2="turbulence"
+                in="SourceGraphic"
+                result="DisplacedGraphic"
+                scale="15"
+                xChannelSelector="R"
+                yChannelSelector="G" />
+        </filter>
+    </defs>
+    <circle cx="50" cy="50" r="33" fill="dodgerblue" filter="url(#surface)" />
+    <circle cx="45" cy="45" r="32" stroke="black" stroke-width="5" fill="none" filter="url(#corona)" />
+</svg>

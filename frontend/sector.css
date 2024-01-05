@@ -28,7 +28,7 @@ body.open-movables-view #sector-view {
   margin-left: 1rem;
 }
 
-#sector-view .celestial svg {
+#sector-view .celestial img {
   height: 60%;
   aspect-ratio: 1;
   filter: drop-shadow(0 0 0.15em black);

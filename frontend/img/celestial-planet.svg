@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <defs>
+        <radialGradient id="sphere" cx="80%">
+            <stop offset="30%" stop-color="brown" />
+            <stop offset="100%" stop-color="black" />
+        </radialGradient>
+        <filter id="surface" x="-10%" y="-10%">
+            <feTurbulence
+                type="turbulence"
+                baseFrequency="0.2"
+                numOctaves="2"
+                result="turbulence" />
+            <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
+            <feColorMatrix
+                in="clouds"
+                result="gray_clouds"
+                type="saturate"
+                values="0" />
+            <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" />
+        </filter>
+    </defs>
+    <circle cx="50" cy="50" r="15" fill="url(#sphere)" filter="url(#surface)" stroke="black" stroke-width="1" />
+</svg>

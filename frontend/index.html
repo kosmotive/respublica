@@ -88,7 +88,7 @@
             <div class="hex-field-name"></div>
             <ul class="hex-field-movables"></ul>
 
-            <!-- Star icons -->
+            <!-- Star icon -->
             <img width="30%" height="30%" class="sector-star sector-star-none" />
         </div>
     
@@ -98,128 +98,11 @@
 <div id="sector-view" style="display: none;">
     <div class="celestial" id="celestial-template">
 
-        <!-- Star icons -->
-        <svg class="celestial-star celestial-star-mainline" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="surface1" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="15"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="33" fill="orange" filter="url(#surface)" class="star-brush" />
-            <circle cx="45" cy="45" r="32" stroke="black" stroke-width="5" fill="none" filter="url(#corona)" />
-        </svg>
-        <svg class="celestial-star celestial-star-white-dwarf" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="SourceGraphic" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="10"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="26" fill="white" filter="url(#surface)" />
-            <circle cx="47" cy="47" r="26" stroke="black" stroke-width="3" fill="none" filter="url(#corona)" />
-        </svg>
-        <svg class="celestial-star celestial-star-red-giant" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="surface1" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="15"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="40" fill="firebrick" filter="url(#surface)" />
-            <circle cx="45" cy="45" r="40" stroke="black" stroke-width="7" fill="none" filter="url(#corona)" />
-        </svg>
+        <!-- Star icon -->
+        <img class="celestial-star" />
 
         <!-- Planet icons -->
-        <svg class="celestial-planet" viewbox="0 0 100 100">
-            <defs>
-                <radialGradient id="sphere" cx="80%">
-                    <stop offset="30%" stop-color="brown" />
-                    <stop offset="100%" stop-color="black" />
-                </radialGradient>
-                <filter id="surface" x="-10%" y="-10%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="15" fill="url(#sphere)" filter="url(#surface)" stroke="black" stroke-width="1" />
-        </svg>
+        <img class="celestial-planet" src="img/celestial-planet.svg" />
 
         <!-- Others -->
         <div class="celestial-habitated">Habitated</div>
