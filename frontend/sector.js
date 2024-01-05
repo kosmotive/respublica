@@ -82,12 +82,19 @@ function sector( api, world, build )
          */
         if( celestial.habitated_by === null && sectorHabitated ) // the celestial is unhabitated but the player already has another celestial habitated in the same sector
         {
-            celestialView.find( '.celestial-actions-develop' ).on( 'click',
-                function()
-                {
-                    build.develop( sector, celestial );
-                }
-            );
+            if( celestial.features.capacity > 0 ) // …and the celestial can be habitated
+            {
+                celestialView.find( '.celestial-actions-develop' ).on( 'click',
+                    function()
+                    {
+                        build.develop( sector, celestial );
+                    }
+                );
+            }
+            else // …but the celestial cannot be habitated
+            {
+                celestialView.find( '.celestial-actions-develop' ).remove();
+            }
             celestialView.find( '.celestial-actions-build' ).remove();
         }
         else
