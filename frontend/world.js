@@ -47,7 +47,6 @@ function world( api, blueprints, hexFieldSize = 200 )
         hexField.css({
             left: getHexX( x ), top: getHexY( y )
         });
-        hexField.find( '.sector-star ').css( 'display', 'none' );
 
         const movables = getMovables( x, y );
         for( const movable of movables )
@@ -198,41 +197,9 @@ function world( api, blueprints, hexFieldSize = 200 )
 
                             /* Select and show the proper icon.
                              */
-                            switch( sector.celestial_set[ 0 ].features.variant )
-                            {
-
-                            case 'white-mainline': 
-                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'white' )
-                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' )
-                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                                break;
-
-                            case 'yellow-mainline': 
-                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'orange' );
-                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
-                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                                break;
-
-                            case 'blue-mainline': 
-                                hexField.find( '.sector-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
-                                hexField.find( '.sector-star-mainline' ).css( 'display', 'inline' );
-                                hexField.find( '.sector-star-mainline' ).attr( 'active', 'true' );
-                                break;
-
-                            case 'white-dwarf':
-                                hexField.find( '.sector-star-white-dwarf' ).css( 'display', 'inline' );
-                                hexField.find( '.sector-star-white-dwarf' ).attr( 'active', 'true' );
-                                break;
-
-                            case 'red-giant':
-                                hexField.find( '.sector-star-red-giant' ).css( 'display', 'inline' );
-                                hexField.find( '.sector-star-red-giant' ).attr( 'active', 'true' );
-                                break;
-
-                            default:
-                                console.log( `Unknown star variant: "${ sector.celestial_set[0].features.variant }"` );
-
-                            }
+                            hexField.find( '.sector-star' )
+                                .attr( 'src', `img/sector-star-${ sector.celestial_set[ 0 ].features.variant }.svg` )
+                                .removeClass( 'sector-star-none' );
 
                             /* Displace the icon randomly.
                              */
@@ -242,7 +209,6 @@ function world( api, blueprints, hexFieldSize = 200 )
                             hexField.find( '.sector-star' ).css( 'left', `${ dx }px` );
                             hexField.find( '.sector-star' ).css( 'bottom', `${ dy }px` );
                         }
-                        $( ':not(#hex-field-template) .sector-star:not([active="true"])' ).remove();
 
                         /* Proceed with next step.
                          */

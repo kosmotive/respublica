@@ -83,6 +83,10 @@
   margin: auto;
 }
 
+.hex-field .sector-star-none {
+  display: none;
+}
+
 .hex-field .hex-field-movables {
   list-style-type: none;
   margin: 0;
