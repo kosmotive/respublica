@@ -58,7 +58,7 @@ function world( api, blueprints, hexFieldSize = 200 )
         const owners = getHexOwners( x, y );
         if( owners.length == 1 )
         {
-            hexField.find( '.hex-field-hatch' ).attr( 'stroke', owners[ 0 ].color );
+            hexField.find( '.hex-field-pattern' ).attr( 'fill', `url(#svg-pattern-hex-field-hatch-${ owners[ 0 ].color.substr( 1 ) })` );
         }
         else
         if( owners.length > 1 )
@@ -175,6 +175,7 @@ function world( api, blueprints, hexFieldSize = 200 )
                 hexField.attr( 'name', `${ fmt( x - origin[ 0 ], "W", "E" ) }/${ fmt( y - origin[ 1 ], "N", "S" ) }` );
                 updateHexField( hexField );
             }
+            $( '#hex-field-template' ).remove();
         });
 
         $.when( loadUnveiled ).done( function()
@@ -393,6 +394,13 @@ function world( api, blueprints, hexFieldSize = 200 )
                             territory.push( hex2str( c[ 0 ], c[ 1 ] ) );
                         }
                         empire.territory = territory;
+
+                        /* Create SVG pattern for hex fields.
+                         */
+                        const pattern = $( '#svg-pattern-hex-field-hatch' ).clone();
+                        pattern.find( 'path' ).attr( 'stroke', empire.color );
+                        pattern.attr( 'id', `svg-pattern-hex-field-hatch-${ empire.color.substr( 1 ) }` );
+                        pattern.appendTo( '#svg-definitions' );
                     }
                 }
             );

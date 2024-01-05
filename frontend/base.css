@@ -9,6 +9,11 @@ body {
   font-family: "Gill Sans", sans-serif;
 }
 
+#svg-definitions {
+  width: 0;
+  height: 0;
+}
+
 header {
   background-color: dimgrey;
   color: white;

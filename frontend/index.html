@@ -19,6 +19,12 @@
 </head>
 <body>
 
+<svg id="svg-definitions">
+    <pattern id="svg-pattern-hex-field-hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)" y="1">
+        <path d="M 0,2 l 4,0" stroke="silver" stroke-width="0.5" />
+    </pattern>
+</svg>
+
 <header>
     <div class="display">
         <b>Turn:</b>
@@ -73,11 +79,8 @@
             <!-- Background -->
             <svg height="100%" width="100%" viewbox="-2 -2 104 104">
                 <a href="#">
-                <pattern id="hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)" y="1">
-                    <path d="M 0,2 l 4,0" stroke="silver" stroke-width="0.5" class="hex-field-hatch" />
-                </pattern>
                 <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" fill="none" class="hex-field-background" />
-                <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#hatch)" stroke-width="4" class="hex-field-pattern hex-field-stroke" />
+                <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#svg-pattern-hex-field-hatch)" stroke-width="4" class="hex-field-pattern hex-field-stroke" />
                 </a>
             </svg>
 
