@@ -1,7 +1,7 @@
 /* Load CallbackStack.
  */
 $.ajax({
-    url: 'callbacks.js',
+    url: 'tools.js',
     dataType: 'script',
     async: false
 });
@@ -25,7 +25,7 @@ function loadModule( module, ...args )
  */
 const app = Object()
 
-app.api        = loadModule( 'api'       , url = 'http://127.0.0.1:8000/api' );
+app.api        = loadModule( 'api'       , url = `${ window.location.origin }/api` );
 app.blueprints = loadModule( 'blueprints', api = app.api );
 app.world      = loadModule( 'world'     , api = app.api, blueprints = app.blueprints, hexFieldSize = 200 );
 app.login      = loadModule( 'login'     , api = app.api );

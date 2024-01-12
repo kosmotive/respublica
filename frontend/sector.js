@@ -11,7 +11,7 @@ function sector( api, world, build )
         celestial.name = world.getCelestialName( sector, celestial );
 
         const celestialView = $( '#celestial-template' ).clone();
-        celestialView.prependTo( '#sector-view' );
+        celestialView.appendTo( '#sector-view' );
         celestialView.attr( 'id', '' );
         celestialView.find( '.celestial-name' ).text( celestial.name );
         for( const type of [ 'star', 'planet' ] )
@@ -22,35 +22,27 @@ function sector( api, world, build )
             }
         }
         var features = '', variant = undefined;
-        celestialView.find( '.celestial-star' ).hide();
+        celestialView.find( '.celestial-star' ).attr( 'src', `img/celestial-star-${ celestial.features.variant }.svg` );
         switch( celestial.features.variant )
         {
 
         case 'white-mainline': 
-            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'silver' );
-            celestialView.find( '.celestial-star-mainline' ).show();
             variant = 'White / Mainline';
             break;
 
         case 'yellow-mainline': 
-            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'orange' );
-            celestialView.find( '.celestial-star-mainline' ).show();
             variant = 'Yellow / Mainline';
             break;
 
         case 'blue-mainline': 
-            celestialView.find( '.celestial-star-mainline .star-brush' ).attr( 'fill', 'dodgerblue' );
-            celestialView.find( '.celestial-star-mainline' ).show();
             variant = 'Blue / Mainline';
             break;
 
         case 'white-dwarf':
-            celestialView.find( '.celestial-star-white-dwarf' ).show();
             variant = 'White Dwarf';
             break;
 
         case 'red-giant':
-            celestialView.find( '.celestial-star-red-giant' ).show();
             variant = 'Red Giant';
             break;
 
@@ -60,8 +52,20 @@ function sector( api, world, build )
         {
             if( key != 'type' && key != 'variant' )
             {
+                var formattedValue;
+                switch( key )
+                {
+
+                case 'capacity':
+                    formattedValue = celestial.habitated_by ? `${ celestial.remaining_capacity }/${ value }` : value;
+                    break;
+
+                default:
+                    formattedValue = value;
+
+                };
                 featureName = key.charAt( 0 ).toUpperCase() + key.slice( 1 );
-                features += `<li>${ featureName }: ${ value }</li>`
+                features += `<li>${ featureName }: ${ formattedValue }</li>`
             }
         }
         celestialView.find( '.celestial-features' ).html( features );
@@ -69,13 +73,40 @@ function sector( api, world, build )
         {
             celestialView.find( '.celestial-habitated' ).remove();
         }
-        if( celestial.habitated_by != world.game.empire.url )
+
+        /* Determine whether there is a celestial habitated by the player within the current sector.
+         */
+        const sectorHabitated = sector.celestial_set.some( ( c ) => { return c.habitated_by == world.game.empire.url; } );
+
+        /* Setup actions.
+         */
+        if( celestial.habitated_by === null && sectorHabitated ) // the celestial is unhabitated but the player already has another celestial habitated in the same sector
         {
-            celestialView.find( '.celestial-options' ).remove();
+            if( celestial.features.capacity > 0 ) // …and the celestial can be habitated
+            {
+                celestialView.find( '.celestial-actions-develop' ).on( 'click',
+                    function()
+                    {
+                        build.develop( sector, celestial );
+                    }
+                );
+            }
+            else // …but the celestial cannot be habitated
+            {
+                celestialView.find( '.celestial-actions-develop' ).remove();
+            }
+            celestialView.find( '.celestial-actions-build' ).remove();
         }
         else
+        if( celestial.habitated_by != world.game.empire.url ) // the celestial is habitated by a different player
         {
-            celestialView.find( '.celestial-options' ).on( 'click',
+            celestialView.find( '.celestial-actions-develop' ).remove();
+            celestialView.find( '.celestial-actions-build' ).remove();
+        }
+        else // the celestial is habitated by the player
+        {
+            celestialView.find( '.celestial-actions-develop' ).remove();
+            celestialView.find( '.celestial-actions-build' ).on( 'click',
                 function()
                 {
                     build.openMenu( sector, celestial );
@@ -93,7 +124,7 @@ function sector( api, world, build )
         {
             for( const construction of data )
             {
-                if( !( construction.celestial in Object.keys( constructions ) ) )
+                if( !Object.keys( constructions ).includes( construction.celestial ) )
                 {
                     constructions[ construction.celestial ] = []
                 }
@@ -112,7 +143,6 @@ function sector( api, world, build )
                 {
                     if( $( '#sector-view' ).length )
                     {
-                        $( '#sector-view' ).hide();
                         world.events.hex_field_click.push( function( x, y, sectorUrl )
                         {
                             /* Show or hide the sector view, depending on whether the clicked hex field is a sector
@@ -127,7 +157,7 @@ function sector( api, world, build )
                                      */
                                     for( const celestial of sector.celestial_set )
                                     {
-                                        celestial.constructions = constructions[ celestial.url ];
+                                        celestial.constructions = Object.keys( constructions ).includes( celestial.url ) ? constructions[ celestial.url ] : [];
                                         createCelestialView( sector, celestial );
                                     }
 

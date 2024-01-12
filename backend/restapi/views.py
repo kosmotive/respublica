@@ -8,6 +8,7 @@ from rest_framework import permissions, views, viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from restapi.permissions import IsObjectOwner
 from restapi.serializers import (
     UserSerializer,
     LoginSerializer,
@@ -19,6 +20,7 @@ from restapi.serializers import (
     UnveiledSerializer,
 
     EmpireSerializer,
+    PrivateEmpireSerializer,
     BlueprintSerializer,
     ConstructionSerializer,
     ShipSerializer,
@@ -87,7 +89,7 @@ class MovableViewSet(viewsets.ReadOnlyModelViewSet):
         context['depth'] = int(self.request.query_params.get('depth', 0))
         return context
 
-    @action(detail = True, methods = ['post'])
+    @action(detail = True, methods = ['post'], permission_classes = [permissions.IsAuthenticated, IsObjectOwner])
     def move_to(self, request, pk = None):
         movable = self.get_object()
         x = request.data['x']
@@ -127,6 +129,20 @@ class CelestialViewSet(viewsets.ReadOnlyModelViewSet):
             position_y = models.OuterRef('sector__position_y'))
         return Celestial.objects.filter(models.Exists(unveiled_qs))
 
+    @action(detail = True, methods = ['post'], permission_classes = [permissions.IsAuthenticated])
+    def colonize(self, request, pk = None):
+        celestial = self.get_object()
+        empire    = request.user.empire
+        movable   = Movable.objects.get(**resolve(urlparse(request.data['movable']).path).kwargs) if len(request.data.get('movable', '')) > 0 else None
+        process   = celestial.colonize(empire, movable)
+        assert process is not None
+        if movable is not None:
+            serializer = MovableSerializer(movable, context = dict(request = request))
+            return Response(serializer.data)
+        else:
+            serializer = ProcessSerializer(process, context = dict(request = request))
+            return Response(serializer.data)
+
 
 class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
 
@@ -137,9 +153,16 @@ class UnveiledViewSet(viewsets.ReadOnlyModelViewSet):
         return Unveiled.objects.filter(by_whom__player = self.request.user)
 
 
-class EmpireViewSet(viewsets.ReadOnlyModelViewSet):
+class EmpireViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
+    queryset = Empire.objects.all()
     serializer_class = EmpireSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class PrivateEmpireViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+
+    serializer_class = PrivateEmpireSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -181,7 +204,13 @@ class ShipViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.Destr
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Ship.objects.filter(blueprint__empire__player = self.request.user)
+        unveiled_qs = Unveiled.objects.filter(
+            by_whom__player = self.request.user,
+            position_x = models.OuterRef('movable__position_x'),
+            position_y = models.OuterRef('movable__position_y'))
+        qs_unveiled = Ship.objects.filter(models.Exists(unveiled_qs))
+        qs_owned = Ship.objects.filter(blueprint__empire__player = self.request.user)
+        return qs_unveiled | qs_owned
 
 
 class ProcessViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

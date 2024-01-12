@@ -9,4 +9,4 @@ cd backend
 python manage.py runserver
 ```
 
-See `backend/README.md` for details on handling the backend.
+See `backend/README.md` for details on backend management.

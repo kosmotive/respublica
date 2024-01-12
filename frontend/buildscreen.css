@@ -42,7 +42,7 @@
   cursor: pointer;
 }
 
-#buildscreen .container .content .content-row {
+#buildscreen:not(.hide-options.hide-constructions) .container .content .content-row {
   margin-bottom: 1rem;
 }
 
@@ -57,7 +57,6 @@
   width: 50%;
   display: inline-block;
   box-sizing: border-box;
-  height: 10rem;
 }
 
 #buildscreen .container .content .content-column:first-child {
@@ -68,18 +67,27 @@
   padding-left: 1rem;
 }
 
+#buildscreen.hide-options .container .content .build-options {
+  display: none;
+}
+
+#buildscreen.hide-constructions .container .content .constructions {
+  display: none;
+}
+
 #buildscreen .container .content .build-options-list,
 #buildscreen .container .content .constructions-list {
   list-style-type: none;
   padding: 0;
+  margin-bottom: 0;
 }
 
 #buildscreen .container .content .build-options-list .build-option,
 #buildscreen .container .content .constructions-list .construction {
   background-color: white;
-  border-radius: 2em;
+  border-radius: 0.7em;
   padding: 0.5em 1em 0.5em 1em;
-  margin-bottom: 0.3em;
+  margin-bottom: 0.5em;
 }
 
 #buildscreen .container .content .build-options-list .build-option:last-child,
@@ -87,13 +95,48 @@
   margin-bottom: 0;
 }
 
-#buildscreen .container .content .build-options-list .build-option:hover,
-#buildscreen .container .content .constructions-list .construction:hover {
+#buildscreen .container .content .build-options-list .build-option:not(.requirements-not-satisfied):hover {
   background-color: floralwhite;
   cursor: pointer;
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-cost:before,
+#buildscreen .container .content .build-options-list .build-option .build-option-size:before,
+#buildscreen .container .content .constructions-list .construction .construction-size:before {
+  margin-left: 0.3em;
+  margin-right: 0.2em;
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-cost:before {
+  content: '\23F1 ';
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-size:before,
+#buildscreen .container .content .constructions-list .construction .construction-size:before {
+  content: '\2302 ';
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-requirements {
+  font-size: 0.8em;
+  display: block;
+}
+
+#buildscreen .container .content .build-options-list .build-option.requirements-not-satisfied .build-option-requirements {
+  color: red;
+}
+
+#buildscreen .container .content .build-options-list .build-option .build-option-requirements:before {
+  content: 'Requires: ';
+  font-weight: bold;
+}
+
+#build-option-template,
+#construction-template {
+  display: none;
 }
 
 #buildscreen .container .content .build-process-info {
   font-size: 0.8rem;
   background-color: white;
+  padding: 0.5rem;
 }

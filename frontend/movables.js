@@ -14,8 +14,9 @@ function movables( api, world )
             type: 'POST',
             url: selectedMovable.url + 'move_to/',
             contentType: 'application/json',
-            data: `{"x":${x}, "y":${y}}`,
+            data: `{"x": ${ x }, "y": ${ y }}`,
             beforeSend: api.augmentRequestWithCSRFToken,
+            ignore403: true,
             success: function( data )
             {
                 delete data.ship_set;
@@ -28,40 +29,123 @@ function movables( api, world )
         return false;
     }
 
+    /* Dispatch "colonize" action for the selected movable (if any).
+     */
+    function colonize( celestial )
+    {
+        if( !selectedMovable ) return;
+        $.ajax({
+            type: 'POST',
+            url: celestial.url + 'colonize/',
+            contentType: 'application/json',
+            data: `{"movable": "${ selectedMovable.url }"}`,
+            beforeSend: api.augmentRequestWithCSRFToken,
+            ignore403: true,
+            success: function( data )
+            {
+                delete data.ship_set;
+                Object.assign( selectedMovable, data );
+                updateMovableView( selectedMovable );
+                world.showTrajectory( selectedMovable );
+            }
+        });
+    }
+
     /* Creates a new movable view.
      */
     function createMovableView( movable )
     {
+        const color = world.empires[ movable.owner ].color;
         const movableView = $( '#movable-template' ).clone();
         movableView.appendTo( $( '#movables-view .movables-list' ) );
         movableView.attr( 'id', '' );
         movableView.attr( 'url', movable.url );
-        movableView.find( '.movable-name' ).text( '★ ' + movable.name );
-        movableView.on( 'click',
-            function()
-            {
-                if( selectedMovable && selectedMovable.url == movable.url ) return;
-                $( '#movables-view .movables-list .movable-active' ).removeClass( 'movable-active' );
-                movableView.addClass( 'movable-active' );
-                selectedMovable = movable;
-                world.showTrajectory( selectedMovable );
-            }
-        );
-        movableView.find( '.action-move' ).on( 'click',
-            function()
-            {
-                if( $( this ).hasClass( 'action-toggled' ) )
+        movableView.find( '.movable-name' ).text( movable.name );
+        movableView.css( 'border-color', color );
+        movableView.find( '.movable-icon' ).css( 'background-color', color );
+        if( movable.owner == world.game.empire.url )
+        {
+            /* Select the movable on click.
+             */
+            movableView.on( 'click',
+                function()
                 {
-                    $( this ).removeClass( 'action-toggled' );
-                    world.events.hex_field_click.pop( moveTo );
+                    if( selectedMovable && selectedMovable.url == movable.url ) return;
+                    $( '#movables-view .movables-list .movable-active' ).removeClass( 'movable-active' );
+                    movableView.addClass( 'movable-active' );
+                    selectedMovable = movable;
+                    world.showTrajectory( selectedMovable );
                 }
-                else
+            );
+
+            /* Activate movement mode when "Move" button is clicked.
+             */
+            movableView.find( '.action-move' ).on( 'click',
+                function()
                 {
-                    $( this ).addClass( 'action-toggled' );
-                    world.events.hex_field_click.push( moveTo );
+                    if( $( this ).hasClass( 'action-toggled' ) )
+                    {
+                        $( this ).removeClass( 'action-toggled' );
+                        world.events.hex_field_click.pop( moveTo );
+                    }
+                    else
+                    {
+                        $( this ).addClass( 'action-toggled' );
+                        world.events.hex_field_click.push( moveTo );
+                    }
+                }
+            );
+
+            /* Check whether a colony-ship is included.
+             */
+            if( movable.ship_set.some( ( ship ) => { return ship.type_id == 'ships/colony-ship'; } ) )
+            {
+                /* Check whether the sector contains a celestial suitable for colonization.
+                 */
+                const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
+                if( sector )
+                {
+                    const owners = world.getHexOwners( sector.position[ 0 ], sector.position[ 1 ] )
+                    if( owners.length == 0 || ( owners.length == 1 && owners[ 0 ].url == world.game.empire.url ) )
+                    {
+                        const isUnhabitated = sector.celestial_set.every( ( c ) => { return c.habitated_by === null; } );
+                        const habitableCelestials = sector.celestial_set.filter( ( c ) => { return c.features.capacity > 0; } );
+                        if( isUnhabitated && habitableCelestials.length )
+                        {
+                            /* Build menu of available celestials for colonization.
+                             */
+                            const celestialMenu = movableView.find( '.action-colonize .popup' );
+                            movableView.addClass( 'can-colonize' );
+                            celestialMenu.find( '.action-list' ).empty();
+                            for( const celestial of habitableCelestials )
+                            {
+                                const action = $( `<li class="action">${ world.getCelestialName( sector, celestial ) }</li>` );
+                                action.appendTo( celestialMenu.find( '.action-list' ) );
+                                action.on( 'click',
+                                    function()
+                                    {
+                                        colonize( celestial );
+                                    }
+                                );
+                            }
+
+                            /* Show the menu.
+                             */
+                            movableView.find( '.action-colonize' ).on( 'click',
+                                function()
+                                {
+                                    celestialMenu.popup();
+                                }
+                            );
+                        }
+                    }
                 }
             }
-        );
+        }
+        else
+        {
+            movableView.addClass( 'foreign' );
+        }
 
         const shipTemplate = movableView.find( '#ship-template' ).clone();
         for( const ship of movable.ship_set )
@@ -69,7 +153,7 @@ function movables( api, world )
             const shipView = shipTemplate.clone();
             shipView.attr( 'id', '' );
             shipView.appendTo( movableView.find( '.ship-list' ) );
-            shipView.text( ship.blueprint.data.name );
+            shipView.text( ship.type );
         }
         shipTemplate.remove();
 
@@ -82,22 +166,40 @@ function movables( api, world )
     function updateMovableView( movable )
     {
         const movableView = $( `.movable[url="${ movable.url }"]` );
-        if( JSON.stringify( movable.destination ) == JSON.stringify( movable.position ) )
-        {
-            movableView.find( '.movable-status' ).text( 'Standing by.' );
-        }
-        else
+        if( movable.process )
         {
             movableView.find( '.movable-status' ).html( '&nbsp;' );
             $.get( movable.process,
                 function( process )
                 {
-                    const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
                     var turns = process.end_tick - world.game.tick;
                     turns = turns == 1 ? `${ turns } turn` : `${ turns } turns`;
-                    movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
+
+                    switch( process.handler_id )
+                    {
+
+                    case 'MovementHandler':
+                        const destination = world.getHexField( movable.destination[ 0 ], movable.destination[ 1 ] ).attr( 'name' );
+                        movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Heading to <b>${ destination }</b>.</span> <span class="movable-status-line">Next jump in <b>${ turns }</b>.</span>` );
+                        break;
+
+                    case 'ColonizationHandler':
+                        const sector = world.getSector( movable.position[ 0 ], movable.position[ 1 ] );
+                        const celestial = sector.celestial_set.find( ( c ) => { return c.url == process.data.celestial_url; } );
+                        const celestialName = world.getCelestialName( sector, celestial );
+                        movableView.find( '.movable-status' ).html( `<span class="movable-status-line">Colonizing <b>${ celestialName }</b></span> <span class="movable-status-line">in <b>${ turns }</b>.</span>` );
+                        break;
+
+                    default:
+                        console.log( `Unknown process handler: "${ process.handler_id }"` );
+
+                    }
                 }
             );
+        }
+        else
+        {
+            movableView.find( '.movable-status' ).text( 'Standing by.' );
         }
     }
 
@@ -107,7 +209,6 @@ function movables( api, world )
     {
         if( $( '#movables-view' ).length )
         {
-            $( '#movables-view' ).hide();
             world.events.hex_field_click.push( function( x, y, sectorUrl )
             {
                 selectedMovable = null;
@@ -126,10 +227,15 @@ function movables( api, world )
                         createMovableView( movable );
                     }
 
-                    $( '#movables-view' ).fadeIn( 200 );
+                    $( '#movables-view' ).fadeIn( 200, function()
+                        {
+                            $( 'body' ).addClass( 'open-movables-view' );
+                        }
+                    );
                 }
                 else
                 {
+                    $( 'body' ).removeClass( 'open-movables-view' );
                     $( '#movables-view' ).fadeOut( 200 );
                 }
                 return true;

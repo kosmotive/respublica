@@ -1,7 +1,10 @@
 import random
 
+from django.db.models import F
+from django.db.models.functions import Sqrt, Power
 from django.contrib.auth.models import User
 
+from world import hexgrid
 from world.models import (
     World,
     Movable,
@@ -87,6 +90,7 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
     world_size = 2 * radius + 1
     for x, y in np.ndindex(world_size, world_size):
         if x ** 2 + y ** 2 > radius ** 2: continue
+        if not hexgrid.are_hex_coordinates((x, y)): continue
         if random.random() <= density:
 
             sector = create_sector(used_names, x, y)
@@ -95,7 +99,7 @@ def generate_world(radius, density, seed, exist_ok=False, tickrate=60):
     return world
 
 
-def generate_test_world(*args, **kwargs):
+def generate_test_world(*args, empire2 = False, **kwargs):
     world = generate_world(*args, **kwargs)
     user  = User.objects.create_user(
         username='testuser',
@@ -107,10 +111,11 @@ def generate_test_world(*args, **kwargs):
     # Create empire
     from game.models import Empire, Blueprint, Ship
     empire = Empire.objects.create(
-        name     = 'Foos',
-        player   = user,
-        origin_x = celestial.sector.position_x,
-        origin_y = celestial.sector.position_y)
+        name      = 'Foos',
+        player    = user,
+        origin_x  = celestial.sector.position_x,
+        origin_y  = celestial.sector.position_y,
+        color_hue = 0.58)
 
     celestial.habitated_by = empire
     celestial.save()
@@ -127,3 +132,32 @@ def generate_test_world(*args, **kwargs):
 
     # Unveil the neighborhood
     Unveiled.unveil(empire, celestial.sector.position, 1)
+
+    # Optionally, create a second empire
+    if empire2:
+
+        # Determine closest celestial in other sector
+        celestial2 = Celestial.objects.exclude(sector = celestial.sector).filter(features__capacity__gte = 1).annotate(
+            dist_x = F('sector__position_x') - celestial.sector.position_x,
+            dist_y = F('sector__position_y') - celestial.sector.position_y).annotate(
+                dist = Sqrt(Power('sector__position_x', 2) + Power('sector__position_y', 2))
+            ).order_by('dist')[0]
+
+        empire2 = Empire.objects.create(
+            name      = 'Bars',
+            player    = None,
+            origin_x  = celestial2.sector.position_x,
+            origin_y  = celestial2.sector.position_y,
+            color_hue = (empire.color_hue + 0.5) % 1)
+
+        celestial2.habitated_by = empire2
+        celestial2.save()
+
+        ship = Ship.objects.create(
+            blueprint = Blueprint.objects.get(
+                empire = empire2,
+                base_id = 'ships/colony-ship'),
+            movable = Movable.objects.create(
+                name = 'Group 1',
+                position_x = celestial2.sector.position_x,
+                position_y = celestial2.sector.position_y))

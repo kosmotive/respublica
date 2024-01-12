@@ -3,9 +3,13 @@
 
 <title>respublica</title>
 
+<script src="libs/seedrandom/seedrandom-2.3.10.js"></script>
 <script src="libs/jquery/jquery-3.7.1.min.js"></script>
-<script src="app.js"></script>
 
+<script src="popups.js"></script>
+<link rel="stylesheet" href="popups.css">
+
+<script src="app.js"></script>
 <link rel="stylesheet" href="base.css">
 <link rel="stylesheet" href="world.css">
 <link rel="stylesheet" href="sector.css">
@@ -14,6 +18,12 @@
 
 </head>
 <body>
+
+<svg id="svg-definitions">
+    <pattern id="svg-pattern-hex-field-hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)" y="1">
+        <path d="M 0,2 l 4,0" stroke="silver" stroke-width="0.5" />
+    </pattern>
+</svg>
 
 <header>
     <div class="display">
@@ -24,10 +34,19 @@
         <b>Remaining:</b>
         <span id="remaining-time"></span>
     </div>
-    <div class="display-spacer"></div>
-    <div class="display" style="font-size: 0.7em; line-height: 0.9em; position: absolute; right: 1rem;">
-        <a href="https://github.com/kostrykin/respublica" target="_blank"><b>Contributions welcome</b><br>on github.com</a>
+    <div class="display" id="display-player">
+        <div id="player-color-indicator"></div>
+        <span id="player-empire-name"></span>
     </div>
+    <div class="display-spacer"></div>
+    <div class="display" style="display: flex; margin-right: 1rem;"><a href="https://github.com/kostrykin/respublica" target="_blank" style="display: flex;">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" style="float: left; margin-right: 0.5rem; aspect-ratio: 1; height: 1.2rem;" viewBox="0 0 16 16">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+        </svg>
+        <span style="font-size: 0.7em; line-height: 0.9em;">
+            <b>Contribute</b><br>on github.com
+        </span>
+    </a></div>
 </header>
 
 <div id="world-version">
@@ -36,6 +55,9 @@
     (<span id="world-version-date"></span>)
 </div>
 
+<div id="hex-map-loading-screen">
+    Loading&mldr;
+</div>
 <div id="hex-map-container">
     <div id="hex-map" x="0" y="0">
         <svg id="trajectory">
@@ -57,11 +79,8 @@
             <!-- Background -->
             <svg height="100%" width="100%" viewbox="-2 -2 104 104">
                 <a href="#">
-                <pattern id="hatch" patternUnits="userSpaceOnUse" width="2" height="2" patternTransform="rotate(-26.5 0 0)" y="1">
-                    <path d="M 0,2 l 4,0" stroke="gray" stroke-width="0.3" class="hex-field-hatch" />
-                </pattern>
                 <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" fill="none" class="hex-field-background" />
-                <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#hatch)" stroke-width="4" class="hex-field-pattern hex-field-stroke" />
+                <polygon points="50 0,100 25,100 75, 50 100,0 75,0 25" stroke="whitesmoke" fill="url(#svg-pattern-hex-field-hatch)" stroke-width="4" class="hex-field-pattern hex-field-stroke" />
                 </a>
             </svg>
 
@@ -69,197 +88,37 @@
             <div class="hex-field-name"></div>
             <ul class="hex-field-movables"></ul>
 
-            <!-- Star icons -->
-            <svg class="sector-star sector-star-mainline" height="30%" width="30%" viewbox="0 0 100 100">
-                <defs>
-                    <mask id="flares">
-                        <rect width="100%" height="100%" fill="white"/>
-                        <circle r="50" cx=  "0" cy=  "0" fill="black"/>
-                        <circle r="50" cx=  "0" cy="100" fill="black"/>
-                        <circle r="50" cx="100" cy="100" fill="black"/>
-                        <circle r="50" cx="100" cy=  "0" fill="black"/>
-                    </mask>
-                    <filter id="blur">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-                    </filter>
-                </defs>
-                <circle cx="50" cy="50" r="20" fill="black" filter="url(#blur)" />
-                <g transform="scale(1 0.5) translate(0 50)">
-                    <circle cx="50" cy="50" r="50" mask="url(#flares)" />
-                </g>
-                <circle cx="50" cy="50" r="15" fill="white" class="star-brush" />
-            </svg>
-            <svg class="sector-star sector-star-white-dwarf" height="30%" width="30%" viewbox="0 0 100 100">
-                <defs>
-                    <mask id="flares">
-                        <rect width="100%" height="100%" fill="white"/>
-                        <circle r="50" cx=  "0" cy=  "0" fill="black"/>
-                        <circle r="50" cx=  "0" cy="100" fill="black"/>
-                        <circle r="50" cx="100" cy="100" fill="black"/>
-                        <circle r="50" cx="100" cy=  "0" fill="black"/>
-                    </mask>
-                    <filter id="blur">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-                    </filter>
-                </defs>
-                <circle cx="50" cy="50" r="20" fill="black" filter="url(#blur)" class="star-brush" />
-                <g transform="scale(0.6 0.6) translate(33 33)">
-                    <circle cx="50" cy="50" r="50" mask="url(#flares)" />
-                </g>
-                <circle cx="50" cy="50" r="15" fill="white" class="star-brush" />
-            </svg>
-            <svg class="sector-star sector-star-red-giant" height="30%" width="30%" viewbox="0 0 100 100">
-                <defs>
-                    <filter id="blur">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
-                    </filter>
-                </defs>
-                <circle cx="50" cy="50" r="20" fill="black" filter="url(#blur)" class="star-brush" />
-                <circle cx="50" cy="50" r="15" fill="firebrick" class="star-brush" />
-            </svg>
+            <!-- Star icon -->
+            <img width="30%" height="30%" class="sector-star sector-star-none" />
         </div>
     
     </div>
 </div>
 
-<div id="sector-view">
+<div id="sector-view" style="display: none;">
     <div class="celestial" id="celestial-template">
 
-        <!-- Star icons -->
-        <svg class="celestial-star celestial-star-mainline" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="surface1" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="15"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="33" fill="orange" filter="url(#surface)" class="star-brush" />
-            <circle cx="45" cy="45" r="30" stroke="black" stroke-width="5" fill="none" filter="url(#corona)" />
-        </svg>
-        <svg class="celestial-star celestial-star-white-dwarf" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="SourceGraphic" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="10"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="28" fill="white" filter="url(#surface)" />
-            <circle cx="47" cy="47" r="25" stroke="black" stroke-width="2" fill="none" filter="url(#corona)" />
-        </svg>
-        <svg class="celestial-star celestial-star-red-giant" viewbox="0 0 100 100">
-            <defs>
-                <filter id="surface">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" result="surface1" />
-                    <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="surface2" />
-                    <feBlend in="surface1" in2="surface2" mode="color-dodge" />
-                </filter>
-                <filter id="corona" x="0%" y="0%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.15"
-                        numOctaves="1"
-                        result="turbulence" />
-                    <feDisplacementMap
-                        in2="turbulence"
-                        in="SourceGraphic"
-                        result="DisplacedGraphic"
-                        scale="15"
-                        xChannelSelector="R"
-                        yChannelSelector="G" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="40" fill="firebrick" filter="url(#surface)" />
-            <circle cx="45" cy="45" r="40" stroke="black" stroke-width="7" fill="none" filter="url(#corona)" />
-        </svg>
+        <!-- Star icon -->
+        <img class="celestial-star" />
 
         <!-- Planet icons -->
-        <svg class="celestial-planet" viewbox="0 0 100 100">
-            <defs>
-                <radialGradient id="sphere" cx="80%">
-                    <stop offset="30%" stop-color="brown" />
-                    <stop offset="100%" stop-color="black" />
-                </radialGradient>
-                <filter id="surface" x="-10%" y="-10%">
-                    <feTurbulence
-                        type="turbulence"
-                        baseFrequency="0.2"
-                        numOctaves="2"
-                        result="turbulence" />
-                    <feComposite operator="in" in="turbulence" in2="SourceGraphic" result="clouds" />
-                    <feColorMatrix
-                        in="clouds"
-                        result="gray_clouds"
-                        type="saturate"
-                        values="0" />
-                    <feBlend in="SourceGraphic" in2="gray_clouds" mode="multiply" />
-                </filter>
-            </defs>
-            <circle cx="50" cy="50" r="15" fill="url(#sphere)" filter="url(#surface)" stroke="black" stroke-width="1" />
-        </svg>
+        <img class="celestial-planet" src="img/celestial-planet.svg" />
 
         <!-- Others -->
         <div class="celestial-habitated">Habitated</div>
         <div class="celestial-name"></div>
         <ul class="celestial-features"></ul>
-        <ul class="celestial-options action-list"><li class="action">Production</li></ul>
+        <ul class="celestial-options action-list">
+            <li class="action celestial-actions-develop">Develop</li>
+            <li class="action celestial-actions-build">Production</li>
+        </ul>
     </div>
 </div>
 
-<div id="movables-view">
+<div id="movables-view" style="display: none;">
     <ul class="movables-list">
         <li class="movable" id="movable-template">
-            <div class="movable-name"></div>
+            <div class="movable-header"><span class="movable-icon">&starf;</span><span class="movable-name"></span></div>
             <div class="movable-status"></div>
             <ul class="ship-list">
                 <li class="ship" id="ship-template">
@@ -269,12 +128,19 @@
                 <li class="action action-move">
                     Move
                 </li>
+                <li class="action action-colonize">
+                    Colonize
+                    <div class="popup">
+                        <ul class="action-list">
+                        </ul>
+                    </div>
+                </li>
             </ul>
         </li>
     </ul>
 </div>
 
-<div id="buildscreen">
+<div id="buildscreen" style="display: none;">
     <div class="container">
         <div class="celestial-name">Name</div>
         <div class="content">
@@ -295,17 +161,27 @@
 
             <div class="columns">
 
-                <div class="content-column">
+                <div class="content-column build-options">
                     <b>Build options:</b>
                     <ul class="build-options-list">
                         <li>No build options</li>
+                        <li class="build-option" id="build-option-template">
+                            <span class="build-option-name"></span>
+                            <span class="build-option-cost"></span>
+                            <span class="build-option-size"></span>
+                            <span class="build-option-requirements"></span>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="content-column">
+                <div class="content-column constructions">
                     <b>Constructions:</b>
                     <ul class="constructions-list">
                         <li>No constructions</li>
+                        <li class="construction" id="construction-template">
+                            <span class="construction-name"></span>
+                            <span class="construction-size"></span>
+                        </li>
                     </ul>
                 </div>
 

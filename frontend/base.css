@@ -9,6 +9,11 @@ body {
   font-family: "Gill Sans", sans-serif;
 }
 
+#svg-definitions {
+  width: 0;
+  height: 0;
+}
+
 header {
   background-color: dimgrey;
   color: white;
@@ -28,8 +33,11 @@ header .display-spacer {
 
 header .display {
   display: inline-block;
-  margin-left: 1rem;
+  margin-left: 2rem;
   white-space: nowrap;
+}
+header .display:first-child {
+  margin-left: 1rem;
 }
 
 header .display a,
@@ -62,4 +70,16 @@ header .display a:hover {
 
 .action-list .action-toggled {
   color: red;
+}
+
+#display-player {
+  display: none;
+}
+
+#player-color-indicator {
+  width: 2rem;
+  height: 1rem;
+  display: inline-block;
+  vertical-align: middle;
+  border: 1px solid white;
 }

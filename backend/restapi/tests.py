@@ -79,17 +79,29 @@ class BaseRestTest(APITestCase):
 
     def test_different_user(self):
         self.client.logout()
-        User.objects.create_user(
+        user = User.objects.create_user(
             username='testuser2',
             password='password')
+        self.setup_different_user_test(user)
         self.client.login(username='testuser2', password='password')
 
         # Check forbidden access to details
         response = self.client.get(self.object_url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.check_different_user_detail_response(response)
 
         # Check no appearance in list
         response = self.client.get(self.list_url, format='json')
+        self.check_different_user_list_response(response)
+
+        return user
+
+    def setup_different_user_test(self, user):
+        pass
+
+    def check_different_user_detail_response(self, response):
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def check_different_user_list_response(self, response):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
@@ -120,12 +132,8 @@ class MovableTest(BaseRestTest):
     test_delete = False
 
     @property
-    def movable(self):
-        return Movable.objects.get()
-
-    @property
     def move_to_url(self):
-        return reverse('movable-move-to', kwargs = dict(pk = self.movable.pk))
+        return reverse('movable-move-to', kwargs = dict(pk = self.object.pk))
 
     def expected_details(self, objects):
         return [
@@ -149,15 +157,34 @@ class MovableTest(BaseRestTest):
     def test_move_to(self):
         response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(normalize(response.data), normalize(self.expected_details([self.movable])[0]))
+        self.assertEqual(normalize(response.data), normalize(self.expected_details([self.object])[0]))
         self.test_detail()
 
-    def test_different_user(self):
-        super(MovableTest, self).test_different_user()
+    def setup_different_user_test(self, user):
+        blocked_planet = Empire.objects.get().habitat.get()
+        celestial = Celestial.objects.exclude(sector = blocked_planet.sector).filter(features__capacity__gte = 1).all()[0]
+        empire = Empire.objects.create(
+            name      = 'Bars',
+            player    =  user,
+            origin_x  =  celestial.sector.position[0],
+            origin_y  =  celestial.sector.position[1],
+            color_hue =  0)
+        celestial.habitated_by = empire
+        celestial.save()
 
-        # Check forbidden access to "move_to" action
+    def test_different_user(self):
+        user = super(MovableTest, self).test_different_user()
+
+        # Check for 404 when using "move_to" action on a non-unveiled object
         response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        # Unveil the object
+        Unveiled.objects.create(by_whom = user.empire, position_x = self.object.position_x, position_y = self.object.position_y)
+
+        # Check forbidden access to "move_to" action on a foreign unveiled object
+        response = self.client.post(self.move_to_url, dict(x = -3, y = +1), format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class SectorTest(BaseRestTest):
@@ -204,9 +231,41 @@ class CelestialTest(BaseRestTest):
                 'position': obj.position,
                 'features': obj.features,
                 'habitated_by': None if obj.habitated_by is None else reverse('empire-detail', kwargs = dict(pk = obj.habitated_by.pk)),
+                'remaining_capacity': obj.remaining_capacity,
             }
             for obj in objects
         ]
+
+    @property
+    def colonize_url(self):
+        return reverse('celestial-colonize', kwargs = dict(pk = self.object.pk))
+
+    def test_colonize_intrasector(self):
+        from world.models import Celestial
+
+        # Add already habitated celestial to the same sector
+        sector = self.object.sector
+        celestial2 = Celestial.objects.create(sector = sector, position = len(sector.celestial_set.all()), habitated_by = Empire.objects.get(), features = dict(capacity = 10))
+
+        # Test the endpoint
+        response = self.client.post(self.colonize_url, dict(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(ProcessTest().expected_details([Process.objects.get()])[0]))
+
+    def test_colonize_intersector(self):
+        from game.models import Empire, Ship, Blueprint
+        from world.models import Movable
+
+        # Add colony-ship to the same sector
+        ship = Ship.objects.create(
+            blueprint = Blueprint.objects.get(empire = Empire.objects.get(), base_id = 'ships/colony-ship'),
+            movable   = Movable.objects.create(position_x = self.object.sector.position_x, position_y = self.object.sector.position_y))
+        movable_url = reverse('movable-detail', kwargs = dict(pk = ship.movable.pk))
+
+        # Test the endpoint
+        response = self.client.post(self.colonize_url, dict(movable = movable_url), format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(normalize(response.data), normalize(MovableTest().expected_details([ship.movable])[0]))
 
 
 class UnveiledTest(BaseRestTest):
@@ -229,12 +288,31 @@ class EmpireTest(BaseRestTest):
 
     model = Empire
     test_delete = False
+    test_detail = False
+    test_different_user = False
 
     def expected_details(self, objects):
         return [
             {
                 'url': reverse('empire-detail', kwargs = dict(pk = obj.pk)),
                 'name': obj.name,
+                'territory': obj.territory.explicit(),
+                'color_hue': obj.color_hue,
+            }
+            for obj in objects
+        ]
+
+
+class PrivateEmpireTest(BaseRestTest):
+
+    model = Empire
+    test_delete = False
+    test_list = False
+
+    def expected_details(self, objects):
+        return [
+            base |
+            {
                 'habitat': [
                     reverse('celestial-detail', kwargs = dict(pk = celestial.pk)) for celestial in obj.habitat.all()
                 ],
@@ -244,14 +322,28 @@ class EmpireTest(BaseRestTest):
                 'movables': [
                     reverse('movable-detail', kwargs = dict(pk = process.pk)) for process in obj.movables.all()
                 ],
-                'territory': obj.territory.explicit(),
                 'origin': obj.origin,
                 'blueprint_set': [
                     reverse('blueprint-detail', kwargs = dict(pk = blueprint.pk)) for blueprint in obj.blueprint_set.all()
                 ],
             }
-            for obj in objects
+            for obj, base in zip(objects, EmpireTest().expected_details(objects))
         ]
+
+    def setup_different_user_test(self, user):
+        blocked_planet = Empire.objects.get().habitat.get()
+        celestial = Celestial.objects.exclude(sector = blocked_planet.sector).filter(features__capacity__gte = 1).all()[0]
+        empire = Empire.objects.create(
+            name      = 'Bars',
+            player    =  user,
+            origin_x  =  celestial.sector.position[0],
+            origin_y  =  celestial.sector.position[1],
+            color_hue =  0)
+        celestial.habitated_by = empire
+        celestial.save()
+
+    def check_different_user_list_response(self, response):
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class BlueprintTest(BaseRestTest):
@@ -278,6 +370,7 @@ class BlueprintTest(BaseRestTest):
                 'base_id': obj.base_id,
                 'empire': reverse('empire-detail', kwargs = dict(pk = obj.empire.pk)),
                 'data': obj.data,
+                'requirements': obj.requirements,
             }
             for obj in objects
         ]
@@ -344,6 +437,8 @@ class ShipTest(BaseRestTest):
                 'blueprint': reverse('blueprint-detail', kwargs = dict(pk = obj.blueprint.pk)),
                 'movable': reverse('movable-detail', kwargs = dict(pk = obj.movable.pk)),
                 'owner': reverse('empire-detail', kwargs = dict(pk = obj.owner.pk)),
+                'type_id': obj.type_id,
+                'type': obj.type,
             }
             for obj in objects
         ]
@@ -374,6 +469,12 @@ class ProcessTest(BaseRestTest):
                 data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
             if handler_id == 'MovementHandler':
                 data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
+            if handler_id == 'ColonizationHandler':
+                data['celestial_url'] = reverse(f'celestial-detail', kwargs = dict(pk = data.pop('celestial_id')))
+                data['empire_url'] = reverse(f'empire-detail', kwargs = dict(pk = data.pop('empire_id')))
+                if 'movable_id' in data.keys():
+                    # Inter-sector colonization (using a colony ship)
+                    data['movable_url'] = reverse(f'movable-detail', kwargs = dict(pk = data.pop('movable_id')))
             return data
         return [
             {

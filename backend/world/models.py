@@ -1,11 +1,18 @@
 import time
+import multiprocessing
 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import CheckConstraint, Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 import numpy as np
 
 from . import hexgrid
-from . import git 
+from . import git
+
+
+# Lock used to synchronize `world.do_pending_ticks` within a single process (transactions should prevent race conditions across processes)
+_world_lock = multiprocessing.Lock()
 
 
 class World(models.Model):
@@ -46,9 +53,14 @@ class World(models.Model):
         assert isinstance(pending_ticks, int)
         return pending_ticks
 
+    @transaction.atomic()
     def do_pending_ticks(self):
-        for _ in range(self.pending_ticks):
-            self.tick()
+        _world_lock.acquire()
+        try:
+            for _ in range(self.pending_ticks):
+                self.tick()
+        finally:
+            _world_lock.release()
 
     @property
     def remaining_seconds(self):
@@ -166,6 +178,11 @@ class Movable(Positionable):
         except Process.DoesNotExist:
             return None
 
+    @receiver(post_delete, sender = 'game.Ship')
+    def delete_if_empty(sender, instance, **kwargs):
+        if instance.movable.ship_set.count() == 0:
+            instance.movable.delete()
+
 
 class Sector(Positionable):
 
@@ -202,13 +219,17 @@ class Celestial(models.Model):
 
     @property
     def remaining_capacity(self):
-        occupied_capacity = sum((c.blueprint.size for c in self.construction_set.all()))
+        occupied_capacity = sum((c.blueprint.data.get('size') for c in self.construction_set.all()))
         return self.capacity - occupied_capacity
+
+    def colonize(self, empire, movable):
+        from processes.models import ColonizationHandler
+        return ColonizationHandler.create_process(World.objects.get().now, empire, self, movable)
 
 
 class Unveiled(Positionable):
 
-    by_whom = models.ForeignKey('game.Empire', on_delete = models.CASCADE)
+    by_whom = models.ForeignKey('game.Empire', on_delete = models.CASCADE, related_name = 'unveiled')
 
     class Meta:
         unique_together = ('position_x', 'position_y', 'by_whom')

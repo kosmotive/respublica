@@ -8,10 +8,18 @@ from game.blueprints import base_blueprints
 
 class Empire(models.Model):
 
-    name     = models.CharField(max_length = 100)
-    player   = models.OneToOneField('auth.User', on_delete=models.CASCADE)
-    origin_x = models.IntegerField();
-    origin_y = models.IntegerField();
+    name      = models.CharField(max_length = 100, unique = True)
+    player    = models.OneToOneField('auth.User', on_delete = models.SET_NULL, null = True)
+    origin_x  = models.IntegerField();
+    origin_y  = models.IntegerField();
+    color_hue = models.FloatField()
+
+    class Meta:
+        constraints = (
+            models.CheckConstraint(
+                check = models.Q(color_hue__gte = 0) & models.Q(color_hue__lte = 1),
+                name = 'color_hue_range'),
+            )
 
     @property
     def origin(self):
@@ -41,7 +49,7 @@ class Empire(models.Model):
                     Blueprint.objects.create(
                         base_id = f'{bp_type}/{bp_name}',
                         empire  = self,
-                        data    = {key: bp[key] for key in ['name', 'cost', 'speed'] if key in bp})
+                        data    = {key: bp[key] for key in ['name', 'cost', 'size', 'speed'] if key in bp})
 
     @property
     def movables(self):
@@ -65,21 +73,13 @@ class Blueprint(models.Model):
         return base_blueprints[bp_type][bp_name]
 
     @property
-    def cost(self):
-        return self.base['cost']
-
-    @property
-    def size(self):
-        return self.base.get('size', 0)
-
-    @property
     def requirements(self):
         return self.base.get('requirements', list())
 
     def requirements_ok(self, celestial):
         if celestial.habitated_by != self.empire:
             raise PermissionDenied()
-        if celestial.remaining_capacity < self.size:
+        if celestial.remaining_capacity < self.data.get('size', 0):
             return False
         for requirement in self.requirements:
             if celestial.construction_set.filter(blueprint__base_id = requirement).count() == 0:
@@ -107,3 +107,11 @@ class Ship(models.Model):
     @property
     def owner(self):
         return self.blueprint.empire
+
+    @property
+    def type_id(self):
+        return self.blueprint.base_id
+
+    @property
+    def type(self):
+        return self.blueprint.data['name']

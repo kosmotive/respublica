@@ -18,7 +18,6 @@ function login( api )
                     {
                         400: function( data )
                         {
-                            console.log( data.responseJSON );
                             for( const [key, value] of Object.entries( data.responseJSON ) )
                             {
                                 $( '#login-' + key + ' p' ).text( value );

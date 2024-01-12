@@ -29,9 +29,12 @@ function api( url )
         switch( jqXHR.status )
         {
             case 403:
-                if( config.redirect403 )
+                if( config.redirect403 && !settings.ignore403 )
                 {
-                    location.href = 'login.html';
+                    if( !location.href.endsWith( '/login.html' ) )
+                    {
+                        location.href = 'login.html';
+                    }
                     break;
                 }
     

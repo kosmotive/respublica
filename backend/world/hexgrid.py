@@ -18,8 +18,12 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 
 
+def are_hex_coordinates(c):
+    return np.sum(c) % 2 == 0
+
+
 def check_hex_coordinates(c):
-    assert np.sum(c) % 2 == 0, f'hex coordinates {tuple(c)} are invalid'
+    assert are_hex_coordinates(c), f'hex coordinates {tuple(c)} are invalid'
 
 
 def get_next_position_towards(position, destination, speed):

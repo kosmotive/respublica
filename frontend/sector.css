@@ -9,24 +9,32 @@
   z-index: 10;
   text-align: right;
   padding-right: 1rem;
+  white-space: nowrap;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  flex-direction: row-reverse;
+  display: flex;
+}
+
+body.open-movables-view #sector-view {
+  left: 15rem;
 }
 
 #sector-view .celestial {
   display: inline-block;
   position: relative;
   height: 100%;
+  text-align: center;
+  margin-left: 1rem;
 }
 
-#sector-view .celestial svg {
+#sector-view .celestial img {
   height: 60%;
   aspect-ratio: 1;
   filter: drop-shadow(0 0 0.15em black);
 }
 
 #sector-view .celestial .celestial-name {
-  position: absolute;
-  left: 0;
-  right: 0;
   text-align: center;
   font-weight: bold;
 }
@@ -42,13 +50,8 @@
 }
 
 #sector-view .celestial .celestial-features {
-  position: absolute;
-  left: 0;
-  right: 0;
-  text-align: center;
   list-style-type: none;
   margin: 0;
-  margin-top: 1.5em;
   padding: 0;
 }
 
