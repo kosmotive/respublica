@@ -7,3 +7,4 @@
 /backend/*/migrations
 __pycache__
 *.pyc
+.coverage
